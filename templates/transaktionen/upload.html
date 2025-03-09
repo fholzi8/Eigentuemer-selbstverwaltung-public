@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}- Datei-Upload{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Datei importieren</h1>
+    <a href="{{ url_for('transaktionen.liste') }}" class="btn btn-outline-secondary">Zurück zu Transaktionen</a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Banktransaktionen importieren</h5>
+    </div>
+    <div class="card-body">
+        <p class="mb-4">Importieren Sie Banktransaktionen aus CSV- oder Excel-Dateien. Die Anwendung versucht, die
+            Transaktionen automatisch zu kategorisieren.</p>
+
+        <form method="POST" action="{{ url_for('transaktionen.upload') }}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-4">
+                <label for="file" class="form-label">Datei auswählen</label>
+                <input class="form-control" type="file" id="file" name="file" accept=".csv, .xlsx, .xls" required>
+                <small class="form-text text-muted">Unterstützte Formate: CSV, XLSX, XLS (max. 16 MB)</small>
+            </div>
+
+            <div class="alert alert-info">
+                <h5 class="alert-heading">Hinweise zum Format:</h5>
+                <ul class="mb-0">
+                    <li>Die Datei sollte mindestens folgende Spalten enthalten: Datum, Beschreibung und Betrag</li>
+                    <li>Datumsspalte sollte im Format TT.MM.YYYY oder YYYY-MM-DD sein</li>
+                    <li>Beträge sollten mit Dezimalpunkt oder -komma formatiert sein (z.B. 123.45 oder 123,45)</li>
+                    <li>Ausgaben sollten als negative Zahlen dargestellt werden</li>
+                </ul>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Importieren</button>
+                <a href="{{ url_for('transaktionen.liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Unterstützte Banken</h5>
+    </div>
+    <div class="card-body">
+        <p>Die Anwendung kann Datenexporte der folgenden Banken direkt verarbeiten:</p>
+        <ul>
+            <li>Sparkasse (CSV-Export)</li>
+            <li>Commerzbank (CSV-Export)</li>
+            <li>Volksbank/Raiffeisenbank (CSV-Export)</li>
+            <li>Deutsche Bank (CSV-Export)</li>
+            <li>DKB (CSV-Export)</li>
+            <li>ING (CSV-Export)</li>
+            <li>Andere Banken (Standard-CSV mit den Spalten Datum, Beschreibung, Betrag)</li>
+        </ul>
+        <p class="mb-0">Wenn Ihre Bank nicht aufgeführt ist, können Sie trotzdem versuchen, die Daten zu importieren.
+            Die Anwendung versucht, die Spalten automatisch zu erkennen.</p>
+    </div>
+</div>
+{% endblock %}

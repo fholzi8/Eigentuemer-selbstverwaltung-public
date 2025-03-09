@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+
+{% block title %}- Neuen Benutzer anlegen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Neuen Benutzer anlegen</h1>
+    <a href="{{ url_for('settings.users_list') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Zurück
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6 mx-auto">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Benutzerdaten</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.user_new') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Benutzername</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+
+                    <!-- E-Mail-Adresse -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-Mail-Adresse</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                        <div class="form-text">E-Mail-Adresse für Benachrichtigungen und Passwort-Reset. Optional, kann
+                            später eingerichtet werden.</div>
+                    </div>
+
+                    <!-- Passwort mit Stärkeanzeige -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Passwort</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">
+                            Passwort-Anforderungen:
+                            <ul class="mb-0 ps-3">
+                                <li>Mindestens 8 Zeichen</li>
+                                <li>Mindestens ein Großbuchstabe</li>
+                                <li>Mindestens ein Kleinbuchstabe</li>
+                                <li>Mindestens eine Ziffer</li>
+                                <li>Mindestens ein Sonderzeichen (!@#$%^&*()_+-=[]{}|;:,.<>?/~`)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Benachrichtigungseinstellungen -->
+                    <div class="mb-3">
+                        <h6 class="mb-2">Benachrichtigungseinstellungen</h6>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="notify_transaction_changes"
+                                name="notify_transaction_changes" checked>
+                            <label class="form-check-label" for="notify_transaction_changes">
+                                Benachrichtigungen über Transaktionsänderungen
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="notify_wirtschaftsplan_changes"
+                                name="notify_wirtschaftsplan_changes" checked>
+                            <label class="form-check-label" for="notify_wirtschaftsplan_changes">
+                                Benachrichtigungen über Wirtschaftsplanänderungen
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="notify_user_changes"
+                                name="notify_user_changes" checked>
+                            <label class="form-check-label" for="notify_user_changes">
+                                Benachrichtigungen über Benutzeränderungen
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Admin-Rechte -->
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin">
+                        <label class="form-check-label" for="is_admin">Administrator-Rechte</label>
+                        <div class="form-text">Administratoren können alle Funktionen der Anwendung nutzen und haben
+                            vollen Zugriff auf alle Daten.</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus-fill me-1"></i>Benutzer erstellen
+                        </button>
+                        <a href="{{ url_for('settings.users_list') }}" class="btn btn-outline-secondary">Abbrechen</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}" src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- csrf-token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>WEG-Selbstverwaltung {% block title %}{% endblock %}</title>
+    <!-- faviicon.ico from favicon.io -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <!-- Bootstrap CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/static/css/styles.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+    {% if current_user.is_authenticated %}
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
+                <i class="bi bi-house-door-fill me-2"></i>WEG-Selbstverwaltung
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint and request.endpoint.startswith('dashboard') %}active{% endif %}"
+                            href="{{ url_for('dashboard.index') }}">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint and request.endpoint.startswith('transaktionen') %}active{% endif %}"
+                            href="{{ url_for('transaktionen.liste') }}">
+                            <i class="bi bi-cash-coin me-1"></i>Transaktionen
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint and request.endpoint.startswith('wirtschaftsplan') %}active{% endif %}"
+                            href="{{ url_for('wirtschaftsplan.uebersicht') }}">
+                            <i class="bi bi-calendar-check me-1"></i>Wirtschaftsplan
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint and request.endpoint.startswith('abrechnung') %}active{% endif %}"
+                            href="{{ url_for('abrechnung.uebersicht') }}">
+                            <i class="bi bi-file-earmark-text me-1"></i>Abrechnung
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <!-- Einstellungen Menüpunkt -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if request.endpoint and (request.endpoint.startswith('settings') or request.endpoint.startswith('miteigentuemer')) %}active{% endif %}"
+                            href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear-fill me-1"></i>Einstellungen
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('settings.index') }}">
+                                    <i class="bi bi-sliders me-1"></i>Übersicht
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('miteigentuemer.liste') }}">
+                                    <i class="bi bi-people me-1"></i>Miteigentümer
+                                </a>
+                            </li>
+                            {% if current_user.is_admin %}
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('settings.users_list') }}">
+                                    <i class="bi bi-person-badge me-1"></i>Benutzerverwaltung
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('settings.data_management') }}">
+                                    <i class="bi bi-database me-1"></i>Datenverwaltung
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('settings.export_view') }}">
+                                    <i class="bi bi-device-ssd me-2"></i>Datenexport
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('settings.kategorie_mapping') }}">
+                                    <i class="bi bi-diagram-3"></i> Parametereinstellungen
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('transaktionen.upload') }}">
+                                    <i class="bi bi-upload me-1"></i>Transaktionen importieren
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('wirtschaftsplan.import_file') }}">
+                                    <i class="bi bi-upload me-1"></i>Wirtschaftsplan importieren
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Benutzer-Dropdown-Menü -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <!-- Benutzerprofil -->
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                <i class="bi bi-person-circle me-2"></i>Benutzerprofil</a></li>
+                            <!-- Profile bearbeiten -->
+                            <li><a class="dropdown-item" href="{{ url_for('settings.user_edit', user_id=current_user.id) }}">Profil
+                                    bearbeiten</a></li>
+                            <!-- Neuer Link zu Systeminformationen -->
+                            <li><a class="dropdown-item" href="{{ url_for('settings.systeminfo') }}">System-Informationen</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Abmelden</a></li>
+                        </ul>
+                    </li>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Hauptinhalt -->
+    <div class="container mt-4 mb-5">
+        <!-- Flash-Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <!-- Seiteninhalt -->
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">WEG-Selbstverwaltung &copy; {{ now.year }} | Version 1.0</span>
+        </div>
+    </footer>
+
+    <!-- JavaScript Bundle -->
+    <script nonce="{{ csp_nonce }}" src="/static/js/bootstrap.bundle.min.js"></script>
+    <script nonce="{{ csp_nonce }}" src="/static/js/jquery.min.js"></script>
+    <!-- Zusätzliche JavaScript-Dateien und -Code -->
+    <script nonce="{{ csp_nonce }}" src="/static/js/forms.js"></script>
+    <!-- Javascript für DataTables-->
+    <script nonce="{{ csp_nonce }}" type="text/javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script nonce="{{ csp_nonce }}" type="text/javascript" src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <!-- CSRF-Tag -->
+    <script nonce="{{ csp_nonce }}" src="/static/js/csrf-setup.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

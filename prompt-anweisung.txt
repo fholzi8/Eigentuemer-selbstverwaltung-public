@@ -1,0 +1,48 @@
+Hallo Claude, ich möchte meine Flask-basierte WEG-Abrechnungsanwendung für mobile Geräte optimieren. Die Anwendung ist bereits funktionsfähig und verwendet Bootstrap für das Layout, aber ich möchte die mobile Nutzererfahrung verbessern. Ich suche Unterstützung bei folgenden Aspekten:
+
+Responsive Design verbessern: Die grundlegende Responsivität ist durch Bootstrap bereits gegeben, aber einige Elemente (Tabellen, Formulare) brauchen Anpassungen für Smartphones.
+Touch-freundliche Bedienelemente: Buttons, Dropdowns und andere Interaktionselemente sollten für Touch-Geräte optimiert werden.
+
+Wichtig ist mir dabei, dass der bestehende Code nicht drastisch umgeschrieben wird. Ich möchte meinen Programmierstil beibehalten und schrittweise Verbesserungen vornehmen. Außerdem ist die Anwendung in Flask geschrieben, verwendet Bootstrap 5 für das Frontend, und ich habe bereits:
+
+CSRF-Schutz für alle Formulare
+Content Security Policy (CSP)
+Starke Authentifizierung
+
+Kannst du mir helfen, einen Plan zu erstellen und die notwendigen Code-Anpassungen vorzuschlagen, um meine Anwendung mobile-freundlicher zu gestalten, ohne die bestehende Architektur stark zu verändern?
+
+---
+Hallo Claude, ich möchte meine Flask-basierte WEG-Abrechnungsanwendung mit Paperless-ngx (oder einer AI-erweiterten Version) integrieren, um ein vollständiges Dokumentenmanagementsystem für meine Wohneigentümergemeinschaft zu schaffen. Ich stelle mir eine containerisierte Lösung vor, bei der beide Anwendungen in separaten Containern laufen und miteinander kommunizieren.
+Meine Ziele für dieses Projekt sind:
+
+Integration von Paperless-ngx: Einen Docker-Container für Paperless-ngx einrichten, der als Dokumentenmanagementsystem dient.
+Kommunikation zwischen Anwendungen: Meine WEG-Flask-App und Paperless-ngx sollen über eine der folgenden Methoden kommunizieren:
+
+E-Mail-Integration (Dokumente per E-Mail senden/empfangen)
+Datei-Upload-Schnittstelle
+REST API-Integration
+Gemeinsames Dateisystem
+
+
+Offline-Fähigkeit: Das System sollte lokal in einem Heimnetzwerk ohne ständige Internetverbindung funktionieren.
+Optionale externe Verfügbarkeit: Eine Anleitung zur Konfiguration von DynDNS oder ngrok, um bei Bedarf einen sicheren externen Zugriff zu ermöglichen.
+Automatisierte Dokumentenverarbeitung: Rechnungen und andere WEG-Dokumente sollen automatisch klassifiziert, mit Tags versehen und den entsprechenden Transaktionen in der WEG-App zugeordnet werden.
+
+Meine WEG-App ist in Flask geschrieben und verfügt bereits über:
+
+Transaktionsverwaltung
+Miteigentümerverwaltung
+Abrechnungssystem
+Wirtschaftsplanerzeugung
+Sicherheitsfunktionen (CSRF, CSP, starke Authentifizierung)
+
+Ich benötige Hilfe bei:
+
+Der Architektur dieses integrierten Systems
+Docker-Compose-Konfiguration für beide Container
+Implementierung der Kommunikationsschnittstelle zwischen den Anwendungen
+Automatisierung der Dokumentenverarbeitung
+Sicherheitsaspekten bei der Integration
+Einrichtung der externen Verfügbarkeit
+
+Kannst du mir helfen, dieses Projekt zu planen und umzusetzen?

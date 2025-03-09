@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+
+{% block title %}- Einstellungen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Einstellungen</h1>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <!-- Box 1: Benutzerverwaltung -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Benutzerverwaltung</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Benutzerkonten verwalten und Zugriffsrechte konfigurieren.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings.users_list') }}" class="btn btn-primary">
+                        <i class="bi bi-people"></i> Zur Benutzerverwaltung
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 2: Datenverwaltung -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Datenverwaltung</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Daten importieren, exportieren oder löschen.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings.data_management') }}" class="btn btn-primary">
+                        <i class="bi bi-database"></i> Zur Datenverwaltung
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 3: Datenexport (getauscht mit Kontostand) -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Datenexport</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Transaktionen, Wirtschaftsplan und Kontostände exportieren.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings.export_view') }}" class="btn btn-primary">
+                        <i class="bi bi-download"></i> Zum Datenexport
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 4: Kontostand (getauscht mit Datenexport) -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Kontostand</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Aktuelle Kontostände einsehen und bearbeiten.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings.kontostand_manage') }}" class="btn btn-primary">
+                        <i class="bi bi-cash"></i> Zum Kontostand
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 5: Miteigentümerverwaltung (neu hinzugefügt) -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Miteigentümerverwaltung</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Miteigentümer und deren Anteile verwalten.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-primary">
+                        <i class="bi bi-people-fill"></i> Zur Miteigentümerverwaltung
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 6: Parametereinstellungen -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Parametereinstellungen</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Systemparameter und Zuordnungen konfigurieren.</p>
+                <div class="list-group mb-3">
+                    <a href="{{ url_for('settings.kategorie_mapping') }}"
+                        class="list-group-item list-group-item-action">
+                        <i class="bi bi-diagram-3"></i> Kategorie-Kostenart Zuordnung
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action disabled">
+                        <i class="bi bi-envelope"></i> E-Mail-Einstellungen <span
+                            class="badge bg-secondary">Demnächst</span>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action disabled">
+                        <i class="bi bi-gear"></i> Weitere Einstellungen <span
+                            class="badge bg-secondary">Demnächst</span>
+                    </a>
+                </div>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings.kategorie_mapping') }}" class="btn btn-primary">
+                        <i class="bi bi-sliders"></i> Zu den Parametereinstellungen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

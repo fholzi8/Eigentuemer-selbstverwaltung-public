@@ -1,0 +1,21 @@
+WEG-Abrechnungsanwendung - Transaktion {{ action }}
+
+Hallo {{ user.username }},
+
+Eine Transaktion wurde in der WEG-Abrechnungsanwendung {{ action }}.
+
+Transaktionsdetails:
+- Datum: {{ transaction.datum.strftime('%d.%m.%Y') }}
+- Beschreibung: {{ transaction.beschreibung }}
+- Betrag: {{ "%.2f"|format(transaction.betrag) }} €
+- Kategorie: {{ transaction.kategorie or '-' }}
+- Kostenart: {{ transaction.kostenart or '-' }}
+- Verteilungsschlüssel: {{ transaction.verteilungsschluessel }}
+- Umlagefähig: {{ "Ja" if transaction.umlagefaehig else "Nein" }}
+
+Sie können alle Details in der WEG-Abrechnungsanwendung einsehen.
+
+Mit freundlichen Grüßen,
+Ihr WEG-Team
+
+Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht darauf.

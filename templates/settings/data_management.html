@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+
+{% block title %}- Datenverwaltung{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Datenverwaltung</h1>
+    <a href="{{ url_for('settings.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Zurück
+    </a>
+</div>
+
+<div class="alert alert-warning">
+    <div class="d-flex align-items-center mb-2">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+        <h5 class="mb-0">Achtung: Hier können Daten dauerhaft gelöscht werden!</h5>
+    </div>
+    <p class="mb-0">Die Löschung von Daten kann nicht rückgängig gemacht werden. Stellen Sie sicher, dass Sie eine aktuelle Sicherung haben, bevor Sie fortfahren.</p>
+</div>
+
+<div class="row">
+    <!-- Statistik-Karten -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Datenstatistik</h5>
+            </div>
+            <div class="card-body">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+                    <div class="col">
+                        <div class="card border-primary h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-primary">Transaktionen</h5>
+                                <p class="display-4">{{ stats.transaktionen_count }}</p>
+                                <p class="text-muted small">Einträge in der Datenbank</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card border-success h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-success">Miteigentümer</h5>
+                                <p class="display-4">{{ stats.miteigentuemer_count }}</p>
+                                <p class="text-muted small">Einträge in der Datenbank</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card border-info h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-info">Wirtschaftsplan</h5>
+                                <p class="display-4">{{ stats.wirtschaftsplan_count }}</p>
+                                <p class="text-muted small">Einträge in der Datenbank</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card border-secondary h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-secondary">Benutzer</h5>
+                                <p class="display-4">{{ stats.user_count }}</p>
+                                <p class="text-muted small">Einträge in der Datenbank</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Löschoptionen -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Transaktionsdaten löschen</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.delete_data') }}" id="deleteTransactionsForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="transaktionJahr" class="form-label">Wählen Sie ein Jahr</label>
+                        <select class="form-select" id="transaktionJahr" name="year">
+                            <option value="">-- Alle Jahre --</option>
+                            {% for jahr in transaktionen_jahre %}
+                            <option value="{{ jahr }}">{{ jahr }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="data_type" id="transaktionenJahr" value="transaktionen" checked>
+                            <label class="form-check-label" for="transaktionenJahr">
+                                Transaktionen für ein bestimmtes Jahr löschen
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="data_type" id="transaktionenAll" value="transaktionen_all">
+                            <label class="form-check-label" for="transaktionenAll">
+                                Alle Transaktionen löschen
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="confirmTransaktionen" name="confirm">
+                        <label class="form-check-label" for="confirmTransaktionen">
+                            Ich bestätige, dass ich die ausgewählten Daten unwiderruflich löschen möchte
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger w-100" onclick="return confirmDelete('Transaktionen')">
+                        <i class="bi bi-trash me-2"></i>Transaktionen löschen
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Wirtschaftsplandaten löschen</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.delete_data') }}" id="deleteWirtschaftsplanForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="wirtschaftsplanJahr" class="form-label">Wählen Sie ein Jahr</label>
+                        <select class="form-select" id="wirtschaftsplanJahr" name="year">
+                            <option value="">-- Alle Jahre --</option>
+                            {% for jahr in wirtschaftsplan_jahre %}
+                            <option value="{{ jahr }}">{{ jahr }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="data_type" id="wirtschaftsplanJahr" value="wirtschaftsplan" checked>
+                            <label class="form-check-label" for="wirtschaftsplanJahr">
+                                Wirtschaftsplan für ein bestimmtes Jahr löschen
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="data_type" id="wirtschaftsplanAll" value="wirtschaftsplan_all">
+                            <label class="form-check-label" for="wirtschaftsplanAll">
+                                Alle Wirtschaftspläne löschen
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="confirmWirtschaftsplan" name="confirm">
+                        <label class="form-check-label" for="confirmWirtschaftsplan">
+                            Ich bestätige, dass ich die ausgewählten Daten unwiderruflich löschen möchte
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger w-100" onclick="return confirmDelete('Wirtschaftsplan')">
+                        <i class="bi bi-trash me-2"></i>Wirtschaftsplandaten löschen
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    function confirmDelete(type) {
+        if (!document.getElementById('confirm' + type).checked) {
+            alert('Bitte bestätigen Sie den Löschvorgang, indem Sie das Kontrollkästchen aktivieren.');
+            return false;
+        }
+        
+        return confirm('ACHTUNG: Sie sind dabei, ' + type + '-Daten unwiderruflich zu löschen. Diese Aktion kann nicht rückgängig gemacht werden! Möchten Sie fortfahren?');
+    }
+    
+    // Deaktiviere Jahr-Auswahl wenn "Alle" gewählt ist
+    document.getElementById('transaktionenAll').addEventListener('change', function() {
+        document.getElementById('transaktionJahr').disabled = this.checked;
+    });
+    
+    document.getElementById('wirtschaftsplanAll').addEventListener('change', function() {
+        document.getElementById('wirtschaftsplanJahr').disabled = this.checked;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends "layout.html" %}
+
+{% block title %}- Abrechnung Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Jahresabrechnung {{ jahr }}</h1>
+    <div class="btn-group">
+        <a href="{{ url_for('abrechnung.uebersicht', jahr=jahr) }}" class="btn btn-outline-secondary">Zurück zur
+            Übersicht</a>
+        <a href="{{ url_for('abrechnung.export', miteigentuemer_id=miteigentuemer.id, jahr=jahr) }}"
+            class="btn btn-outline-primary">PDF Export</a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">{{ miteigentuemer.name }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="mb-3">Verteilungsschlüssel:</h6>
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <th>Einheiten:</th>
+                            <td>{{ miteigentuemer.einheiten }}</td>
+                        </tr>
+                        <tr>
+                            <th>VF-Einheiten:</th>
+                            <td>{{ miteigentuemer.vf_einheiten }}</td>
+                        </tr>
+                        <tr>
+                            <th>TG-Einheiten:</th>
+                            <td>{{ miteigentuemer.tg_einheiten }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6 class="mb-3">Zusammenfassung:</h6>
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <th>Einzahlungen:</th>
+                            <td class="text-success">{{ "%.2f"|format(summe_einzahlungen) }} €</td>
+                        </tr>
+                        <tr>
+                            <th>Anteil umlagefähige Kosten:</th>
+                            <td class="text-danger">{{ "%.2f"|format(anteil_umlagefaehig) }} €</td>
+                        </tr>
+                        <tr>
+                            <th>Anteil nicht umlagefähige Kosten:</th>
+                            <td class="text-danger">{{ "%.2f"|format(anteil_nicht_umlagefaehig) }} €</td>
+                        </tr>
+                        <tr>
+                            <th>Gesamtanteil:</th>
+                            <td class="text-danger">{{ "%.2f"|format(anteil_gesamt) }} €</td>
+                        </tr>
+                        <tr class="table-secondary">
+                            <th>Saldo:</th>
+                            <td class="{{ 'text-success' if saldo >= 0 else 'text-danger' }}">
+                                <strong>{{ "%.2f"|format(saldo) }} €</strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Einzahlungen</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Beschreibung</th>
+                        <th class="text-end">Betrag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for einzahlung in einzahlungen %}
+                    <tr>
+                        <td>{{ einzahlung.datum.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ einzahlung.beschreibung }}</td>
+                        <td class="text-end text-success">{{ "%.2f"|format(einzahlung.betrag) }} €</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center py-3">Keine Einzahlungen gefunden.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-secondary">
+                        <th colspan="2">Summe Einzahlungen</th>
+                        <th class="text-end text-success">{{ "%.2f"|format(summe_einzahlungen) }} €</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Kostenübersicht</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Kostenart</th>
+                        <th>Verteilungsschlüssel</th>
+                        <th>Umlagefähig</th>
+                        <th class="text-end">Gesamtbetrag</th>
+                        <th class="text-end">Anteil</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in kosten_details %}
+                    {% if detail.verteilungsschluessel == 'Einheiten' and miteigentuemer.einheiten > 0 or
+                    detail.verteilungsschluessel == 'VF-Einheiten' and miteigentuemer.vf_einheiten > 0 or
+                    detail.verteilungsschluessel == 'TG-Einheiten' and miteigentuemer.tg_einheiten > 0 %}
+                    <tr>
+                        <td>{{ detail.kostenart }}</td>
+                        <td>{{ detail.verteilungsschluessel }}</td>
+                        <td>
+                            {% if detail.umlagefaehig %}
+                            <span class="badge bg-success">Ja</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Nein</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-danger">{{ "%.2f"|format(detail.betrag) }} €</td>
+                        <td class="text-end text-danger">{{ "%.2f"|format(detail.anteil) }} €</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-secondary">
+                        <th colspan="3">Umlagefähige Kosten</th>
+                        <th class="text-end text-danger">{{ "%.2f"|format(kosten_details|selectattr('umlagefaehig',
+                            'true')|sum(attribute='betrag')) }} €</th>
+                        <th class="text-end text-danger">{{ "%.2f"|format(anteil_umlagefaehig) }} €</th>
+                    </tr>
+                    <tr class="table-secondary">
+                        <th colspan="3">Nicht umlagefähige Kosten</th>
+                        <th class="text-end text-danger">{{ "%.2f"|format(kosten_details|selectattr('umlagefaehig',
+                            'false')|sum(attribute='betrag')) }} €</th>
+                        <th class="text-end text-danger">{{ "%.2f"|format(anteil_nicht_umlagefaehig) }} €</th>
+                    </tr>
+                    <tr class="table-secondary">
+                        <th colspan="3">Gesamtkosten</th>
+                        <th class="text-end text-danger">{{ "%.2f"|format(kosten_details|sum(attribute='betrag')) }} €
+                        </th>
+                        <th class="text-end text-danger">{{ "%.2f"|format(anteil_gesamt) }} €</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Abrechnung {{ jahr }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th>Miteigentümer:</th>
+                            <td>{{ miteigentuemer.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Summe Einzahlungen:</th>
+                            <td class="text-success">{{ "%.2f"|format(summe_einzahlungen) }} €</td>
+                        </tr>
+                        <tr>
+                            <th>abzüglich Gesamtanteil:</th>
+                            <td class="text-danger">{{ "%.2f"|format(anteil_gesamt) }} €</td>
+                        </tr>
+                        <tr class="table-secondary">
+                            <th>Saldo {{ jahr }}:</th>
+                            <td class="{{ 'text-success' if saldo >= 0 else 'text-danger' }}">
+                                <strong>{{ "%.2f"|format(saldo) }} €</strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                {% if saldo < 0 %} <div class="alert alert-warning mt-3">
+                    <strong>Hinweis:</strong> Es besteht eine Nachzahlungspflicht in Höhe von {{ "%.2f"|format(-saldo)
+                    }} €.
+            </div>
+            {% elif saldo > 0 %}
+            <div class="alert alert-success mt-3">
+                <strong>Hinweis:</strong> Es besteht ein Guthaben in Höhe von {{ "%.2f"|format(saldo) }} €.
+            </div>
+            {% else %}
+            <div class="alert alert-info mt-3">
+                <strong>Hinweis:</strong> Die Abrechnung ist ausgeglichen.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

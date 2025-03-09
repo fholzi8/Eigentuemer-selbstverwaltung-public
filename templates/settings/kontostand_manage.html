@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+
+{% block title %}- Kontostand verwalten{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Kontostand verwalten</h1>
+    <a href="{{ url_for('settings.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Zurück
+    </a>
+</div>
+
+<div class="row">
+    <!-- Aktueller Kontostand -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Aktueller Kontostand</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center py-5">
+                <div class="text-center">
+                    <h1 class="display-3 text-info">{{ "%.2f"|format(aktueller_kontostand) }} €</h1>
+                    <p class="text-muted">
+                        {% if letzter_kontostand %}
+                        Letztes Update: {{ letzter_kontostand.datum.strftime('%d.%m.%Y') }}
+                        {% if letzter_kontostand.user %}
+                        von {{ letzter_kontostand.user.username }}
+                        {% endif %}
+                        {% else %}
+                        Noch kein Kontostand erfasst
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kontostand-Vergleich -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Kontostand-Analyse</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Theoretischer Kontostand basierend auf allen Transaktionen:</p>
+                <h3 class="text-primary">{{ "%.2f"|format(theoretischer_kontostand) }} €</h3>
+
+                {% set differenz = aktueller_kontostand - theoretischer_kontostand %}
+                <p class="mt-3">Differenz zum erfassten Kontostand:</p>
+                <h4 class="{% if differenz >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ "%.2f"|format(differenz) }} €
+                </h4>
+
+                <div class="mt-3">
+                    {% if differenz != 0 %}
+                    <div class="alert alert-{% if differenz >= 0 %}warning{% else %}danger{% endif %} small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        {% if differenz > 0 %}
+                        Der erfasste Kontostand ist höher als die Summe der Transaktionen. Es könnten Einnahmen fehlen.
+                        {% else %}
+                        Der erfasste Kontostand ist niedriger als die Summe der Transaktionen. Es könnten Ausgaben
+                        fehlen.
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success small">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Der erfasste Kontostand stimmt mit der Summe der Transaktionen überein.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Neuen Kontostand erfassen -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Kontostand aktualisieren</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.kontostand_manage') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="datum" class="form-label">Datum</label>
+                            <input type="date" class="form-control" id="datum" name="datum"
+                                value="{{ today.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="betrag" class="form-label">Kontostand (€)</label>
+                            <input type="text" class="form-control" id="betrag" name="betrag" placeholder="0,00"
+                                value="{{ '%.2f'|format(aktueller_kontostand) }}" required>
+                            <div class="form-text">Verwenden Sie Komma als Dezimaltrennzeichen (z.B. 1234,56)</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="kommentar" class="form-label">Kommentar (optional)</label>
+                        <textarea class="form-control" id="kommentar" name="kommentar" rows="2"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i>Kontostand speichern
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kontostand-Historie -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Kontostand-Historie</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Kontostand</th>
+                                <th>Kommentar</th>
+                                <th>Erfasst von</th>
+                                <th>Erfasst am</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for kontostand in kontostände %}
+                            <tr>
+                                <td>{{ kontostand.datum.strftime('%d.%m.%Y') }}</td>
+                                <td>{{ "%.2f"|format(kontostand.betrag) }} €</td>
+                                <td>{{ kontostand.kommentar or '-' }}</td>
+                                <td>{{ kontostand.user.username if kontostand.user else 'System' }}</td>
+                                <td>{{ kontostand.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                <td>
+                                    <form
+                                        action="{{ url_for('settings.kontostand_delete', kontostand_id=kontostand.id) }}"
+                                        method="POST" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Kontostand wirklich löschen?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-3">
+                                    <i class="bi bi-inbox me-2"></i>Keine Kontostände gefunden.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

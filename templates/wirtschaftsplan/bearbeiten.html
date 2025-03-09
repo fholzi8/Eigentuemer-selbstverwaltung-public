@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+
+{% block title %}- Wirtschaftsplan-Eintrag bearbeiten{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Wirtschaftsplan-Eintrag bearbeiten</h1>
+    <a href="{{ url_for('wirtschaftsplan.uebersicht', jahr=eintrag.jahr) }}" class="btn btn-outline-secondary">Zurück
+        zur Übersicht</a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Eintrag für {{ eintrag.jahr }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('wirtschaftsplan.bearbeiten', eintrag_id=eintrag.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="bezeichnung" class="form-label">Bezeichnung</label>
+                    <input type="text" class="form-control" id="bezeichnung" name="bezeichnung"
+                        value="{{ eintrag.bezeichnung }}" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="kategorie" class="form-label">Kategorie</label>
+                    <select class="form-select" id="kategorie" name="kategorie">
+                        <option value="Betriebskosten" {% if eintrag.kategorie=='Betriebskosten' %}selected{% endif %}>
+                            Betriebskosten</option>
+                        <option value="Instandhaltung" {% if eintrag.kategorie=='Instandhaltung' %}selected{% endif %}>
+                            Instandhaltung</option>
+                        <option value="Versicherungen" {% if eintrag.kategorie=='Versicherungen' %}selected{% endif %}>
+                            Versicherungen</option>
+                        <option value="Verwaltung" {% if eintrag.kategorie=='Verwaltung' %}selected{% endif %}>
+                            Verwaltung</option>
+                        <option value="Rücklagen" {% if eintrag.kategorie=='Rücklagen' %}selected{% endif %}>Rücklagen
+                        </option>
+                        <option value="Sonstige" {% if eintrag.kategorie=='Sonstige' %}selected{% endif %}>Sonstige
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="betrag" class="form-label">Betrag</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="betrag" name="betrag" value="{{ "
+                            %.2f"|format(eintrag.betrag) }}" required>
+                        <span class="input-group-text">€</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="verteilungsschluessel" class="form-label">Verteilungsschlüssel</label>
+                    <select class="form-select" id="verteilungsschluessel" name="verteilungsschluessel">
+                        <option value="Einheiten" {% if eintrag.verteilungsschluessel=='Einheiten' %}selected{% endif
+                            %}>Einheiten (Standard)</option>
+                        <option value="VF-Einheiten" {% if eintrag.verteilungsschluessel=='VF-Einheiten' %}selected{%
+                            endif %}>VF-Einheiten (nur Wohnungen)</option>
+                        <option value="TG-Einheiten" {% if eintrag.verteilungsschluessel=='TG-Einheiten' %}selected{%
+                            endif %}>TG-Einheiten (nur TG-Plätze)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="umlagefaehig" name="umlagefaehig" {% if
+                    eintrag.umlagefaehig %}checked{% endif %}>
+                <label class="form-check-label" for="umlagefaehig">Umlagefähig</label>
+                <small class="form-text text-muted d-block">Aktivieren für Kosten, die auf Mieter umgelegt werden
+                    können</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="notiz" class="form-label">Notiz (optional)</label>
+                <textarea class="form-control" id="notiz" name="notiz" rows="3">{{ eintrag.notiz }}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Speichern</button>
+                <a href="{{ url_for('wirtschaftsplan.uebersicht', jahr=eintrag.jahr) }}"
+                    class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    // Betrag-Format überprüfen
+    document.getElementById('betrag').addEventListener('blur', function () {
+        let value = this.value.replace(',', '.');
+        // Überprüfen, ob es eine gültige Dezimalzahl ist
+        if (!isNaN(parseFloat(value)) && isFinite(value)) {
+            this.value = parseFloat(value).toFixed(2);
+        }
+    });
+</script>
+{% endblock %}

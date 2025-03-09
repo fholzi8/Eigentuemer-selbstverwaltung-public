@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Seite nicht gefunden</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">404 - Seite nicht gefunden</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>Die angeforderte Seite konnte nicht gefunden werden.</p>
+                        <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">Zurück zum Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

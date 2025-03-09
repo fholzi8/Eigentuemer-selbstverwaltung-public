@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}- Miteigentümer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Miteigentümer</h1>
+    <a href="{{ url_for('miteigentuemer.neu') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Neuer Miteigentümer
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Miteigentümer-Übersicht</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th class="text-center">MEA-Werte</th>
+                        <th class="text-center">MEA %</th>
+                        <th class="text-center">VF-Einheiten</th>
+                        <th class="text-center">TG-Einheiten</th>
+                        <th class="text-center">Einheiten</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in miteigentuemer %}
+                    <tr>
+                        <td>{{ m.name }}</td>
+                        <td class="text-center">{{ m.mea }}</td>
+                        <td class="text-center">{{ "%.2f"|format((m.mea / gesamt_mea) * 100) }}%</td>
+                        <td class="text-center">{{ m.vf_einheiten }}</td>
+                        <td class="text-center">{{ m.tg_einheiten }}</td>
+                        <td class="text-center">{{ m.einheiten }}</td>
+                        <td>
+                            <a href="{{ url_for('miteigentuemer.bearbeiten', miteigentuemer_id=m.id) }}"
+                                class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-3">Keine Miteigentümer gefunden.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-secondary">
+                        <th>Summe</th>
+                        <th class="text-center">{{ gesamt_mea }}</th>
+                        <th class="text-center">100%</th>
+                        <th class="text-center">{{ miteigentuemer|sum(attribute='vf_einheiten') }}</th>
+                        <th class="text-center">{{ miteigentuemer|sum(attribute='tg_einheiten') }}</th>
+                        <th class="text-center">{{ miteigentuemer|sum(attribute='einheiten') }}</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Erläuterung zur Verteilung</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">MEA-Werte</dt>
+            <dd class="col-sm-9">Miteigentumsanteile, die für die Verteilung der meisten Kosten verwendet werden. Die
+                Summe aller MEA-Werte ergibt 1.000.000.</dd>
+
+            <dt class="col-sm-3">VF-Einheiten</dt>
+            <dd class="col-sm-9">Verteilerfaktor-Einheiten für Kosten, die nur auf Wohnungen umgelegt werden.</dd>
+
+            <dt class="col-sm-3">TG-Einheiten</dt>
+            <dd class="col-sm-9">Tiefgaragen-Einheiten für Kosten, die nur auf Tiefgaragenbesitzer umgelegt werden.</dd>
+
+            <dt class="col-sm-3">Einheiten</dt>
+            <dd class="col-sm-9">Einheiten für Kosten, die gleichmäßig auf alle Wohneinheiten verteilt werden.</dd>
+        </dl>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,469 @@
+{% extends "layout.html" %}
+
+{% block title %}- Systeminformationen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Systeminformationen</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Allgemeine Informationen</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Version:</th>
+                            <td>1.0</td>
+                        </tr>
+                        <tr>
+                            <th>Datum:</th>
+                            <td>{{ now.strftime('%d.%m.%Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Uhrzeit:</th>
+                            <td>{{ now.strftime('%H:%M:%S') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Benutzer:</th>
+                            <td>{{ current_user.username }}</td>
+                        </tr>
+                        <tr>
+                            <th>Admin-Rechte:</th>
+                            <td>
+                                {% if current_user.is_admin %}
+                                <span class="badge bg-success">Ja</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Nein</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Datenbank-Informationen</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Gesamtanzahl Miteigentümer:</th>
+                            <td>{{ miteigentuemer_count }}</td>
+                        </tr>
+                        <tr>
+                            <th>Gesamtanzahl Transaktionen:</th>
+                            <td>{{ transaktionen_count }}</td>
+                        </tr>
+                        <tr>
+                            <th>Gesamtanzahl Wirtschaftsplan-Einträge:</th>
+                            <td>{{ wirtschaftsplan_count }}</td>
+                        </tr>
+                        <tr>
+                            <th>Anzahl Benutzer:</th>
+                            <td>{{ benutzer_count }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Anwendungs-Funktionalitäten</h5>
+            </div>
+            <div class="card-body">
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Transaktionsverwaltung</h5>
+                                <p class="card-text">Import und Verwaltung von Banktransaktionen mit Kategorisierung.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Miteigentümerverwaltung</h5>
+                                <p class="card-text">Verwaltung der Miteigentümer mit verschiedenen Anteilen.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Abrechnungssystem</h5>
+                                <p class="card-text">Erstellung von Abrechnungen mit korrekter Kostenverteilung.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Wirtschaftsplanverwaltung</h5>
+                                <p class="card-text">Erstellung und Verwaltung des Wirtschaftsplans mit
+                                    Kostenverteilung.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Datenexport</h5>
+                                <p class="card-text">Export von Transaktionen, Kontostand und Wirtschaftsplan.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">PDF-Export</h5>
+                                <p class="card-text">Erstellung detaillierter PDF-Abrechnungen pro Miteigentümer.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if current_user.is_admin %}
+<div class="card mt-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Roadmap</h5>
+        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#editRoadmapModal">
+            <i class="bi bi-pencil-square"></i> Bearbeiten
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">Kurzfristig</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for item in roadmap.short_term %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>{{ item.title }}</span>
+                                    <span
+                                        class="badge {% if item.status == 'completed' %}bg-success{% elif item.status == 'in_progress' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {% if item.status == 'completed' %}Erledigt{% elif item.status == 'in_progress'
+                                        %}In Arbeit{% else %}Geplant{% endif %}
+                                    </span>
+                                </div>
+                                {% if item.description %}
+                                <small class="text-muted">{{ item.description }}</small>
+                                {% endif %}
+                            </li>
+                            {% else %}
+                            <li class="list-group-item text-center text-muted">Keine kurzfristigen Ziele definiert</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">Mittelfristig</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for item in roadmap.medium_term %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>{{ item.title }}</span>
+                                    <span
+                                        class="badge {% if item.status == 'completed' %}bg-success{% elif item.status == 'in_progress' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {% if item.status == 'completed' %}Erledigt{% elif item.status == 'in_progress'
+                                        %}In Arbeit{% else %}Geplant{% endif %}
+                                    </span>
+                                </div>
+                                {% if item.description %}
+                                <small class="text-muted">{{ item.description }}</small>
+                                {% endif %}
+                            </li>
+                            {% else %}
+                            <li class="list-group-item text-center text-muted">Keine mittelfristigen Ziele definiert
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">Langfristig</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for item in roadmap.long_term %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>{{ item.title }}</span>
+                                    <span
+                                        class="badge {% if item.status == 'completed' %}bg-success{% elif item.status == 'in_progress' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {% if item.status == 'completed' %}Erledigt{% elif item.status == 'in_progress'
+                                        %}In Arbeit{% else %}Geplant{% endif %}
+                                    </span>
+                                </div>
+                                {% if item.description %}
+                                <small class="text-muted">{{ item.description }}</small>
+                                {% endif %}
+                            </li>
+                            {% else %}
+                            <li class="list-group-item text-center text-muted">Keine langfristigen Ziele definiert</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für die Bearbeitung der Roadmap -->
+<div class="modal fade" id="editRoadmapModal" tabindex="-1" aria-labelledby="editRoadmapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRoadmapModalLabel">Roadmap bearbeiten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+            </div>
+            <form action="{{ url_for('settings.update_roadmap') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Kurzfristige Ziele -->
+                        <div class="col-md-4">
+                            <h6 class="mb-3">Kurzfristige Ziele</h6>
+                            <div id="shortTermItems">
+                                {% for item in roadmap.short_term %}
+                                <div class="card mb-2 roadmap-item">
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <input type="text" class="form-control form-control-sm"
+                                                name="short_term[{{ loop.index0 }}][title]" placeholder="Titel"
+                                                value="{{ item.title }}" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm"
+                                                name="short_term[{{ loop.index0 }}][description]"
+                                                placeholder="Beschreibung (optional)"
+                                                rows="2">{{ item.description }}</textarea>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <select class="form-select form-select-sm me-2"
+                                                name="short_term[{{ loop.index0 }}][status]">
+                                                <option value="planned" {% if item.status=='planned' %}selected{% endif
+                                                    %}>Geplant</option>
+                                                <option value="in_progress" {% if item.status=='in_progress'
+                                                    %}selected{% endif %}>In Arbeit</option>
+                                                <option value="completed" {% if item.status=='completed' %}selected{%
+                                                    endif %}>Erledigt</option>
+                                            </select>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-item"
+                                                title="Entfernen">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-item"
+                                data-target="shortTermItems">
+                                <i class="bi bi-plus-circle me-1"></i>Element hinzufügen
+                            </button>
+                        </div>
+
+                        <!-- Mittelfristige Ziele -->
+                        <div class="col-md-4">
+                            <h6 class="mb-3">Mittelfristige Ziele</h6>
+                            <div id="mediumTermItems">
+                                {% for item in roadmap.medium_term %}
+                                <div class="card mb-2 roadmap-item">
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <input type="text" class="form-control form-control-sm"
+                                                name="medium_term[{{ loop.index0 }}][title]" placeholder="Titel"
+                                                value="{{ item.title }}" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm"
+                                                name="medium_term[{{ loop.index0 }}][description]"
+                                                placeholder="Beschreibung (optional)"
+                                                rows="2">{{ item.description }}</textarea>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <select class="form-select form-select-sm me-2"
+                                                name="medium_term[{{ loop.index0 }}][status]">
+                                                <option value="planned" {% if item.status=='planned' %}selected{% endif
+                                                    %}>Geplant</option>
+                                                <option value="in_progress" {% if item.status=='in_progress'
+                                                    %}selected{% endif %}>In Arbeit</option>
+                                                <option value="completed" {% if item.status=='completed' %}selected{%
+                                                    endif %}>Erledigt</option>
+                                            </select>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-item"
+                                                title="Entfernen">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-item"
+                                data-target="mediumTermItems">
+                                <i class="bi bi-plus-circle me-1"></i>Element hinzufügen
+                            </button>
+                        </div>
+
+                        <!-- Langfristige Ziele -->
+                        <div class="col-md-4">
+                            <h6 class="mb-3">Langfristige Ziele</h6>
+                            <div id="longTermItems">
+                                {% for item in roadmap.long_term %}
+                                <div class="card mb-2 roadmap-item">
+                                    <div class="card-body">
+                                        <div class="mb-2">
+                                            <input type="text" class="form-control form-control-sm"
+                                                name="long_term[{{ loop.index0 }}][title]" placeholder="Titel"
+                                                value="{{ item.title }}" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <textarea class="form-control form-control-sm"
+                                                name="long_term[{{ loop.index0 }}][description]"
+                                                placeholder="Beschreibung (optional)"
+                                                rows="2">{{ item.description }}</textarea>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <select class="form-select form-select-sm me-2"
+                                                name="long_term[{{ loop.index0 }}][status]">
+                                                <option value="planned" {% if item.status=='planned' %}selected{% endif
+                                                    %}>Geplant</option>
+                                                <option value="in_progress" {% if item.status=='in_progress'
+                                                    %}selected{% endif %}>In Arbeit</option>
+                                                <option value="completed" {% if item.status=='completed' %}selected{%
+                                                    endif %}>Erledigt</option>
+                                            </select>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-item"
+                                                title="Entfernen">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-item"
+                                data-target="longTermItems">
+                                <i class="bi bi-plus-circle me-1"></i>Element hinzufügen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+<!-- JavaScript für die Roadmap-Bearbeitung -->
+{% block scripts %}
+{{ super() }}
+<script nonce="{{ csp_nonce }}">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Hinzufügen neuer Roadmap-Elemente
+        document.querySelectorAll('.add-item').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const targetContainer = document.getElementById(targetId);
+                const itemCount = targetContainer.querySelectorAll('.roadmap-item').length;
+                const termType = targetId.replace('Items', '');
+
+                const newItem = document.createElement('div');
+                newItem.className = 'card mb-2 roadmap-item';
+                newItem.innerHTML = `
+                <div class="card-body">
+                    <div class="mb-2">
+                        <input type="text" class="form-control form-control-sm" name="${termType}[${itemCount}][title]" placeholder="Titel" required>
+                    </div>
+                    <div class="mb-2">
+                        <textarea class="form-control form-control-sm" name="${termType}[${itemCount}][description]" placeholder="Beschreibung (optional)" rows="2"></textarea>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <select class="form-select form-select-sm me-2" name="${termType}[${itemCount}][status]">
+                            <option value="planned" selected>Geplant</option>
+                            <option value="in_progress">In Arbeit</option>
+                            <option value="completed">Erledigt</option>
+                        </select>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" title="Entfernen">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+                targetContainer.appendChild(newItem);
+
+                // Event-Listener für den neu hinzugefügten Remove-Button
+                newItem.querySelector('.remove-item').addEventListener('click', function () {
+                    this.closest('.roadmap-item').remove();
+                    updateIndexes(targetContainer, termType);
+                });
+            });
+        });
+
+        // Entfernen von Roadmap-Elementen
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function () {
+                const item = this.closest('.roadmap-item');
+                const container = item.parentElement;
+                const termType = container.id.replace('Items', '');
+
+                item.remove();
+                updateIndexes(container, termType);
+            });
+        });
+
+        // Aktualisieren der Indizes nach dem Entfernen eines Elements
+        function updateIndexes(container, termType) {
+            const items = container.querySelectorAll('.roadmap-item');
+            items.forEach((item, index) => {
+                item.querySelectorAll('[name^="' + termType + '"]').forEach(input => {
+                    const nameParts = input.name.split('[');
+                    const suffix = nameParts[1].split(']')[1];
+                    input.name = `${termType}[${index}]${suffix}`;
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

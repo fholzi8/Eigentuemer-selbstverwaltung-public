@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+
+{% block title %}- Kategorie-Kostenart-Zuordnung{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Kategorie-Kostenart-Zuordnung</h1>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Zuordnungen für Wirtschaftsplan-Vergleich</h5>
+    </div>
+    <div class="card-body">
+        <p class="mb-3">
+            Hier können Sie festlegen, welche Transaktions-Kostenarten welchen Wirtschaftsplan-Kategorien zugeordnet
+            werden sollen.
+            Diese Zuordnung wird für den Vergleich zwischen Wirtschaftsplan und tatsächlichen Kosten verwendet.
+        </p>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Wirtschaftsplan-Kategorie</th>
+                        <th>Transaktions-Kostenarten</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for kategorie, kostenarten in mappings.items() %}
+                    <tr>
+                        <td>{{ kategorie }}</td>
+                        <td>
+                            {% for kostenart in kostenarten %}
+                            <span class="badge bg-info me-1">{{ kostenart }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for kostenart in kostenarten %}
+                            <form action="{{ url_for('settings.kategorie_mapping_delete') }}" method="post"
+                                class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="wp_kategorie" value="{{ kategorie }}">
+                                <input type="hidden" name="tx_kostenart" value="{{ kostenart }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Zuordnung wirklich löschen?')">
+                                    <i class="bi bi-trash"></i> {{ kostenart }} entfernen
+                                </button>
+                            </form>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">Keine Zuordnungen vorhanden.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Neue Zuordnung hinzufügen</h5>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('settings.kategorie_mapping_add') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="mb-3">
+                        <label for="wp_kategorie" class="form-label">Wirtschaftsplan-Kategorie</label>
+                        <select class="form-select" id="wp_kategorie" name="wp_kategorie" required>
+                            <option value="">-- Bitte wählen --</option>
+                            {% for kategorie in wp_kategorien %}
+                            <option value="{{ kategorie }}">{{ kategorie }}</option>
+                            {% endfor %}
+                            <option value="Sonstige">Sonstige</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="mb-3">
+                        <label for="tx_kostenart" class="form-label">Transaktions-Kostenart</label>
+                        <select class="form-select" id="tx_kostenart" name="tx_kostenart" required>
+                            <option value="">-- Bitte wählen --</option>
+                            {% for kostenart in tx_kostenarten %}
+                            <option value="{{ kostenart }}">{{ kostenart }}</option>
+                            {% endfor %}
+                            <option value="Sonstige">Sonstige</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary w-100">Hinzufügen</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

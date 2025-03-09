@@ -1,0 +1,139 @@
+Verzeichnisstruktur für: /Users/fholzi8/VSCode - Programme/WEG-App
+Erstellt am: 2025-03-05 15:18:56
+================================================================================
+
+├── README.md
+├── README.pdf
+├── WEG-App.code-workspace
+├── app.py
+├── config.py
+├── directory_tree.py
+├── extensions.py
+├── flask-app-email.txt
+├── init_db.py
+├── logs/
+    ├── waitress.log
+    ├── weg-app.log
+├── manual-scripts/
+    ├── backup.sh
+    ├── bankdaten_zu_csv.py
+    ├── complete-init-db.py
+    ├── init_admin.py
+    ├── init_kontostand.py
+    ├── init_mappings.py
+    ├── migrate_db.py
+    ├── migrate_to_postgres.py
+    ├── setup_mappings.py
+    ├── test_email.py
+    ├── update_db_for_anhaenge.py
+├── migrations/
+    ├── README
+    ├── alembic.ini
+    ├── env.py
+    ├── script.py.mako
+    ├── versions/
+        ├── 63dbb09c8eed_initial_migration.py
+├── models.py
+├── prompt-anweisung.txt
+├── requirements.txt
+├── roadmap-recommendations.md
+├── routes/
+    ├── __init__.py
+    ├── abrechnung.py
+    ├── auth.py
+    ├── dashboard.py
+    ├── miteigentuemer.py
+    ├── settings.py
+    ├── transaktionen.py
+    ├── wirtschaftsplan.py
+├── services/
+    ├── __init__.py
+    ├── abrechnung_service.py
+    ├── anhang_service.py
+    ├── kategorie_mapping_service.py
+    ├── kontostand_service.py
+    ├── transaktion_service.py
+    ├── wirtschaftsplan_service.py
+├── static/
+    ├── css/
+        ├── bootstrap.min.css
+        ├── styles.css
+    ├── img/
+        ├── favicon.ico
+    ├── js/
+        ├── bootstrap.bundle.min.js
+        ├── csrf-setup.js
+        ├── forms.js
+        ├── jquery.min.js
+        ├── password-strength.js
+├── templates/
+    ├── abrechnung/
+        ├── detail.html
+        ├── uebersicht.html
+    ├── auth/
+        ├── login.html
+        ├── profile.html
+        ├── reset_password.html
+        ├── reset_request.html
+    ├── dashboard/
+        ├── dashboard.html
+    ├── emails/
+        ├── email_verification.html
+        ├── email_verification.txt
+        ├── password_reset.html
+        ├── password_reset.txt
+        ├── transaction_notification.html
+        ├── transaction_notification.txt
+        ├── user_notification.html
+        ├── user_notification.txt
+        ├── wirtschaftsplan_notification.html
+        ├── wirtschaftsplan_notification.txt
+    ├── errors/
+        ├── 404.html
+        ├── 500.html
+        ├── simple_404.html
+    ├── layout.html
+    ├── miteigentuemer/
+        ├── bearbeiten.html
+        ├── liste.html
+        ├── neu.html
+    ├── settings/
+        ├── data_management.html
+        ├── export.html
+        ├── index.html
+        ├── kategorie_mapping.html
+        ├── kontostand_manage.html
+        ├── systeminfo.html
+        ├── user_edit.html
+        ├── user_new.html
+        ├── users_list.html
+    ├── transaktionen/
+        ├── anhang.html
+        ├── bearbeiten.html
+        ├── liste.html
+        ├── neu.html
+        ├── upload.html
+    ├── wirtschaftsplan/
+        ├── bearbeiten.html
+        ├── import.html
+        ├── neu.html
+        ├── uebersicht.html
+├── uploads/
+    ├── rechnungen/
+    ├── transaktionen_weg.csv
+    ├── transaktionen_weg.xlsx
+    ├── transaktionen_weg2.csv
+    ├── transaktionen_weg2.xlsx
+    ├── wirtschaftsplan_2024.xlsx
+    ├── wirtschaftsplan_2025.xlsx
+├── utils/
+    ├── __init__.py
+    ├── email.py
+    ├── email_utils.py
+    ├── export/
+        ├── __init__.py
+        ├── export.py
+    ├── security.py
+    ├── utils.py
+├── weg_abrechnung.db
+├── wsgi.py

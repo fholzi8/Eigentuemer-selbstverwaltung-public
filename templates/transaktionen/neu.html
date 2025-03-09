@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+
+{% block title %}- Neue Transaktion{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Neue Transaktion</h1>
+    <a href="{{ url_for('transaktionen.liste') }}" class="btn btn-outline-secondary">Zurück zu Transaktionen</a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Transaktionsdaten eingeben</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('transaktionen.neu') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label for="datum" class="form-label">Datum</label>
+                    <input type="date" class="form-control" id="datum" name="datum" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="betrag" class="form-label">Betrag</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="betrag" name="betrag" placeholder="0.00" required>
+                        <span class="input-group-text">€</span>
+                    </div>
+                    <small class="form-text text-muted">Für Ausgaben negative Zahlen eingeben (z.B. -100.00)</small>
+                </div>
+                <div class="col-md-6">
+                    <label for="kategorie" class="form-label">Kategorie</label>
+                    <input type="text" class="form-control" id="kategorie" name="kategorie"
+                        placeholder="Bank, Versicherung, etc.">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="beschreibung" class="form-label">Beschreibung</label>
+                <textarea class="form-control" id="beschreibung" name="beschreibung" rows="3"
+                    placeholder="Detaillierte Beschreibung der Transaktion" required></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="kostenart" class="form-label">Kostenart</label>
+                    <select class="form-select" id="kostenart" name="kostenart">
+                        <option value="Strom">Strom</option>
+                        <option value="Hausmeister">Hausmeister</option>
+                        <option value="Versicherung">Versicherung</option>
+                        <option value="Instandhaltung">Instandhaltung</option>
+                        <option value="Verwaltung">Verwaltung</option>
+                        <option value="Telekommunikation">Telekommunikation</option>
+                        <option value="Rücklage">Rücklage</option>
+                        <option value="Einzahlung">Einzahlung</option>
+                        <option value="Sonstige">Sonstige</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="verteilungsschluessel" class="form-label">Verteilungsschlüssel</label>
+                    <select class="form-select" id="verteilungsschluessel" name="verteilungsschluessel">
+                        <option value="Einheiten">Einheiten (Standard)</option>
+                        <option value="VF-Einheiten">VF-Einheiten (nur Wohnungen)</option>
+                        <option value="TG-Einheiten">TG-Einheiten (nur TG-Plätze)</option>
+                    </select>
+                    <small class="form-text text-muted">Bestimmt, wie die Kosten verteilt werden</small>
+                </div>
+                <div class="col-md-4" id="miteigentuemer-container">
+                    <label for="miteigentuemer" class="form-label">Miteigentümer</label>
+                    <select class="form-select" id="miteigentuemer" name="miteigentuemer">
+                        <option value="">Keine Zuordnung</option>
+                        {% for m in miteigentuemer %}
+                        <option value="{{ m.id }}">{{ m.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Nur für Einzahlungen relevant</small>
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="umlagefaehig" name="umlagefaehig">
+                <label class="form-check-label" for="umlagefaehig">Umlagefähig</label>
+                <small class="form-text text-muted d-block">Aktivieren für Kosten, die auf Mieter umgelegt werden
+                    können</small>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Speichern</button>
+                <a href="{{ url_for('transaktionen.liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    // Bei Änderung des Betrags prüfen, ob es sich um eine Einzahlung handelt
+    document.getElementById('betrag').addEventListener('input', function () {
+        const betragValue = this.value.replace(',', '.');
+        const betrag = parseFloat(betragValue);
+
+        // Wenn Betrag positiv (Einzahlung), Miteigentümer-Auswahl anzeigen/aktivieren
+        if (!isNaN(betrag) && betrag > 0) {
+            document.getElementById('miteigentuemer').disabled = false;
+            document.getElementById('kostenart').value = 'Einzahlung';
+            document.getElementById('umlagefaehig').checked = false;
+            document.getElementById('umlagefaehig').disabled = true;
+        } else {
+            // Bei negativem Betrag (Ausgabe) die Miteigentümer-Zuordnung zurücksetzen
+            document.getElementById('miteigentuemer').value = '';
+            document.getElementById('umlagefaehig').disabled = false;
+        }
+    });
+
+    // Bei Änderung der Kostenart automatisch umlagefähig setzen
+    document.getElementById('kostenart').addEventListener('change', function () {
+        const kostenart = this.value;
+        const umlagefaehigCheckbox = document.getElementById('umlagefaehig');
+
+        // Standardmäßig für bestimmte Kostenarten umlagefähig setzen
+        if (['Strom', 'Hausmeister', 'Versicherung', 'Telekommunikation'].includes(kostenart)) {
+            umlagefaehigCheckbox.checked = true;
+        } else if (['Verwaltung', 'Rücklage'].includes(kostenart)) {
+            umlagefaehigCheckbox.checked = false;
+        }
+
+        // Bei Einzahlungen ist umlagefähig nicht relevant
+        if (kostenart === 'Einzahlung') {
+            umlagefaehigCheckbox.checked = false;
+            umlagefaehigCheckbox.disabled = true;
+        } else {
+            umlagefaehigCheckbox.disabled = false;
+        }
+    });
+
+    // Bei Auswahl von VF oder TG als Verteilungsschlüssel Hinweis anzeigen
+    document.getElementById('verteilungsschluessel').addEventListener('change', function () {
+        const schluessel = this.value;
+        let hinweis = "";
+
+        if (schluessel === 'VF-Einheiten') {
+            hinweis = "Nur Miteigentümer mit Wohnungen (VF-Einheiten = 1) werden belastet";
+        } else if (schluessel === 'TG-Einheiten') {
+            hinweis = "Nur Miteigentümer mit TG-Plätzen (TG-Einheiten = 1) werden belastet";
+        }
+
+        // Hinweis im small-Element anzeigen
+        this.nextElementSibling.textContent = hinweis || "Bestimmt, wie die Kosten verteilt werden";
+    });
+
+    // Betrag-Format überprüfen
+    document.getElementById('betrag').addEventListener('blur', function () {
+        let value = this.value.replace(',', '.');
+        // Überprüfen, ob es eine gültige Dezimalzahl ist
+        if (!isNaN(parseFloat(value)) && isFinite(value)) {
+            this.value = parseFloat(value).toFixed(2);
+        }
+    });
+</script>
+{% endblock %}

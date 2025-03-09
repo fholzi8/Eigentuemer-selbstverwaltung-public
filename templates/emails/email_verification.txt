@@ -1,0 +1,13 @@
+Hallo {{ user.username }},
+
+bitte verifizieren Sie Ihre E-Mail-Adresse für Ihr Konto in der WEG-Abrechnungsanwendung.
+
+Besuchen Sie die folgende URL, um Ihre E-Mail-Adresse zu bestätigen:
+{{ verify_url }}
+
+Der Link ist 30 Minuten gültig.
+
+Falls Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail ignorieren.
+
+Mit freundlichen Grüßen
+Ihr WEG-App-Team

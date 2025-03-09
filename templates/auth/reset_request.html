@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}- Passwort zurücksetzen{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Passwort zurücksetzen</h3>
+            </div>
+            <div class="card-body">
+                <p>Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen Ihres Passworts zu erhalten.</p>
+                <form method="POST" action="{{ url_for('auth.request_reset') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-Mail-Adresse</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Link senden</button>
+                </form>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('auth.login') }}">Zurück zum Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

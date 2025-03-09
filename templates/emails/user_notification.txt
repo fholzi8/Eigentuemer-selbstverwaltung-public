@@ -1,0 +1,19 @@
+WEG-Abrechnungsanwendung - Benutzer {{ action }}
+
+Hallo {{ admin.username }},
+
+Ein Benutzerkonto wurde in der WEG-Abrechnungsanwendung {{ action }}.
+
+Benutzerdetails:
+- Benutzername: {{ affected_user.username }}
+- Rolle: {{ "Administrator" if affected_user.is_admin else "Benutzer" }}
+{% if affected_user.email %}
+- E-Mail: {{ affected_user.email }}
+{% endif %}
+
+Sie können alle Benutzerkonten in den Einstellungen der WEG-Abrechnungsanwendung verwalten.
+
+Mit freundlichen Grüßen,
+Ihr WEG-Team
+
+Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht darauf.

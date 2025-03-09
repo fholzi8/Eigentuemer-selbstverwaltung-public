@@ -1,0 +1,75 @@
+/* WEG-Abrechnung - Eigene Styles */
+
+/* Allgemeine Styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+html,body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+}
+
+.container {
+    min-height: 100%;
+    position: relative;
+    overflow-y: auto;
+}
+
+.footer {
+    margin-top: auto;
+}
+
+/* Formatierung für Geldbeträge */
+.text-success {
+    font-weight: 500;
+}
+
+.text-danger {
+    font-weight: 500;
+}
+
+/* Tabellenstyles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Form Styles */
+.form-label {
+    font-weight: 500;
+}
+
+/* Card Styles */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+/* Navigation Styles */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+/* Dashboard Tiles 
+.dashboard-tile*/

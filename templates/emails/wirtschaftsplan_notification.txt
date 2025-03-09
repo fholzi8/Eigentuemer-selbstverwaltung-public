@@ -1,0 +1,20 @@
+WEG-Abrechnungsanwendung - Wirtschaftsplan {{ action }}
+
+Hallo {{ user.username }},
+
+Der Wirtschaftsplan für das Jahr {{ wirtschaftsplan.jahr }} wurde {{ action }}.
+
+Details:
+- Jahr: {{ wirtschaftsplan.jahr }}
+- Status: {{ wirtschaftsplan.status }}
+- Aktualisiert am: {{ wirtschaftsplan.importiert_am.strftime('%d.%m.%Y %H:%M') }}
+{% if wirtschaftsplan.dateiname %}
+- Quelle: {{ wirtschaftsplan.dateiname }}
+{% endif %}
+
+Sie können die vollständigen Details in der WEG-Abrechnungsanwendung einsehen.
+
+Mit freundlichen Grüßen,
+Ihr WEG-Team
+
+Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht darauf.

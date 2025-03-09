@@ -1,0 +1,361 @@
+{% extends "layout.html" %}
+
+{% block title %}- Transaktionen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Transaktionen</h1>
+    <div class="btn-group">
+        <a href="{{ url_for('transaktionen.neu') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Neue Transaktion
+        </a>
+        <a href="{{ url_for('transaktionen.upload') }}" class="btn btn-success">
+            <i class="bi bi-upload me-1"></i>Importieren
+        </a>
+    </div>
+</div>
+
+<!-- Filter-Formular -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Filter</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('transaktionen.liste') }}" class="row g-3">
+            <div class="col-md-3">
+                <label for="kostenart" class="form-label">Kostenart</label>
+                <select class="form-select" id="kostenart" name="kostenart">
+                    <option value="">Alle</option>
+                    {% for kostenart in kostenarten %}
+                    <option value="{{ kostenart }}" {% if kostenart==filter_kostenart %}selected{% endif %}>{{ kostenart
+                        }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="umlagefaehig" class="form-label">Umlagefähig</label>
+                <select class="form-select" id="umlagefaehig" name="umlagefaehig">
+                    <option value="">Alle</option>
+                    <option value="ja" {% if filter_umlagefaehig=='ja' %}selected{% endif %}>Ja</option>
+                    <option value="nein" {% if filter_umlagefaehig=='nein' %}selected{% endif %}>Nein</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="verteilungsschluessel" class="form-label">Verteilungsschlüssel</label>
+                <select class="form-select" id="verteilungsschluessel" name="verteilungsschluessel">
+                    <option value="">Alle</option>
+                    {% for vs in verteilungsschluessel %}
+                    <option value="{{ vs }}" {% if vs==filter_verteilungsschluessel %}selected{% endif %}>{{ vs }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="transaktionstyp" class="form-label">Typ</label>
+                <select class="form-select" id="transaktionstyp" name="transaktionstyp">
+                    <option value="">Alle</option>
+                    <option value="einzahlungen" {% if filter_transaktionstyp=='einzahlungen' %}selected{% endif %}>
+                        Einzahlungen</option>
+                    <option value="ausgaben" {% if filter_transaktionstyp=='ausgaben' %}selected{% endif %}>Ausgaben
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="jahr" class="form-label">Jahr</label>
+                <select class="form-select" id="jahr" name="jahr">
+                    {% for jahr_option in jahre %}
+                    <option value="{{ jahr_option }}" {% if jahr_option==filter_jahr %}selected{% endif %}>{{
+                        jahr_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-filter me-1"></i>Filtern
+                </button>
+                <a href="{{ url_for('transaktionen.liste', reset_filters=1) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Filter zurücksetzen
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summen-Bereich -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Einnahmen {{ filter_jahr }}</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="text-success mb-0">{{ "%.2f"|format(summe_einnahmen) }} €</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Ausgaben {{ filter_jahr }}</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="text-danger mb-0">{{ "%.2f"|format(summe_ausgaben|abs) }} €</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fügen Sie diesen Code in die transaktionen/liste.html ein, direkt vor der Tabelle -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <span class="text-muted">Einträge pro Seite:</span>
+        <div class="btn-group ms-2">
+            {% for size in [10, 20, 50, 100] %}
+            <a href="{{ url_for('transaktionen.liste', 
+                               per_page=size, 
+                               kostenart=filter_kostenart, 
+                               umlagefaehig=filter_umlagefaehig, 
+                               verteilungsschluessel=filter_verteilungsschluessel, 
+                               transaktionstyp=filter_transaktionstyp, 
+                               jahr=filter_jahr) }}"
+                class="btn btn-sm {% if per_page == size %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                {{ size }}
+            </a>
+            {% endfor %}
+            <a href="{{ url_for('transaktionen.liste', 
+                              per_page=0, 
+                              kostenart=filter_kostenart, 
+                              umlagefaehig=filter_umlagefaehig, 
+                              verteilungsschluessel=filter_verteilungsschluessel, 
+                              transaktionstyp=filter_transaktionstyp, 
+                              jahr=filter_jahr) }}"
+                class="btn btn-sm {% if per_page == 0 %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                Alle
+            </a>
+        </div>
+    </div>
+
+    <div>
+        {% if transaktionen.total %}
+        <span class="badge bg-secondary">{{ transaktionen.total }} Transaktionen gefunden</span>
+        {% endif %}
+
+        {% if transaktionen.pages > 1 %}
+        <span class="badge bg-primary ms-2">Seite {{ transaktionen.page }} von {{ transaktionen.pages }}</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Transaktionen-Liste -->
+<div class="card">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Transaktionen</h5>
+        <span class="badge bg-primary">Seite {{ transaktionen.page }} von {{ transaktionen.pages }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table id="transaktion-tabelle" class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Beschreibung</th>
+                        <th>Kostenart</th>
+                        <th>Umlagefähig</th>
+                        <th>Verteilungsschlüssel</th>
+                        <th class="text-end">Betrag</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaktion in transaktionen.items %}
+                    <tr>
+                        <td>{{ transaktion.datum.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <!-- Tooltip für vollständigen Text -->
+                            <span class="beschreibung-tooltip" data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{ transaktion.beschreibung }}">
+                                {{ transaktion.beschreibung[:40] + '...' if transaktion.beschreibung|length > 40 else
+                                transaktion.beschreibung }}
+                            </span>
+                        </td>
+                        <td>{{ transaktion.kostenart }}</td>
+                        <td>
+                            {% if transaktion.umlagefaehig %}
+                            <span class="badge bg-success">Ja</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Nein</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ transaktion.verteilungsschluessel }}</td>
+                        <td
+                            class="text-end {% if transaktion.betrag < 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ "%.2f"|format(transaktion.betrag) }} €
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <!-- Bearbeiten-Button -->
+                                <a href="{{ url_for('transaktionen.bearbeiten', transaktion_id=transaktion.id) }}"
+                                    class="btn btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Bearbeiten
+                                </a>
+                                <!-- Rechnungs-Button -->
+                                <a href="{{ url_for('transaktionen.anhang', transaktion_id=transaktion.id) }}"
+                                    class="btn {% if transaktion.anhang %}btn-outline-info{% else %}btn-outline-secondary{% endif %}"
+                                    title="{% if transaktion.anhang %}Rechnung anzeigen{% else %}Rechnung hinzufügen{% endif %}">
+                                    <i class="bi {% if transaktion.anhang %}bi-file-earmark-text{% else %}bi-file-earmark-plus{% endif %}"></i>
+                                </a>
+                                <!-- Lösch-Button, der ein Modal öffnet -->
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal{{ transaktion.id }}">
+                                    <i class="bi bi-trash"></i> Löschen
+                                </button>
+                            </div>
+
+                            <!-- Lösch-Modal für Bestätigung -->
+                            <div class="modal fade" id="deleteModal{{ transaktion.id }}" tabindex="-1"
+                                aria-labelledby="deleteModalLabel{{ transaktion.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteModalLabel{{ transaktion.id }}">
+                                                Transaktion löschen</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Schließen"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Möchten Sie diese Transaktion wirklich löschen?</p>
+                                            <div class="card my-3">
+                                                <div class="card-body">
+                                                    <p><strong>Datum:</strong> {{ transaktion.datum.strftime('%d.%m.%Y')
+                                                        }}</p>
+                                                    <p><strong>Beschreibung:</strong> {{ transaktion.beschreibung }}</p>
+                                                    <p><strong>Betrag:</strong> <span
+                                                            class="{% if transaktion.betrag < 0 %}text-danger{% else %}text-success{% endif %}">{{
+                                                            "%.2f"|format(transaktion.betrag) }} €</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="alert alert-warning">
+                                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                Diese Aktion kann nicht rückgängig gemacht werden.
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Abbrechen</button>
+                                            <form
+                                                action="{{ url_for('transaktionen.delete', transaktion_id=transaktion.id) }}"
+                                                method="POST">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-danger">Löschen bestätigen</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="bi bi-inbox me-2"></i>Keine Transaktionen gefunden.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-light">
+        <nav aria-label="Transaktionen-Navigation">
+            <ul class="pagination justify-content-center mb-0">
+                {% if transaktionen.has_prev %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('transaktionen.liste', page=transaktionen.prev_num, kostenart=filter_kostenart, umlagefaehig=filter_umlagefaehig, verteilungsschluessel=filter_verteilungsschluessel, transaktionstyp=filter_transaktionstyp, jahr=filter_jahr) }}">
+                        <i class="bi bi-chevron-left"></i> Zurück
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-left"></i> Zurück</span>
+                </li>
+                {% endif %}
+
+                {% for page_num in transaktionen.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2)
+                %}
+                {% if page_num %}
+                {% if page_num == transaktionen.page %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('transaktionen.liste', page=page_num, kostenart=filter_kostenart, umlagefaehig=filter_umlagefaehig, verteilungsschluessel=filter_verteilungsschluessel, transaktionstyp=filter_transaktionstyp, jahr=filter_jahr) }}">
+                        {{ page_num }}
+                    </a>
+                </li>
+                {% endif %}
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if transaktionen.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('transaktionen.liste', page=transaktionen.next_num, kostenart=filter_kostenart, umlagefaehig=filter_umlagefaehig, verteilungsschluessel=filter_verteilungsschluessel, transaktionstyp=filter_transaktionstyp, jahr=filter_jahr) }}">
+                        Weiter <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Weiter <i class="bi bi-chevron-right"></i></span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    // Tooltips aktivieren für die Beschreibungen
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                container: 'body',
+                boundary: 'window'
+            });
+        });
+    });
+</script>
+<script nonce="{{ csp_nonce }}">
+    // DataTables aktivieren für die Transaktionen-Tabelle
+    $(document).ready(function () {
+        $('#transaktion-tabelle').DataTable({
+            "paging": false,        // Eigene Paginierung verwenden
+            "searching": false,     // Eigene Suchfunktion verwenden
+            "info": false,          // "Showing X to Y of Z entries" ausblenden
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/de-DE.json"
+            },
+            "order": [[0, "desc"]], // Sortierung nach Datum (erste Spalte) absteigend
+            "columnDefs": [
+                { "orderable": false, "targets": [6] } // Spalte mit Aktionen nicht sortierbar machen
+            ]
+        });
+    });
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", $('meta[name="csrf-token"]').attr('content'));
+            }
+        }
+    });
+</script>
+{% endblock %}

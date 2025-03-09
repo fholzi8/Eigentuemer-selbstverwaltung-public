@@ -1,0 +1,25 @@
+<!-- templates/errors/500.html -->
+{% extends "layout.html" %}
+
+{% block title %}- Serverfehler{% endblock %}
+
+{% block content %}
+<div class="row d-flex justify-content-center">
+    <div class="col-md-8 text-center mt-5">
+        <h1 class="display-1 text-danger">500</h1>
+        <div class="mb-4 lead">Es ist ein interner Serverfehler aufgetreten</div>
+        <p class="mb-4">
+            Entschuldigung, aber etwas ist nicht wie erwartet gelaufen. Der Administrator wurde informiert.
+            Sie können versuchen, die Seite neu zu laden oder zum Dashboard zurückzukehren.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Zurück
+            </a>
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary">
+                <i class="bi bi-house-door-fill me-2"></i>Zurück zum Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

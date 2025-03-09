@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block title %}- Benutzer bearbeiten{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Benutzer bearbeiten</h1>
+    <a href="{{ url_for('settings.users_list') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Zurück
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6 mx-auto">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Benutzerdaten: {{ user.username }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.user_edit', user_id=user.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Benutzername</label>
+                        <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+                        <div class="form-text">Der Benutzername kann nicht geändert werden.</div>
+                    </div>
+
+                    <!-- E-Mail-Adresse -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-Mail-Adresse</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="email" name="email"
+                                value="{{ user.email or '' }}">
+                            {% if user.email %}
+                            {% if user.email_verified %}
+                            <span class="input-group-text bg-success text-white">
+                                <i class="bi bi-check-circle me-1"></i> Verifiziert
+                            </span>
+                            {% else %}
+                            <span class="input-group-text bg-warning text-dark">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Nicht verifiziert
+                            </span>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="form-text">E-Mail-Adresse für Benachrichtigungen und Passwort-Reset</div>
+                    </div>
+
+                    <!-- Benachrichtigungseinstellungen -->
+                    <div class="mb-3">
+                        <h6 class="mb-2">Benachrichtigungseinstellungen</h6>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="notify_transaction_changes"
+                                name="notify_transaction_changes" {% if user.notify_transaction_changes %}checked{%
+                                endif %}>
+                            <label class="form-check-label" for="notify_transaction_changes">
+                                Benachrichtigungen über Transaktionsänderungen
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="notify_wirtschaftsplan_changes"
+                                name="notify_wirtschaftsplan_changes" {% if user.notify_wirtschaftsplan_changes
+                                %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_wirtschaftsplan_changes">
+                                Benachrichtigungen über Wirtschaftsplanänderungen
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="notify_user_changes"
+                                name="notify_user_changes" {% if user.notify_user_changes %}checked{% endif %}>
+                            <label class="form-check-label" for="notify_user_changes">
+                                Benachrichtigungen über Benutzeränderungen
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Passwort -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Neues Passwort</label>
+                        <input type="password" class="form-control" id="password" name="password">
+                        <div class="form-text">Nur ausfüllen, wenn das Passwort geändert werden soll.
+                            Mindestens 8 Zeichen, mit Groß- und Kleinbuchstaben, Ziffern und Sonderzeichen.</div>
+                    </div>
+
+                    <!-- Admin-Rechte -->
+                    {% if current_user.is_admin %}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin" {% if
+                            user.is_admin %}checked{% endif %}>
+                        <label class="form-check-label" for="is_admin">Administrator-Rechte</label>
+                        <div class="form-text">Administratoren können alle Funktionen der Anwendung nutzen und haben
+                            vollen Zugriff auf alle Daten.</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- E-Mail-Verifizierung -->
+                    {% if user.email and not user.email_verified %}
+                    <div class="mb-3">
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Die E-Mail-Adresse ist nicht verifiziert. Benutzer kann Verifizierung über sein Profil
+                            anfordern.
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i>Änderungen speichern
+                        </button>
+                        <a href="{{ url_for('settings.users_list') }}" class="btn btn-outline-secondary">Abbrechen</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}" src="{{ url_for('static', filename='js/password-strength.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}- Neuer Miteigentümer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Neuer Miteigentümer</h1>
+    <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Zurück zur Übersicht</a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Miteigentümer-Daten eingeben</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('miteigentuemer.neu') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+                <small class="form-text text-muted">Vollständiger Name des Miteigentümers</small>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="mea" class="form-label">MEA-Werte</label>
+                    <input type="number" class="form-control" id="mea" name="mea" min="0" required>
+                    <small class="form-text text-muted">Miteigentumsanteile (z.B. 70327)</small>
+                </div>
+                <div class="col-md-6">
+                    <label for="einheiten" class="form-label">Einheiten</label>
+                    <input type="number" class="form-control" id="einheiten" name="einheiten" min="0" value="1">
+                    <small class="form-text text-muted">Anzahl der Wohneinheiten</small>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label for="vf_einheiten" class="form-label">VF-Einheiten</label>
+                    <input type="number" class="form-control" id="vf_einheiten" name="vf_einheiten" min="0" value="0">
+                    <small class="form-text text-muted">Verteilerfaktor-Einheiten für Wohnungen</small>
+                </div>
+                <div class="col-md-6">
+                    <label for="tg_einheiten" class="form-label">TG-Einheiten</label>
+                    <input type="number" class="form-control" id="tg_einheiten" name="tg_einheiten" min="0" value="0">
+                    <small class="form-text text-muted">Tiefgaragen-Einheiten</small>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Speichern</button>
+                <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
