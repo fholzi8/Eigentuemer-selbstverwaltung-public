@@ -3,7 +3,7 @@ Service-Funktionen für Abrechnungen
 """
 
 from decimal import Decimal
-from models import db, Miteigentuemer, Transaktion
+from models import db, Miteigentuemer, Transaktion, JahresabschlussKontostand
 
 def get_abrechnung_data(jahr):
     """
@@ -84,6 +84,19 @@ def get_abrechnung_data(jahr):
         Transaktion.jahr == jahr
     ).scalar() or Decimal('0')
     
+    # Jahresabschluss-Daten abrufen
+    jahresabschluss = JahresabschlussKontostand.query.filter_by(jahr=jahr).first()
+    vorjahres_abschluss = JahresabschlussKontostand.query.filter_by(jahr=jahr-1).first()
+    
+    vorjahres_saldo = Decimal('0')
+    kontostand_jahresende = Decimal('0')
+    
+    if vorjahres_abschluss:
+        vorjahres_saldo = vorjahres_abschluss.vorjahres_saldo
+        
+    if jahresabschluss:
+        kontostand_jahresende = jahresabschluss.kontostand
+
     # Gesamtsummen
     gesamt_umlagefaehig = umlagefaehig_einheiten + umlagefaehig_vf + umlagefaehig_tg
     gesamt_nicht_umlagefaehig = gesamt_ausgaben - gesamt_umlagefaehig
@@ -155,6 +168,8 @@ def get_abrechnung_data(jahr):
         'gesamt_ausgaben': gesamt_ausgaben,
         'gesamt_umlagefaehig': gesamt_umlagefaehig,
         'gesamt_nicht_umlagefaehig': gesamt_nicht_umlagefaehig,
+        'vorjahres_saldo': vorjahres_saldo,
+        'kontostand_jahresende': kontostand_jahresende,
         'kostenarten_stats': kostenarten_stats,
         'abrechnungen': abrechnungen,
         'kosten_einheiten': kosten_einheiten,

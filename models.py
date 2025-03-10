@@ -217,3 +217,18 @@ class RoadmapItem(db.Model):
 
     def __repr__(self):
         return f'<RoadmapItem {self.title}>'
+
+class JahresabschlussKontostand(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jahr = db.Column(db.Integer, nullable=False, unique=True)
+    kontostand = db.Column(db.Numeric(10, 2), nullable=False)
+    vorjahres_saldo = db.Column(db.Numeric(10, 2), nullable=False)
+    kommentar = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    
+    user = db.relationship('User', backref='jahresabschluesse')
+    
+    def __repr__(self):
+        return f'<JahresabschlussKontostand {self.jahr} {self.kontostand}>'
