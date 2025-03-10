@@ -253,3 +253,144 @@ def export_wirtschaftsplan_as_excel(wirtschaftsplan_eintraege, year=None):
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment;filename={filename}"}
     )
+
+def export_abrechnung_as_csv(abrechnungen, jahr):
+    """
+    Exportiert Abrechnungen pro Miteigentümer als CSV-Datei
+    
+    Args:
+        abrechnungen: Liste von Abrechnungs-Dictionaries
+        jahr: Das Jahr der Abrechnung
+    
+    Returns:
+        Response: Flask-Response mit CSV-Datei zum Download
+    """
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    
+    # Header
+    header = ['Name', 'MEA', 'Einheiten', 'VF-Einheiten', 'TG-Einheiten', 
+             'Einzahlungen', 'Anteil Einheiten', 'Anteil VF', 'Anteil TG', 
+             'Anteil Gesamt', 'Anteil umlagefähig', 'Anteil nicht umlagefähig']
+    
+    # Prüfen, ob Guthaben Vorjahr in den Daten vorhanden ist
+    if any('guthaben_vorjahr' in abr for abr in abrechnungen):
+        header.append('Guthaben Vorjahr')
+    
+    header.append('Saldo')
+    writer.writerow(header)
+    
+    # Daten
+    for abr in abrechnungen:
+        miteigentuemer = abr['miteigentuemer']
+        row = [
+            miteigentuemer.name,
+            miteigentuemer.mea,
+            miteigentuemer.einheiten,
+            miteigentuemer.vf_einheiten,
+            miteigentuemer.tg_einheiten,
+            str(abr['einzahlungen']).replace('.', ','),
+            str(abr['anteil_einheiten']).replace('.', ','),
+            str(abr['anteil_vf']).replace('.', ','),
+            str(abr['anteil_tg']).replace('.', ','),
+            str(abr['anteil_gesamt']).replace('.', ','),
+            str(abr['anteil_umlagefaehig']).replace('.', ','),
+            str(abr['anteil_nicht_umlagefaehig']).replace('.', ',')
+        ]
+        
+        # Guthaben Vorjahr hinzufügen, falls vorhanden
+        if 'guthaben_vorjahr' in abr:
+            row.append(str(abr['guthaben_vorjahr']).replace('.', ','))
+        
+        row.append(str(abr['saldo']).replace('.', ','))
+        writer.writerow(row)
+    
+    output.seek(0)
+    
+    filename = f"abrechnung_miteigentuemer_{jahr}.csv"
+    
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment;filename={filename}"}
+    )
+
+def export_abrechnung_as_excel(abrechnungen, jahr):
+    """
+    Exportiert Abrechnungen pro Miteigentümer als Excel-Datei
+    
+    Args:
+        abrechnungen: Liste von Abrechnungs-Dictionaries
+        jahr: Das Jahr der Abrechnung
+    
+    Returns:
+        Response: Flask-Response mit Excel-Datei zum Download
+    """
+    import xlsxwriter
+    from io import BytesIO
+    
+    output = BytesIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet('Abrechnung')
+    
+    # Formatierungen
+    header_format = workbook.add_format({'bold': True, 'bg_color': '#DDDDDD'})
+    currency_format = workbook.add_format({'num_format': '#,##0.00 €'})
+    number_format = workbook.add_format({'num_format': '0'})
+    
+    # Header
+    header = ['Name', 'MEA', 'Einheiten', 'VF-Einheiten', 'TG-Einheiten', 
+             'Einzahlungen', 'Anteil Einheiten', 'Anteil VF', 'Anteil TG', 
+             'Anteil Gesamt', 'Anteil umlagefähig', 'Anteil nicht umlagefähig']
+    
+    # Prüfen, ob Guthaben Vorjahr in den Daten vorhanden ist
+    has_guthaben_vorjahr = any('guthaben_vorjahr' in abr for abr in abrechnungen)
+    if has_guthaben_vorjahr:
+        header.append('Guthaben Vorjahr')
+    
+    header.append('Saldo')
+    
+    for col, title in enumerate(header):
+        worksheet.write(0, col, title, header_format)
+    
+    # Spaltenbreiten
+    worksheet.set_column('A:A', 30)  # Name
+    worksheet.set_column('B:E', 12)  # MEA, Einheiten, etc.
+    worksheet.set_column('F:M', 18)  # Finanzwerte
+    
+    # Daten
+    for row, abr in enumerate(abrechnungen, start=1):
+        miteigentuemer = abr['miteigentuemer']
+        
+        worksheet.write(row, 0, miteigentuemer.name)
+        worksheet.write_number(row, 1, miteigentuemer.mea, number_format)
+        worksheet.write_number(row, 2, miteigentuemer.einheiten, number_format)
+        worksheet.write_number(row, 3, miteigentuemer.vf_einheiten, number_format)
+        worksheet.write_number(row, 4, miteigentuemer.tg_einheiten, number_format)
+        
+        # Finanzwerte
+        col = 5
+        for key in ['einzahlungen', 'anteil_einheiten', 'anteil_vf', 'anteil_tg', 
+                   'anteil_gesamt', 'anteil_umlagefaehig', 'anteil_nicht_umlagefaehig']:
+            worksheet.write_number(row, col, float(abr[key]), currency_format)
+            col += 1
+        
+        # Guthaben Vorjahr, falls vorhanden
+        if has_guthaben_vorjahr:
+            value = float(abr.get('guthaben_vorjahr', 0))
+            worksheet.write_number(row, col, value, currency_format)
+            col += 1
+        
+        # Saldo
+        worksheet.write_number(row, col, float(abr['saldo']), currency_format)
+    
+    workbook.close()
+    output.seek(0)
+    
+    filename = f"abrechnung_miteigentuemer_{jahr}.xlsx"
+    
+    return Response(
+        output,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment;filename={filename}"}
+    )

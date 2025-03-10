@@ -108,3 +108,23 @@ def export(miteigentuemer_id, jahr):
         download_name=dateiname,
         mimetype='application/pdf'
     )
+
+@abrechnung_bp.route('/export_miteigentuemer', methods=['GET'])
+@login_required
+def export_miteigentuemer():
+    """
+    Exportiert die Abrechnungen aller Miteigentümer als CSV oder Excel
+    """
+    format = request.args.get('format', 'excel')
+    jahr = request.args.get('jahr', datetime.date.today().year, type=int)
+    
+    # Abrechnungsdaten abrufen
+    abrechnung_data = get_abrechnung_data(jahr)
+    
+    # Export durchführen
+    from utils.export.export import export_abrechnung_as_csv, export_abrechnung_as_excel
+    
+    if format == 'csv':
+        return export_abrechnung_as_csv(abrechnung_data['abrechnungen'], jahr)
+    else:
+        return export_abrechnung_as_excel(abrechnung_data['abrechnungen'], jahr)

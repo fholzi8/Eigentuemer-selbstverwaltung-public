@@ -21,8 +21,14 @@ def get_abrechnung_data(jahr):
     # Gesamtkosten im ausgewählten Jahr
     gesamt_einnahmen = db.session.query(db.func.sum(Transaktion.betrag)).filter(
         Transaktion.betrag > 0, 
-        Transaktion.jahr == jahr
+        Transaktion.jahr == jahr,
+        # Nur Transaktionen mit bestimmten Kostenarten einbeziehen
+        Transaktion.kostenart.in_(['Einzahlung', 'Hausgeld', 'Sonderumlage'])  # Passe die Liste entsprechend an
     ).scalar() or Decimal('0')
+    #gesamt_einnahmen = db.session.query(db.func.sum(Transaktion.betrag)).filter(
+    #    Transaktion.betrag > 0, 
+    #    Transaktion.jahr == jahr
+    #).scalar() or Decimal('0')
     
     gesamt_ausgaben = db.session.query(db.func.sum(Transaktion.betrag)).filter(
         Transaktion.betrag < 0, 
