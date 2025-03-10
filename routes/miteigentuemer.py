@@ -5,15 +5,22 @@ Miteigentümer-Blueprint zur Verwaltung von Miteigentümern
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required
 from models import db, Miteigentuemer
+from datetime import datetime
+from decimal import Decimal
 
 miteigentuemer_bp = Blueprint('miteigentuemer', __name__, url_prefix='/miteigentuemer')
 
 @miteigentuemer_bp.route('/', methods=['GET'])
 @login_required
 def liste():
-    miteigentuemer = Miteigentuemer.query.all()
-    gesamt_mea = sum(m.mea for m in miteigentuemer) if miteigentuemer else 1
-    return render_template('miteigentuemer/liste.html', miteigentuemer=miteigentuemer, gesamt_mea=gesamt_mea)
+    miteigentuemer_liste = Miteigentuemer.query.all()
+    
+    # Vorjahr für die Anzeige bestimmen (aktuelles Jahr - 1)
+    vorjahr = datetime.datetime.now().year - 1
+    
+    return render_template('miteigentuemer/liste.html', 
+                          miteigentuemer_liste=miteigentuemer_liste,
+                          vorjahr=vorjahr)
 
 @miteigentuemer_bp.route('/neu', methods=['GET', 'POST'])
 @login_required
@@ -50,18 +57,25 @@ def bearbeiten(miteigentuemer_id):
     miteigentuemer = Miteigentuemer.query.get_or_404(miteigentuemer_id)
     
     if request.method == 'POST':
+        # Bestehende Felder aktualisieren
         miteigentuemer.name = request.form.get('name')
-        miteigentuemer.mea = request.form.get('mea', 0, type=int)
-        miteigentuemer.vf_einheiten = request.form.get('vf_einheiten', 0, type=int)
-        miteigentuemer.tg_einheiten = request.form.get('tg_einheiten', 0, type=int)
-        miteigentuemer.einheiten = request.form.get('einheiten', 1, type=int)
+        miteigentuemer.mea = request.form.get('mea', type=int)
+        miteigentuemer.vf_einheiten = request.form.get('vf_einheiten', type=int, default=0)
+        miteigentuemer.tg_einheiten = request.form.get('tg_einheiten', type=int, default=0)
+        miteigentuemer.einheiten = request.form.get('einheiten', type=int, default=1)
         
-        try:
-            db.session.commit()
-            flash('Miteigentümer aktualisiert')
-            return redirect(url_for('miteigentuemer.liste'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Fehler beim Aktualisieren: {str(e)}')
+        # Neues Feld: Guthaben aus Vorjahr
+        guthaben_vorjahr = request.form.get('guthaben_vorjahr', type=float, default=0.00)
+        miteigentuemer.guthaben_vorjahr = Decimal(str(guthaben_vorjahr))
+        miteigentuemer.guthaben_jahr = request.form.get('guthaben_jahr', type=int, default=2023)
+        
+        db.session.commit()
+        flash(f'Miteigentümer {miteigentuemer.name} wurde aktualisiert', 'success')
+        return redirect(url_for('miteigentuemer.liste'))
     
-    return render_template('miteigentuemer/bearbeiten.html', miteigentuemer=miteigentuemer)
+    # Vorjahr für die Anzeige bestimmen (aktuelles Jahr - 1)
+    vorjahr = datetime.datetime.now().year - 1
+    
+    return render_template('miteigentuemer/bearbeiten.html', 
+                          miteigentuemer=miteigentuemer,
+                          vorjahr=vorjahr)
