@@ -78,6 +78,11 @@
                                     <i class="bi bi-people me-1"></i>Miteigentümer
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('settings.jahresabschluss_liste') }}">
+                                    <i class="bi bi-calendar-date me-1"></i>Jahresabschlüsse
+                                </a>
+                            </li>
                             {% if current_user.is_admin %}
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('settings.users_list') }}">
@@ -125,9 +130,6 @@
                             <!-- Benutzerprofil -->
                             <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
                                 <i class="bi bi-person-circle me-2"></i>Benutzerprofil</a></li>
-                            <!-- Profile bearbeiten -->
-                            <li><a class="dropdown-item" href="{{ url_for('settings.user_edit', user_id=current_user.id) }}">Profil
-                                    bearbeiten</a></li>
                             <!-- Neuer Link zu Systeminformationen -->
                             <li><a class="dropdown-item" href="{{ url_for('settings.systeminfo') }}">System-Informationen</a></li>
                             <li>

@@ -41,12 +41,6 @@
                     <div class="mt-2">
                         {% set prozent_einnahmen = (transaktionen_stats.summe_einnahmen / wirtschaftsplan.summen.gesamt
                         * 100)|round(1) %}
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-primary" role="progressbar"
-                                style="width: {% if prozent_einnahmen %}{{ prozent_einnahmen }}{% else %}0{% endif %}%;"
-                                aria-valuenow="{% if prozent_einnahmen %}{{ prozent_einnahmen }}{% else %}0{% endif %}"
-                                aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
                         <small class="text-muted">{{ prozent_einnahmen }}% des Wirtschaftsplans</small>
                     </div>
                     {% endif %}
@@ -67,12 +61,6 @@
                     <div class="mt-2">
                         {% set prozent_ausgaben = (transaktionen_stats.summe_ausgaben|abs /
                         wirtschaftsplan.summen.gesamt * 100)|round(1) %}
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-danger" role="progressbar"
-                                style="width: {% if prozent_ausgaben %}{{ prozent_ausgaben }}{% else %}0{% endif %}%;"
-                                aria-valuenow="{% if prozent_ausgaben %}{{ prozent_ausgaben }}{% else %}0{% endif %}"
-                                aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
                         <small class="text-muted">{{ prozent_ausgaben }}% des Wirtschaftsplans</small>
                     </div>
                     {% endif %}
@@ -125,16 +113,28 @@
                 <h5 class="mb-0">Wirtschaftsplan vs. tatsächliche Ausgaben {{ jahr }}</h5>
             </div>
             <div class="card-body">
+                <!-- Ausgabenbalken berechnen -->
+                {% set prozent_ausgaben = (transaktionen_stats.summe_ausgaben|abs / wirtschaftsplan.summen.gesamt *
+                100)|float|round(1) if wirtschaftsplan.summen.gesamt > 0 else 0 %}
+
+                <!-- Fortschrittsbalken -->
                 <div class="progress" style="height: 25px;">
-                    {% set prozent_ausgaben = (transaktionen_stats.summe_ausgaben|abs / wirtschaftsplan.summen.gesamt *
-                    100) if wirtschaftsplan.summen.gesamt > 0 else 0 %}
-                    <div class="progress-bar bg-danger" role="progressbar"
-                        style="width: {% if prozent_ausgaben %}{{ prozent_ausgaben }}{% else %}0{% endif %}%;"
-                        aria-valuenow="{% if prozent_ausgaben %}{{ prozent_ausgaben }}{% else %}0{% endif %}"
-                        aria-valuemin="0" aria-valuemax="100">
-                        {{ "%.2f"|format(transaktionen_stats.summe_ausgaben|abs) }} € ({{ prozent_ausgaben|round(1) }}%)
+                    <div class="progress-bar bg-danger" role="progressbar" id="ausgaben-progress-bar"
+                        aria-valuenow="{{ prozent_ausgaben }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ "%.2f"|format(transaktionen_stats.summe_ausgaben|abs) }} € ({{ prozent_ausgaben }}%)
                     </div>
                 </div>
+
+                <!-- JavaScript, um die Breite des Balkens zu setzen -->
+                <script nonce="{{ csp_nonce }}">
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var balken = document.getElementById('ausgaben-progress-bar');
+                        if (balken) {
+                            balken.style.width = '{{ prozent_ausgaben }}%';
+                        }
+                    });
+                </script>
+
                 <div class="d-flex justify-content-between mt-2">
                     <small class="text-muted">0 €</small>
                     <small class="text-muted">Wirtschaftsplan: {{ "%.2f"|format(wirtschaftsplan.summen.gesamt) }}
@@ -297,18 +297,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% set gesamt_kosten = 0 %}
+                            <!-- Gesamtkosten mit Namespace berechnen -->
+                            {% set ns = namespace(gesamt_kosten=0) %}
                             {% for kostenart, betrag in kosten_nach_art %}
-                            {% set gesamt_kosten = gesamt_kosten + (betrag|abs) %}
+                            {% set ns.gesamt_kosten = ns.gesamt_kosten + (betrag|abs|float) %}
                             {% endfor %}
 
                             {% for kostenart, betrag in kosten_nach_art %}
                             <tr>
                                 <td>{{ kostenart or 'Sonstige' }}</td>
-                                <td class="text-end">{{ "%.2f"|format(betrag|abs) }} €</td>
+                                <td class="text-end">{{ "%.2f"|format(betrag|abs|float) }} €</td>
                                 <td class="text-end">
-                                    {% if gesamt_kosten > 0 %}
-                                    {{ "%.1f"|format(betrag|abs / gesamt_kosten * 100) }}%
+                                    {% if ns.gesamt_kosten > 0 %}
+                                    {{ "%.1f"|format((betrag|abs|float / ns.gesamt_kosten * 100)) }}%
                                     {% else %}
                                     0%
                                     {% endif %}
@@ -319,7 +320,7 @@
                         <tfoot>
                             <tr class="table-secondary">
                                 <th>Gesamt</th>
-                                <th class="text-end">{{ "%.2f"|format(gesamt_kosten) }} €</th>
+                                <th class="text-end">{{ "%.2f"|format(ns.gesamt_kosten) }} €</th>
                                 <th class="text-end">100%</th>
                             </tr>
                         </tfoot>
@@ -352,18 +353,20 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% set gesamt_einzahlungen = 0 %}
+                            <!-- Gesamtsumme mit Namespace berechnen -->
+                            {% set ns = namespace(gesamt_einzahlungen=0) %}
                             {% for name, betrag in einzahlungen_nach_miteigentuemer %}
-                            {% set gesamt_einzahlungen = gesamt_einzahlungen + betrag %}
+                            {% set ns.gesamt_einzahlungen = ns.gesamt_einzahlungen + (betrag|float) %}
                             {% endfor %}
 
+                            <!-- Dann durch die Daten iterieren -->
                             {% for name, betrag in einzahlungen_nach_miteigentuemer %}
                             <tr>
                                 <td>{{ name }}</td>
-                                <td class="text-end">{{ "%.2f"|format(betrag) }} €</td>
+                                <td class="text-end">{{ "%.2f"|format(betrag|float) }} €</td>
                                 <td class="text-end">
-                                    {% if gesamt_einzahlungen > 0 %}
-                                    {{ "%.1f"|format(betrag / gesamt_einzahlungen * 100) }}%
+                                    {% if ns.gesamt_einzahlungen > 0 %}
+                                    {{ "%.1f"|format((betrag|float / ns.gesamt_einzahlungen * 100)) }}%
                                     {% else %}
                                     0%
                                     {% endif %}
@@ -374,7 +377,7 @@
                         <tfoot>
                             <tr class="table-secondary">
                                 <th>Gesamt</th>
-                                <th class="text-end">{{ "%.2f"|format(gesamt_einzahlungen) }} €</th>
+                                <th class="text-end">{{ "%.2f"|format(ns.gesamt_einzahlungen) }} €</th>
                                 <th class="text-end">100%</th>
                             </tr>
                         </tfoot>

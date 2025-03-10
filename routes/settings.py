@@ -306,7 +306,7 @@ def kontostand_manage():
     if request.method == 'POST':
         try:
             datum_str = request.form.get('datum')
-            datum = datetime.datetime.strptime(datum_str, '%Y-%m-%d').date()
+            datum = datetime.strptime(datum_str, '%Y-%m-%d').date()
             betrag_str = request.form.get('betrag').replace(',', '.')
             betrag = Decimal(betrag_str)
             kommentar = request.form.get('kommentar', '')
@@ -641,7 +641,7 @@ def update_roadmap():
     
     return redirect(url_for('settings.systeminfo'))
 
-# In routes/settings.py oder einer neuen Datei
+
 @settings_bp.route('/jahresabschluss', methods=['GET'])
 @login_required
 @admin_required
@@ -684,9 +684,10 @@ def jahresabschluss_neu():
             db.session.rollback()
             flash(f'Fehler beim Erstellen des Jahresabschlusses: {str(e)}', 'danger')
     
-    # Jahre für das Dropdown ermitteln (aktuelle Jahr bis 10 Jahre zurück)
+    # Jahre für das Dropdown ermitteln (aktuelle Jahr bis 3 Jahre zurück)
+    from datetime import datetime
     aktuelles_jahr = datetime.now().year
-    jahre = range(aktuelles_jahr - 10, aktuelles_jahr + 1)
+    jahre = range(aktuelles_jahr - 3, aktuelles_jahr + 1)
     
     return render_template('settings/jahresabschluss_neu.html', jahre=jahre)
 
@@ -698,6 +699,7 @@ def jahresabschluss_bearbeiten(jahresabschluss_id):
     jahresabschluss = JahresabschlussKontostand.query.get_or_404(jahresabschluss_id)
     
     if request.method == 'POST':
+        from datetime import datetime
         jahresabschluss.kontostand = Decimal(str(request.form.get('kontostand', type=float, default=0.00)))
         jahresabschluss.vorjahres_saldo = Decimal(str(request.form.get('vorjahres_saldo', type=float, default=0.00)))
         jahresabschluss.kommentar = request.form.get('kommentar')
@@ -712,3 +714,20 @@ def jahresabschluss_bearbeiten(jahresabschluss_id):
             flash(f'Fehler beim Aktualisieren des Jahresabschlusses: {str(e)}', 'danger')
     
     return render_template('settings/jahresabschluss_bearbeiten.html', jahresabschluss=jahresabschluss)
+
+@settings_bp.route('/jahresabschluss/delete/<int:jahresabschluss_id>', methods=['POST'])
+@login_required
+@admin_required
+def jahresabschluss_delete(jahresabschluss_id):
+    """Jahresabschluss löschen"""
+    jahresabschluss = JahresabschlussKontostand.query.get_or_404(jahresabschluss_id)
+    
+    try:
+        db.session.delete(jahresabschluss)
+        db.session.commit()
+        flash(f'Jahresabschluss für {jahresabschluss.jahr} erfolgreich gelöscht', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Fehler beim Löschen des Jahresabschlusses: {str(e)}', 'danger')
+        
+    return redirect(url_for('settings.jahresabschluss_liste'))

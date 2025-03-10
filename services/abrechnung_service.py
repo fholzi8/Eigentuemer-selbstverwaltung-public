@@ -91,9 +91,13 @@ def get_abrechnung_data(jahr):
     vorjahres_saldo = Decimal('0.00')
     kontostand_jahresende = Decimal('0.00')
     
+    # Wenn ein Abschluss für das Vorjahr existiert, verwenden wir dessen Kontostand
+    # als vorjähriges Saldo
     if vorjahres_abschluss:
-        vorjahres_saldo = vorjahres_abschluss.vorjahres_saldo
+        vorjahres_saldo = vorjahres_abschluss.kontostand
         
+    # Für den Kontostand am Jahresende nehmen wir den aktuellen Kontostand
+    # des ausgewählten Jahres
     if jahresabschluss:
         kontostand_jahresende = jahresabschluss.kontostand
 

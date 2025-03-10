@@ -47,22 +47,22 @@
                                 <td class="text-end text-danger">{{ "%.2f"|format(gesamt_ausgaben) }} €</td>
                             </tr>
                             <tr>
-                                <th>Saldo:</th>
+                                <th>Saldo aus Geschäftsjahr:</th>
                                 <td
                                     class="text-end {{ 'text-success' if (gesamt_einnahmen + gesamt_ausgaben) >= 0 else 'text-danger' }}">
                                     {{ "%.2f"|format(gesamt_einnahmen + gesamt_ausgaben) }} €
                                 </td>
                             </tr>
                             <tr>
-                                <th>Guthaben/Saldo aus {{ jahr-1 }}:</th>
+                                <th>Saldo aus {{ jahr-1 }}:</th>
                                 <td class="text-end {{ 'text-success' if vorjahres_saldo >= 0 else 'text-danger' }}">
-                                    {{ "%.2f"|format(vorjahres_saldo if vorjahres_saldo is defined else 0) }} €
+                                    {{ "%.2f"|format(vorjahres_saldo) }} €
                                 </td>
                             </tr>
                             <tr>
                                 <th>Kontostand Ende {{ jahr }}:</th>
-                                <td class="text-end {{ 'text-success' if (kontostand_jahresende) >= 0 else 'text-danger' }}">
-                                    {{ "%.2f"|format(kontostand_jahresende if kontostand_jahresende is defined else 0) }} €
+                                <td class="text-end {{ 'text-success' if kontostand_jahresende >= 0 else 'text-danger' }}">
+                                    {{ "%.2f"|format(kontostand_jahresende) }} €
                                 </td>
                             </tr>
                             <tr>
