@@ -785,3 +785,10 @@ def email_settings():
         email_configs=email_configs,
         active_tab='email_settings'
     )
+
+@settings_bp.route('/parameter-settings')
+@login_required
+@admin_required
+def parameter_settings():
+    """Zeigt die Übersicht der Parametereinstellungen an"""
+    return render_template('settings/parameter_settings.html')

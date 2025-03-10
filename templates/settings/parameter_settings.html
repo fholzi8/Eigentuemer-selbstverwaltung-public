@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block title %}- Parametereinstellungen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Parametereinstellungen</h1>
+    <a href="{{ url_for('settings.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Zurück zur Übersicht
+    </a>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <!-- Box 1: Kategorie-Mapping -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Kategorie-Kostenart Zuordnung</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Verwalten Sie die Zuordnung zwischen Wirtschaftsplankategorien und Transaktionskostenarten.</p>
+                <p class="text-muted small">Diese Zuordnungen werden verwendet, um Transaktionen automatisch zu
+                    kategorisieren und den richtigen Wirtschaftsplanposten zuzuordnen.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings.kategorie_mapping') }}" class="btn btn-primary">
+                        <i class="bi bi-diagram-3 me-1"></i>Zur Kategorie-Zuordnung
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 2: E-Mail-Einstellungen -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">E-Mail-Einstellungen</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Konfigurieren Sie die E-Mail-Einstellungen für Benachrichtigungen und Systemfunktionen.</p>
+                <p class="text-muted small">Hier können Sie SMTP-Server, Ports, Absenderadressen und weitere
+                    E-Mail-bezogene Parameter anpassen.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('settings.email_settings') }}" class="btn btn-primary">
+                        <i class="bi bi-envelope me-1"></i>Zu den E-Mail-Einstellungen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 3: Zukünftige Einstellungen -->
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Weitere Einstellungen</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p>Zusätzliche Systemparameter und Einstellungen werden in Zukunft hier verfügbar sein.</p>
+                <p class="text-muted small">Diese Sektion ist für zukünftige Erweiterungen reserviert, wie
+                    Berichtsoptionen, Benachrichtigungseinstellungen und weitere Anpassungsmöglichkeiten.</p>
+                <div class="mt-auto">
+                    <button class="btn btn-outline-secondary" disabled>
+                        <i class="bi bi-gear me-1"></i>Demnächst verfügbar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
