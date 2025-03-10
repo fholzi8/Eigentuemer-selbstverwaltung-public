@@ -60,25 +60,27 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th>Jahresdifferenz aus {{ jahr }} - {{ jahr-1 }}:</th>
+                                <th>errechneter Kontostand Ende {{ jahr }}:</th>
+                                <td class="text-end {{ 'text-success' if (vorjahres_saldo + gesamt_einnahmen + gesamt_ausgaben) >= 0 else 'text-danger' }}">
+                                    {{ "%.2f"|format(vorjahres_saldo + gesamt_einnahmen + gesamt_ausgaben) }} €
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>tatsächlicher Kontostand Ende {{ jahr }}:</th>
+                                <td class="text-end {{ 'text-success' if kontostand_jahresende >= 0 else 'text-danger' }}">
+                                    {{ "%.2f"|format(kontostand_jahresende) }} €
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Differenz errechneter/tatsächlicher Kontostand:</th>
                                 <td
                                     class="text-end {{ 'text-success' if (kontostand_jahresende - (vorjahres_saldo + gesamt_einnahmen + gesamt_ausgaben)) >= 0 else 'text-danger' }}">
                                     {{ "%.2f"|format(kontostand_jahresende - (vorjahres_saldo + gesamt_einnahmen + gesamt_ausgaben)) }} €
                                 </td>
                             </tr>
                             <tr>
-                                <th>Kontostand Ende {{ jahr }}:</th>
-                                <td class="text-end {{ 'text-success' if kontostand_jahresende >= 0 else 'text-danger' }}">
-                                    {{ "%.2f"|format(kontostand_jahresende) }} €
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Umlagefähige Kosten:</th>
-                                <td class="text-end">{{ "%.2f"|format(gesamt_umlagefaehig) }} €</td>
-                            </tr>
-                            <tr>
-                                <th>Nicht umlagefähige Kosten:</th>
-                                <td class="text-end">{{ "%.2f"|format(gesamt_nicht_umlagefaehig) }} €</td>
+                                <th>Nicht-Umlagefähige/Umlagefähige Kosten:</th>
+                                <td class="text-end">{{ "%.2f"|format(gesamt_nicht_umlagefaehig|abs) }} € / {{ "%.2f"|format(gesamt_umlagefaehig|abs) }} €</td>
                             </tr>
                         </tbody>
                     </table>
