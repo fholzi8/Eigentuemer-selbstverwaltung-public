@@ -478,3 +478,48 @@ def delete_anhang(transaktion_id):
         flash(message, 'danger')
     
     return redirect(url_for('transaktionen.anhang', transaktion_id=transaktion_id))
+
+@transaktionen_bp.route('/export', methods=['GET'])
+@login_required
+def export():
+    """
+    Exportiert gefilterte Transaktionen als CSV oder Excel
+    """
+    format = request.args.get('format', 'excel')
+    
+    # Die gleichen Filter wie bei der liste-Route verwenden
+    filter_kostenart = request.args.get('kostenart', session.get('filter_kostenart', ''))
+    filter_umlagefaehig = request.args.get('umlagefaehig', session.get('filter_umlagefaehig', ''))
+    filter_verteilungsschluessel = request.args.get('verteilungsschluessel', session.get('filter_verteilungsschluessel', ''))
+    filter_transaktionstyp = request.args.get('transaktionstyp', session.get('filter_transaktionstyp', ''))
+    filter_jahr = request.args.get('jahr', session.get('filter_jahr', datetime.date.today().year), type=int)
+    
+    # Query erstellen, genau wie bei der liste-Route
+    query = Transaktion.query.filter(Transaktion.jahr == filter_jahr)
+    
+    # Filter für Transaktionstyp (Einzahlungen/Ausgaben)
+    if filter_transaktionstyp == 'einzahlungen':
+        query = query.filter(Transaktion.betrag > 0)
+    elif filter_transaktionstyp == 'ausgaben':
+        query = query.filter(Transaktion.betrag < 0)
+    
+    if filter_kostenart:
+        query = query.filter(Transaktion.kostenart == filter_kostenart)
+    
+    if filter_umlagefaehig:
+        umlagefaehig_bool = (filter_umlagefaehig == 'ja')
+        query = query.filter(Transaktion.umlagefaehig == umlagefaehig_bool)
+    
+    if filter_verteilungsschluessel:
+        query = query.filter(Transaktion.verteilungsschluessel == filter_verteilungsschluessel)
+    
+    # Alle gefilterten Transaktionen abrufen
+    transaktionen = query.order_by(Transaktion.datum.desc()).all()
+    
+    # Exportieren
+    from utils.export.export import export_transaktionen_as_csv, export_transaktionen_as_excel
+    
+    if format == 'csv':
+        return export_transaktionen_as_csv(transaktionen, filter_jahr)
+    else:
+        return export_transaktionen_as_excel(transaktionen, filter_jahr)
