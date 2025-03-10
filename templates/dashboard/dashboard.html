@@ -136,7 +136,7 @@
                 </script>
 
                 <div class="d-flex justify-content-between mt-2">
-                    <small class="text-muted">0 €</small>
+                    <small class="text-muted">{{ "%.2f"|format(transaktionen_stats.summe_ausgaben|abs) }} €</small>
                     <small class="text-muted">Wirtschaftsplan: {{ "%.2f"|format(wirtschaftsplan.summen.gesamt) }}
                         €</small>
                 </div>

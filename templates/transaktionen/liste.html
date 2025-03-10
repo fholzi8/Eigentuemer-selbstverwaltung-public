@@ -178,7 +178,7 @@
                 <tbody>
                     {% for transaktion in transaktionen.items %}
                     <tr>
-                        <td>{{ transaktion.datum.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ transaktion.datum.strftime('%Y/%m/%d') }}</td>
                         <td>
                             <!-- Tooltip für vollständigen Text -->
                             <span class="beschreibung-tooltip" data-bs-toggle="tooltip" data-bs-html="true"
