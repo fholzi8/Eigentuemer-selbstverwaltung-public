@@ -46,7 +46,20 @@
                     <small class="form-text text-muted">Tiefgaragen-Einheiten</small>
                 </div>
             </div>
-
+            <div class="mb-3">
+                <label for="guthaben_jahr" class="form-label">Guthaben-Jahr</label>
+                <select class="form-select" id="guthaben_jahr" name="guthaben_jahr">
+                    {% for y in range(vorjahr-5, vorjahr+1) %}
+                    <option value="{{ y }}" {% if y==vorjahr %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="guthaben_jahr" class="form-label">Guthaben-Jahr</label>
+                <input type="number" class="form-control" id="guthaben_jahr" name="guthaben_jahr" value="{{ vorjahr }}" min="2000"
+                    max="2100">
+            </div>
             <div class="d-flex justify-content-between">
                 <button type="submit" class="btn btn-primary">Speichern</button>
                 <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Abbrechen</a>

@@ -102,6 +102,11 @@ def get_abrechnung_data(jahr):
         # 1. Kosten nach Standard-Einheiten (alle zahlen)
         anteil_einheiten = Decimal(str(m.einheiten / summe_einheiten)) * kosten_einheiten
         
+        # Guthaben aus dem Vorjahr
+        guthaben_vorjahr = Decimal('0')
+        if m.guthaben_jahr == jahr - 1:
+            guthaben_vorjahr = m.guthaben_vorjahr
+
         # 2. Kosten nach VF-Einheiten (nur wer VF-Einheiten hat)
         anteil_vf = Decimal('0')
         if m.vf_einheiten > 0 and summe_vf > 0:
@@ -130,7 +135,7 @@ def get_abrechnung_data(jahr):
         anteil_nicht_umlagefaehig = anteil_gesamt - anteil_umlagefaehig
         
         # Saldo (positiv = Guthaben, negativ = Nachzahlung)
-        saldo = einzahlungen + anteil_gesamt  # anteil_gesamt ist negativ
+        saldo = einzahlungen + anteil_gesamt + guthaben_vorjahr
         
         abrechnungen.append({
             'miteigentuemer': m,
@@ -141,6 +146,7 @@ def get_abrechnung_data(jahr):
             'anteil_gesamt': anteil_gesamt,
             'anteil_umlagefaehig': anteil_umlagefaehig,
             'anteil_nicht_umlagefaehig': anteil_nicht_umlagefaehig,
+            'guthaben_vorjahr': guthaben_vorjahr,
             'saldo': saldo
         })
     
@@ -270,6 +276,11 @@ def generate_abrechnung_detail(miteigentuemer_id, jahr):
             'anteil': anteil
         })
     
+    # Guthaben aus Vorjahr berücksichtigen
+    guthaben_vorjahr = Decimal('0')
+    if miteigentuemer.guthaben_jahr == jahr - 1:
+        guthaben_vorjahr = miteigentuemer.guthaben_vorjahr
+
     # Anteile berechnen
     # 1. Kosten nach Standard-Einheiten (alle zahlen)
     anteil_einheiten = Decimal(str(miteigentuemer.einheiten / summe_einheiten)) * kosten_einheiten
@@ -304,8 +315,11 @@ def generate_abrechnung_detail(miteigentuemer_id, jahr):
     # Summe der Einzahlungen berechnen
     summe_einzahlungen = sum(e.betrag for e in einzahlungen)
     
-    # Saldo berechnen
-    saldo = summe_einzahlungen + anteil_gesamt  # anteil_gesamt ist negativ
+    # Saldo berechnen ohne Guthaben
+    #saldo = summe_einzahlungen + anteil_gesamt  # anteil_gesamt ist negativ
+
+    # Saldo berechnen (jetzt mit Berücksichtigung des Guthabens aus dem Vorjahr)
+    saldo = summe_einzahlungen + anteil_gesamt + guthaben_vorjahr  # anteil_gesamt ist negativ
     
     return {
         'miteigentuemer': miteigentuemer,
@@ -317,6 +331,7 @@ def generate_abrechnung_detail(miteigentuemer_id, jahr):
         'anteil_gesamt': anteil_gesamt,
         'anteil_umlagefaehig': anteil_umlagefaehig,
         'anteil_nicht_umlagefaehig': anteil_nicht_umlagefaehig,
+        'guthaben_vorjahr': guthaben_vorjahr,
         'saldo': saldo,
         'kosten_details': kosten_details,
         'anteil_mea': anteil_mea

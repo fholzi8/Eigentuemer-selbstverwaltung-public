@@ -15,16 +15,23 @@ miteigentuemer_bp = Blueprint('miteigentuemer', __name__, url_prefix='/miteigent
 def liste():
     miteigentuemer_liste = Miteigentuemer.query.all()
     
+    # Berechnung der Gesamt-MEA für die Prozentanzeige
+    gesamt_mea = sum(m.mea for m in miteigentuemer_liste) if miteigentuemer_liste else 1
+    
     # Vorjahr für die Anzeige bestimmen (aktuelles Jahr - 1)
-    vorjahr = datetime.datetime.now().year - 1
+    vorjahr = datetime.now().year - 1
     
     return render_template('miteigentuemer/liste.html', 
                           miteigentuemer_liste=miteigentuemer_liste,
-                          vorjahr=vorjahr)
+                          vorjahr=vorjahr,
+                          gesamt_mea=gesamt_mea)
 
 @miteigentuemer_bp.route('/neu', methods=['GET', 'POST'])
 @login_required
 def neu():
+    # Vorjahr für die Anzeige bestimmen (aktuelles Jahr - 1)
+    vorjahr = datetime.now().year - 1
+    
     if request.method == 'POST':
         name = request.form.get('name')
         mea = request.form.get('mea', 0, type=int)
@@ -32,12 +39,18 @@ def neu():
         tg_einheiten = request.form.get('tg_einheiten', 0, type=int)
         einheiten = request.form.get('einheiten', 1, type=int)
         
+        # Guthaben aus Vorjahr
+        guthaben_vorjahr = request.form.get('guthaben_vorjahr', type=float, default=0.00)
+        guthaben_jahr = request.form.get('guthaben_jahr', type=int, default=vorjahr)
+        
         miteigentuemer = Miteigentuemer(
             name=name,
             mea=mea,
             vf_einheiten=vf_einheiten,
             tg_einheiten=tg_einheiten,
-            einheiten=einheiten
+            einheiten=einheiten,
+            guthaben_vorjahr=Decimal(str(guthaben_vorjahr)),
+            guthaben_jahr=guthaben_jahr
         )
         
         try:
@@ -49,7 +62,7 @@ def neu():
             db.session.rollback()
             flash(f'Fehler beim Erstellen des Miteigentümers: {str(e)}')
     
-    return render_template('miteigentuemer/neu.html')
+    return render_template('miteigentuemer/neu.html', vorjahr=vorjahr)
 
 @miteigentuemer_bp.route('/<int:miteigentuemer_id>', methods=['GET', 'POST'])
 @login_required

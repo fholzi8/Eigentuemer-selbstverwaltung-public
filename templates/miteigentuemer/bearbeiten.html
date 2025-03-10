@@ -52,13 +52,12 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="guthaben_vorjahr" class="form-label">Guthaben {{ vorjahr }}</label>
-                <div class="input-group">
-                    <input type="number" class="form-control" id="guthaben_vorjahr" name="guthaben_vorjahr"
-                        value="{{ miteigentuemer.guthaben_vorjahr or '0.00' }}" step="0.01">
-                    <span class="input-group-text">€</span>
-                </div>
-                <div class="form-text">Positiver Wert = Guthaben, Negativer Wert = offene Forderung</div>
+                <label for="guthaben_jahr" class="form-label">Guthaben-Jahr</label>
+                <select class="form-select" id="guthaben_jahr" name="guthaben_jahr">
+                    {% for y in range(vorjahr-5, vorjahr+1) %}
+                    <option value="{{ y }}" {% if miteigentuemer.guthaben_jahr==y %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
             </div>
             
             <div class="mb-3">
