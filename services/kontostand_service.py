@@ -3,7 +3,7 @@ Service-Funktionen für Kontostände
 """
 
 from decimal import Decimal
-import datetime
+from datetime import datetime, date
 import logging
 
 from models import db, Kontostand, Transaktion
@@ -94,19 +94,45 @@ def delete_kontostand(kontostand_id):
 
 def calculate_theoretical_kontostand(to_date=None):
     """
-    Berechnet den theoretischen Kontostand basierend auf allen Transaktionen
+    Berechnet den theoretischen Kontostand zum angegebenen Datum,
+    basierend auf einem bekannten Kontostand und allen nachfolgenden Transaktionen,
+    ohne Rücklagen zu berücksichtigen
     
     Args:
-        to_date (datetime.date, optional): Datum, bis zu dem berechnet werden soll. Defaults to None.
+        to_date (date, optional): Datum, bis zu dem berechnet werden soll.
+                                  Default ist das aktuelle Datum.
     
     Returns:
         Decimal: Berechneter Kontostand
     """
-    query = Transaktion.query
+    # Verwende das aktuelle Datum, wenn kein Datum angegeben ist
+    if not to_date:
+        to_date = date.today()
     
-    if to_date:
-        query = query.filter(Transaktion.datum <= to_date)
+    # Bekannter Referenzkontostand (z.B. 31.12.2023)
+    referenz_datum = date(2023, 12, 31)
+    referenz_kontostand = Decimal('8307.47')  # Beispielwert, anpassen
     
-    summe = query.with_entities(db.func.sum(Transaktion.betrag)).scalar() or Decimal('0.00')
+    # Berechne die Summe aller Transaktionen zwischen Referenzdatum und Zieldatum
+    query = Transaktion.query.filter(
+        Transaktion.datum > referenz_datum,
+        Transaktion.datum <= to_date
+    )
     
-    return summe
+    # Filtere Transaktionen mit Kostenart "Rücklage" heraus
+    query = query.filter(
+        Transaktion.kostenart != 'Rücklage'
+    )
+    
+    # Ignoriere interne Umbuchungen
+    query = query.filter(
+        ~Transaktion.beschreibung.ilike('%umbuchung%'),
+        ~Transaktion.beschreibung.ilike('%kontowechsel%'),
+        ~Transaktion.beschreibung.ilike('%kontoübertrag%'),
+        ~Transaktion.beschreibung.ilike('%transfer%')
+    )
+    
+    summe_transaktionen = query.with_entities(db.func.sum(Transaktion.betrag)).scalar() or Decimal('0.00')
+    
+    # Theoretischer Kontostand = Referenzkontostand + Summe aller Transaktionen
+    return referenz_kontostand + summe_transaktionen

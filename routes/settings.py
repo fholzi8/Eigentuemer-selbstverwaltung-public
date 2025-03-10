@@ -303,10 +303,16 @@ def kontostand_manage():
     """
     
     from services.kontostand_service import get_current_kontostand, get_kontostand_history, create_kontostand, calculate_theoretical_kontostand
+    from datetime import datetime, date
     
     if request.method == 'POST':
         try:
             datum_str = request.form.get('datum')
+            # Richtig:
+            datum = datetime.strptime(datum_str, '%Y-%m-%d').date()
+            # Oder alternativ, falls du date aus datetime importiert hast:
+            # datum = date.fromisoformat(datum_str)
+            # datum_str = request.form.get('datum')
             datum = datetime.strptime(datum_str, '%Y-%m-%d').date()
             betrag_str = request.form.get('betrag').replace(',', '.')
             betrag = Decimal(betrag_str)
@@ -334,7 +340,7 @@ def kontostand_manage():
     kontostände = get_kontostand_history()
     letzter_kontostand = kontostände[0] if kontostände else None
     theoretischer_kontostand = calculate_theoretical_kontostand()
-    today = datetime.date.today()
+    today = date.today()  # Geändert von datetime.date.today()
     
     return render_template(
         'settings/kontostand_manage.html',
