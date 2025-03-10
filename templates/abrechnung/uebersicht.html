@@ -56,13 +56,13 @@
                             <tr>
                                 <th>Guthaben/Saldo aus {{ jahr-1 }}:</th>
                                 <td class="text-end {{ 'text-success' if vorjahres_saldo >= 0 else 'text-danger' }}">
-                                    {{ "%.2f"|format(vorjahres_saldo) }} €
+                                    {{ "%.2f"|format(vorjahres_saldo if vorjahres_saldo is defined else 0) }} €
                                 </td>
                             </tr>
                             <tr>
                                 <th>Kontostand Ende {{ jahr }}:</th>
                                 <td class="text-end {{ 'text-success' if (kontostand_jahresende) >= 0 else 'text-danger' }}">
-                                    {{ "%.2f"|format(kontostand_jahresende) }} €
+                                    {{ "%.2f"|format(kontostand_jahresende if kontostand_jahresende is defined else 0) }} €
                                 </td>
                             </tr>
                             <tr>

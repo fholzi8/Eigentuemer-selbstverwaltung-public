@@ -8,7 +8,7 @@ import os
 import datetime
 from werkzeug.security import generate_password_hash
 from decimal import Decimal
-from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, WirtschaftsplanMetadata, Kontostand, RoadmapItem
+from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, WirtschaftsplanMetadata, Kontostand, RoadmapItem, JahresabschlussKontostand
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 
@@ -640,3 +640,75 @@ def update_roadmap():
         current_app.logger.error(f"Fehler beim Aktualisieren der Roadmap: {str(e)}")
     
     return redirect(url_for('settings.systeminfo'))
+
+# In routes/settings.py oder einer neuen Datei
+@settings_bp.route('/jahresabschluss', methods=['GET'])
+@login_required
+@admin_required
+def jahresabschluss_liste():
+    """Zeigt eine Liste aller Jahresabschlüsse"""
+    jahresabschluesse = JahresabschlussKontostand.query.order_by(JahresabschlussKontostand.jahr.desc()).all()
+    return render_template('settings/jahresabschluss_liste.html', jahresabschluesse=jahresabschluesse)
+
+@settings_bp.route('/jahresabschluss/neu', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def jahresabschluss_neu():
+    """Neuen Jahresabschluss erstellen"""
+    if request.method == 'POST':
+        jahr = request.form.get('jahr', type=int)
+        kontostand = request.form.get('kontostand', type=float, default=0.00)
+        vorjahres_saldo = request.form.get('vorjahres_saldo', type=float, default=0.00)
+        kommentar = request.form.get('kommentar')
+        
+        # Prüfen, ob für dieses Jahr bereits ein Abschluss existiert
+        existing = JahresabschlussKontostand.query.filter_by(jahr=jahr).first()
+        if existing:
+            flash(f'Für das Jahr {jahr} existiert bereits ein Jahresabschluss', 'danger')
+            return redirect(url_for('settings.jahresabschluss_neu'))
+        
+        jahresabschluss = JahresabschlussKontostand(
+            jahr=jahr,
+            kontostand=Decimal(str(kontostand)),
+            vorjahres_saldo=Decimal(str(vorjahres_saldo)),
+            kommentar=kommentar,
+            user_id=current_user.id
+        )
+        
+        try:
+            db.session.add(jahresabschluss)
+            db.session.commit()
+            flash(f'Jahresabschluss für {jahr} erfolgreich erstellt', 'success')
+            return redirect(url_for('settings.jahresabschluss_liste'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Fehler beim Erstellen des Jahresabschlusses: {str(e)}', 'danger')
+    
+    # Jahre für das Dropdown ermitteln (aktuelle Jahr bis 10 Jahre zurück)
+    aktuelles_jahr = datetime.now().year
+    jahre = range(aktuelles_jahr - 10, aktuelles_jahr + 1)
+    
+    return render_template('settings/jahresabschluss_neu.html', jahre=jahre)
+
+@settings_bp.route('/jahresabschluss/<int:jahresabschluss_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def jahresabschluss_bearbeiten(jahresabschluss_id):
+    """Jahresabschluss bearbeiten"""
+    jahresabschluss = JahresabschlussKontostand.query.get_or_404(jahresabschluss_id)
+    
+    if request.method == 'POST':
+        jahresabschluss.kontostand = Decimal(str(request.form.get('kontostand', type=float, default=0.00)))
+        jahresabschluss.vorjahres_saldo = Decimal(str(request.form.get('vorjahres_saldo', type=float, default=0.00)))
+        jahresabschluss.kommentar = request.form.get('kommentar')
+        jahresabschluss.updated_at = datetime.now()
+        
+        try:
+            db.session.commit()
+            flash(f'Jahresabschluss für {jahresabschluss.jahr} erfolgreich aktualisiert', 'success')
+            return redirect(url_for('settings.jahresabschluss_liste'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Fehler beim Aktualisieren des Jahresabschlusses: {str(e)}', 'danger')
+    
+    return render_template('settings/jahresabschluss_bearbeiten.html', jahresabschluss=jahresabschluss)

@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}- Jahresabschlüsse{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Jahresabschlüsse</h1>
+    <a href="{{ url_for('settings.jahresabschluss_neu') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Neuer Jahresabschluss
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Jahresabschlüsse-Übersicht</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Jahr</th>
+                        <th class="text-end">Kontostand</th>
+                        <th class="text-end">Saldo Vorjahr</th>
+                        <th>Kommentar</th>
+                        <th>Erstellt am</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for abschluss in jahresabschluesse %}
+                    <tr>
+                        <td>{{ abschluss.jahr }}</td>
+                        <td class="text-end {{ 'text-success' if abschluss.kontostand >= 0 else 'text-danger' }}">
+                            {{ "%.2f"|format(abschluss.kontostand) }} €
+                        </td>
+                        <td class="text-end {{ 'text-success' if abschluss.vorjahres_saldo >= 0 else 'text-danger' }}">
+                            {{ "%.2f"|format(abschluss.vorjahres_saldo) }} €
+                        </td>
+                        <td>{{ abschluss.kommentar }}</td>
+                        <td>{{ abschluss.created_at.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('settings.jahresabschluss_bearbeiten', jahresabschluss_id=abschluss.id) }}"
+                                class="btn btn-sm btn-outline-primary">Bearbeiten</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-3">Keine Jahresabschlüsse gefunden.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Erläuterung</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Kontostand</dt>
+            <dd class="col-sm-9">Kontostand am Ende des Jahres (31.12.)</dd>
+
+            <dt class="col-sm-3">Saldo Vorjahr</dt>
+            <dd class="col-sm-9">Saldo aus dem Vorjahr, der in die Abrechnung eingeht.</dd>
+        </dl>
+    </div>
+</div>
+{% endblock %}

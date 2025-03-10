@@ -88,8 +88,8 @@ def get_abrechnung_data(jahr):
     jahresabschluss = JahresabschlussKontostand.query.filter_by(jahr=jahr).first()
     vorjahres_abschluss = JahresabschlussKontostand.query.filter_by(jahr=jahr-1).first()
     
-    vorjahres_saldo = Decimal('0')
-    kontostand_jahresende = Decimal('0')
+    vorjahres_saldo = Decimal('0.00')
+    kontostand_jahresende = Decimal('0.00')
     
     if vorjahres_abschluss:
         vorjahres_saldo = vorjahres_abschluss.vorjahres_saldo

@@ -44,7 +44,9 @@ def uebersicht():
         abrechnungen=abrechnung_data['abrechnungen'],
         kosten_einheiten=abrechnung_data['kosten_einheiten'],
         kosten_vf=abrechnung_data['kosten_vf'],
-        kosten_tg=abrechnung_data['kosten_tg']
+        kosten_tg=abrechnung_data['kosten_tg'],
+        vorjahres_saldo=abrechnung_data.get('vorjahres_saldo', Decimal('0.00')),
+        kontostand_jahresende=abrechnung_data.get('kontostand_jahresende', Decimal('0.00'))
     )
 
 @abrechnung_bp.route('/detail/<int:miteigentuemer_id>/<int:jahr>', methods=['GET'])
