@@ -13,16 +13,17 @@ miteigentuemer_bp = Blueprint('miteigentuemer', __name__, url_prefix='/miteigent
 @miteigentuemer_bp.route('/', methods=['GET'])
 @login_required
 def liste():
-    miteigentuemer_liste = Miteigentuemer.query.all()
+    # Alle Miteigentümer abfragen
+    miteigentuemer = Miteigentuemer.query.all()
     
     # Berechnung der Gesamt-MEA für die Prozentanzeige
-    gesamt_mea = sum(m.mea for m in miteigentuemer_liste) if miteigentuemer_liste else 1
+    gesamt_mea = sum(m.mea for m in miteigentuemer) if miteigentuemer else 1
     
     # Vorjahr für die Anzeige bestimmen (aktuelles Jahr - 1)
     vorjahr = datetime.now().year - 1
     
     return render_template('miteigentuemer/liste.html', 
-                          miteigentuemer_liste=miteigentuemer_liste,
+                          miteigentuemer=miteigentuemer,
                           vorjahr=vorjahr,
                           gesamt_mea=gesamt_mea)
 
@@ -39,7 +40,7 @@ def neu():
         tg_einheiten = request.form.get('tg_einheiten', 0, type=int)
         einheiten = request.form.get('einheiten', 1, type=int)
         
-        # Guthaben aus Vorjahr
+        # Guthaben aus Vorjahr - Standardwert 0.00 setzen
         guthaben_vorjahr = request.form.get('guthaben_vorjahr', type=float, default=0.00)
         guthaben_jahr = request.form.get('guthaben_jahr', type=int, default=vorjahr)
         
@@ -61,8 +62,11 @@ def neu():
         except Exception as e:
             db.session.rollback()
             flash(f'Fehler beim Erstellen des Miteigentümers: {str(e)}')
+   
+    # Jahre für die Auswahl im Formular (Vorjahr bis Vorjahr-3)
+    jahre = list(range(vorjahr-3, vorjahr+1))
     
-    return render_template('miteigentuemer/neu.html', vorjahr=vorjahr)
+    return render_template('miteigentuemer/neu.html', vorjahr=vorjahr, jahre=jahre)
 
 @miteigentuemer_bp.route('/<int:miteigentuemer_id>', methods=['GET', 'POST'])
 @login_required

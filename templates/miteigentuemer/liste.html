@@ -25,7 +25,7 @@
                         <th class="text-center">VF-Einheiten</th>
                         <th class="text-center">TG-Einheiten</th>
                         <th class="text-center">Einheiten</th>
-                        <th class="text-center">Guthaben {{ vorjahr }}</th>
+                        <th class="text-center">Guthaben/Saldo (Jahr)</th>
                         <th>Aktionen</th>
                     </tr>
                 </thead>
@@ -39,9 +39,9 @@
                         <td class="text-center">{{ m.tg_einheiten }}</td>
                         <td class="text-center">{{ m.einheiten }}</td>
                         <td>
-                            <span
-                                class="badge {% if m.guthaben_vorjahr > 0 %}bg-success{% elif m.guthaben_vorjahr < 0 %}bg-danger{% else %}bg-secondary{% endif %}">
-                                {{ "%.2f"|format(m.guthaben_vorjahr) }} €
+                            <span 
+                                class="badge {% if m.guthaben_vorjahr and m.guthaben_vorjahr > 0 %}bg-success{% elif m.guthaben_vorjahr and m.guthaben_vorjahr < 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ "%.2f"|format(m.guthaben_vorjahr or 0) }} €
                             </span>
                             <small class="text-muted">{{ m.guthaben_jahr }}</small>
                         </td>
