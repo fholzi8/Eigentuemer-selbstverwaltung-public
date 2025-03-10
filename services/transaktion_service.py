@@ -54,7 +54,9 @@ def get_transaction_statistics(jahr):
     # Summe der Einnahmen
     summe_einnahmen = db.session.query(db.func.sum(Transaktion.betrag)).filter(
         Transaktion.betrag > 0, 
-        Transaktion.jahr == jahr
+        Transaktion.jahr == jahr,
+        # Nur Transaktionen mit bestimmten Kostenarten einbeziehen
+        Transaktion.kostenart.in_(['Einzahlung', 'Hausgeld', 'Sonderumlage']) 
     ).scalar() or 0
     
     # Summe der Ausgaben
