@@ -91,7 +91,7 @@ def bearbeiten(miteigentuemer_id):
         return redirect(url_for('miteigentuemer.liste'))
     
     # Vorjahr für die Anzeige bestimmen (aktuelles Jahr - 1)
-    vorjahr = datetime.datetime.now().year - 1
+    vorjahr = datetime.now().year - 1
     
     return render_template('miteigentuemer/bearbeiten.html', 
                           miteigentuemer=miteigentuemer,
