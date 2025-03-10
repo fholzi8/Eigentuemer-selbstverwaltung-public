@@ -1,0 +1,191 @@
+{% extends "layout.html" %}
+
+{% block title %}- E-Mail-Einstellungen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>E-Mail-Einstellungen</h1>
+    <a href="{{ url_for('settings.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Zurück zur Übersicht
+    </a>
+</div>
+
+<div class="row mb-4">
+    <!-- Bestehende Konfigurationen -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Aktuelle E-Mail-Konfigurationen</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Schlüssel</th>
+                                <th>Wert</th>
+                                <th>Beschreibung</th>
+                                <th>Status</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for config in email_configs %}
+                            <tr>
+                                <td>{{ config.key }}</td>
+                                <td>
+                                    {% if config.key.endswith('PASSWORD') %}
+                                    ********
+                                    {% else %}
+                                    {{ config.value }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ config.description }}</td>
+                                <td>
+                                    {% if config.is_active %}
+                                    <span class="badge bg-success">Aktiv</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inaktiv</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary edit-config-btn"
+                                        data-key="{{ config.key }}" data-value="{{ config.value }}"
+                                        data-description="{{ config.description }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <form method="POST" action="{{ url_for('settings.email_settings') }}"
+                                        class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="key" value="{{ config.key }}">
+                                        <button type="submit" name="delete_config" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Konfiguration wirklich löschen?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-3">Keine E-Mail-Konfigurationen gefunden.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formular für neue Konfiguration -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0" id="form-title">Neue Konfiguration</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('settings.email_settings') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="key" class="form-label">Schlüssel</label>
+                        <input type="text" class="form-control" id="key" name="key" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="value" class="form-label">Wert</label>
+                        <input type="text" class="form-control" id="value" name="value" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Beschreibung</label>
+                        <input type="text" class="form-control" id="description" name="description">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" name="save_config" class="btn btn-primary">Speichern</button>
+                        <button type="button" id="reset-form-btn" class="btn btn-outline-secondary"
+                            style="display: none;">Abbrechen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Hilfe-Card -->
+        <div class="card mt-3">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Hilfe</h5>
+            </div>
+            <div class="card-body">
+                <p>Hier können Sie die E-Mail-Konfigurationen der Anwendung verwalten.</p>
+                <p>Wichtige Konfigurationen:</p>
+                <ul>
+                    <li><strong>MAIL_SERVER</strong>: SMTP-Server (z.B. smtp.gmail.com)</li>
+                    <li><strong>MAIL_PORT</strong>: 587 für TLS, 465 für SSL</li>
+                    <li><strong>MAIL_USE_TLS</strong>: True oder False</li>
+                    <li><strong>MAIL_USE_SSL</strong>: True oder False</li>
+                    <li><strong>MAIL_USERNAME</strong>: E-Mail-Adresse</li>
+                    <li><strong>MAIL_PASSWORD</strong>: Passwort oder App-Passwort</li>
+                    <li><strong>MAIL_DEFAULT_SENDER</strong>: Name &lt;email@example.com&gt;</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Edit-Buttons
+        const editButtons = document.querySelectorAll('.edit-config-btn');
+        const formTitle = document.getElementById('form-title');
+        const keyInput = document.getElementById('key');
+        const valueInput = document.getElementById('value');
+        const descriptionInput = document.getElementById('description');
+        const resetFormBtn = document.getElementById('reset-form-btn');
+
+        // Original-Zustand des Formulars
+        const originalTitle = formTitle.textContent;
+
+        // Event-Listener für Edit-Buttons
+        editButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const key = this.getAttribute('data-key');
+                const value = this.getAttribute('data-value');
+                const description = this.getAttribute('data-description');
+
+                // Formulardaten setzen
+                keyInput.value = key;
+                valueInput.value = value;
+                descriptionInput.value = description;
+
+                // Schlüssel-Feld deaktivieren (existierende Konfiguration)
+                keyInput.readOnly = true;
+
+                // Titel ändern
+                formTitle.textContent = 'Konfiguration bearbeiten';
+
+                // Reset-Button anzeigen
+                resetFormBtn.style.display = 'block';
+
+                // Zu Formular scrollen
+                document.querySelector('.card-header').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Reset-Button Event-Listener
+        resetFormBtn.addEventListener('click', function () {
+            // Formular zurücksetzen
+            keyInput.value = '';
+            valueInput.value = '';
+            descriptionInput.value = '';
+
+            // Schlüssel-Feld aktivieren
+            keyInput.readOnly = false;
+
+            // Titel zurücksetzen
+            formTitle.textContent = originalTitle;
+
+            // Reset-Button ausblenden
+            resetFormBtn.style.display = 'none';
+        });
+    });
+</script>
+{% endblock %}

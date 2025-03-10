@@ -232,3 +232,15 @@ class JahresabschlussKontostand(db.Model):
     
     def __repr__(self):
         return f'<JahresabschlussKontostand {self.jahr} {self.kontostand}>'
+
+class EmailConfiguration(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False)
+    value = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    
+    def __repr__(self):
+        return f'<EmailConfiguration {self.key}={self.value}>'

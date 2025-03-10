@@ -11,6 +11,7 @@ from decimal import Decimal
 from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, WirtschaftsplanMetadata, Kontostand, RoadmapItem, JahresabschlussKontostand
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
+from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
 
 
 # Blueprint initialisieren
@@ -731,3 +732,56 @@ def jahresabschluss_delete(jahresabschluss_id):
         flash(f'Fehler beim Löschen des Jahresabschlusses: {str(e)}', 'danger')
         
     return redirect(url_for('settings.jahresabschluss_liste'))
+
+
+@settings_bp.route('/email-settings', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def email_settings():
+    """Zeigt und verwaltet E-Mail-Einstellungen"""
+    
+    if request.method == 'POST':
+        if 'save_config' in request.form:
+            # E-Mail-Konfiguration speichern
+            key = request.form.get('key')
+            value = request.form.get('value')
+            description = request.form.get('description')
+            
+            if not key or not value:
+                flash('Bitte geben Sie einen Schlüssel und einen Wert an.', 'danger')
+                return redirect(url_for('settings.email_settings'))
+            
+            result = set_email_config(key, value, description)
+            
+            if result:
+                flash('E-Mail-Konfiguration erfolgreich gespeichert.', 'success')
+            else:
+                flash('Fehler beim Speichern der E-Mail-Konfiguration.', 'danger')
+            
+            return redirect(url_for('settings.email_settings'))
+        
+        elif 'delete_config' in request.form:
+            # E-Mail-Konfiguration löschen
+            key = request.form.get('key')
+            
+            if not key:
+                flash('Ungültiger Schlüssel.', 'danger')
+                return redirect(url_for('settings.email_settings'))
+            
+            result = delete_email_config(key)
+            
+            if result:
+                flash('E-Mail-Konfiguration erfolgreich gelöscht.', 'success')
+            else:
+                flash('Fehler beim Löschen der E-Mail-Konfiguration.', 'danger')
+            
+            return redirect(url_for('settings.email_settings'))
+    
+    # Alle Konfigurationen abrufen
+    email_configs = get_all_email_configs()
+    
+    return render_template(
+        'settings/email_settings.html',
+        email_configs=email_configs,
+        active_tab='email_settings'
+    )
