@@ -11,7 +11,7 @@ class Config:
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
     
     # Basis-URL für Links in E-Mails
-    BASE_URL = os.environ.get('BASE_URL', 'http://192.168.11.43:5001') 
+    BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:5001') 
 
     # Datenbankeinstellungen
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
@@ -32,42 +32,12 @@ class Config:
     # Upload-Einstellungen
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
     ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls', 'pdf', 'jpg', 'jpeg', 'png'}
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB maximale Dateigröße
-    
-    # E-Mail-Konfiguration
-    #MAIL_DEFAULT_SENDER = 'WEG-Verwaltung <weg.friedrichshafenerstrasse@gmail.com>'
-    #MAIL_NOTIFICATION_SENDER = 'WEG-Benachrichtigungen <weg.friedrichshafenerstrasse+flask@gmail.com>'
-    #MAIL_PASSWORD_RESET_SENDER = 'WEG-Sicherheit <weg.friedrichshafenerstrasse+sicherheit@gmail.com>'
-    #WEG_ARCHIVE_EMAIL = 'weg.friedrichshafenerstrasse+archiv@gmail.com'
-    #MAIL_SERVER = 'smtp.gmail.com'
-    # mit STARTTLS
-    # MAIL_PORT = 587
-    # MAIL_USE_TLS = True
-    # MAIL_USE_SSL = False
-    # mit SSL
-    #MAIL_PORT = 465
-    #MAIL_USE_TLS = False
-    #MAIL_USE_SSL = True
-    #MAIL_USERNAME = 'weg.friedrichshafenerstrasse@gmail.com'
-    #MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-   
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB maximale Dateigröße   
 
     # Zeitzone
     TIMEZONE = 'Europe/Berlin'
     
     # Content Security Policy (CSP)
-    '''
-    CSP = {
-        'default-src': "'self'",
-        'script-src': "'self' 'unsafe-inline' 'unsafe-eval' cdnjs.cloudflare.com",
-        'style-src': "'self' 'unsafe-inline' cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-        'img-src': "'self' data:",
-        'font-src': "'self' cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-        'connect-src': "'self'",
-        'object-src': "'none'",
-        'form-action': "'self'"
-    }
-    '''
     CSP = {
         'default-src': "'self'",
         'script-src': "'self' 'nonce-{nonce}' cdnjs.cloudflare.com cdn.jsdelivr.net cdn.datatables.net",
@@ -82,7 +52,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    BASE_URL = os.environ.get('BASE_URL', 'http://192.168.11.43:5001')
+    BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:5001')
     # Rate Limiting für Entwicklungsumgebung (weniger strikt)
     RATELIMIT_DEFAULT = "200 per minute"
     RATELIMIT_STORAGE_URL = "memory://"
@@ -91,14 +61,14 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     WTF_CSRF_ENABLED = False
-    BASE_URL = os.environ.get('BASE_URL', 'http://192.168.11.43:5001')
+    BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:5001')
     # Rate Limiting für Tests
     RATELIMIT_ENABLED = False
 
 class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
-    BASE_URL = os.environ.get('BASE_URL', 'http://192.168.11.43:5001')
+    BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:5001')
     # In Produktionsumgebungen muss immer eine sichere SECRET_KEY gesetzt werden
     SECRET_KEY = os.environ.get('SECRET_KEY')
     if not SECRET_KEY:
