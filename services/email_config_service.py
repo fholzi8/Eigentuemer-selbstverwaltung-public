@@ -202,3 +202,33 @@ def diagnose_email_settings(print_output=True):
         'db_settings': db_settings,
         'active_settings': active_settings
     }
+
+def load_email_configs_to_app(app):
+    """
+    Lädt alle aktiven E-Mail-Konfigurationen aus der Datenbank in die App-Konfiguration
+    
+    Args:
+        app: Die Flask-App
+    """
+    try:
+        # Alle aktiven E-Mail-Konfigurationen aus der Datenbank laden
+        configs = EmailConfiguration.query.filter_by(is_active=True).all()
+        
+        for config in configs:
+            # Boolean-Werte korrekt konvertieren (z.B. 'True' zu True)
+            if config.key in ['MAIL_USE_TLS', 'MAIL_USE_SSL']:
+                config_value = config.value.lower() == 'true'
+            # Integer-Werte korrekt konvertieren (z.B. '465' zu 465)
+            elif config.key == 'MAIL_PORT':
+                config_value = int(config.value)
+            else:
+                config_value = config.value
+                
+            # In die App-Konfiguration übertragen
+            app.config[config.key] = config_value
+            
+        logger.info("E-Mail-Konfigurationen aus der Datenbank in die App geladen")
+        return True
+    except Exception as e:
+        logger.error(f"Fehler beim Laden der E-Mail-Konfigurationen: {e}")
+        return False

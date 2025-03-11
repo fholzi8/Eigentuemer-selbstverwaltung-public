@@ -15,12 +15,19 @@ from models import db, EmailConfiguration  # Importiere die nötigen Modelle
 from services.email_config_service import diagnose_email_settings
 from utils.email_utils import test_smtp_connection
 
+
 def create_app():
     """Mini-App für die E-Mail-Tests erstellen"""
     app = Flask(__name__)
     app.config.from_object(Config)
-    mail.init_app(app)
     db.init_app(app)
+    
+    with app.app_context():
+        # Lade die E-Mail-Konfigurationen aus der Datenbank
+        from services.email_config_service import load_email_configs_to_app
+        load_email_configs_to_app(app)
+    
+    mail.init_app(app)
     return app
 
 if __name__ == "__main__":
