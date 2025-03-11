@@ -149,3 +149,56 @@ def initialize_default_email_configs(app_config):
         db.session.rollback()
         logger.error(f"Fehler beim Initialisieren der E-Mail-Konfigurationen: {e}")
         return False
+
+def diagnose_email_settings(print_output=True):
+    """
+    Diagnostiziert die E-Mail-Einstellungen und gibt eine Übersicht aus
+    
+    Args:
+        print_output (bool): Wenn True, werden die Einstellungen auf der Konsole ausgegeben
+        
+    Returns:
+        dict: Ein Dictionary mit allen E-Mail-Einstellungen
+    """
+    from flask import current_app
+    
+    # Aktuell in der Datenbank gespeicherte Einstellungen
+    db_settings = {}
+    configs = EmailConfiguration.query.all()
+    
+    if print_output:
+        print("\n=== E-Mail-Einstellungen in der Datenbank ===")
+    
+    for config in configs:
+        value = "********" if "PASSWORD" in config.key else config.value
+        db_settings[config.key] = {
+            'value': value,
+            'description': config.description,
+            'is_active': config.is_active
+        }
+        if print_output:
+            print(f"{config.key}: {value} (Aktiv: {config.is_active})")
+    
+    # Aktuell aktive Einstellungen in der Flask-App
+    active_settings = {
+        'MAIL_SERVER': current_app.config.get('MAIL_SERVER'),
+        'MAIL_PORT': current_app.config.get('MAIL_PORT'),
+        'MAIL_USE_TLS': current_app.config.get('MAIL_USE_TLS'),
+        'MAIL_USE_SSL': current_app.config.get('MAIL_USE_SSL'),
+        'MAIL_USERNAME': current_app.config.get('MAIL_USERNAME'),
+        'MAIL_PASSWORD': '********' if current_app.config.get('MAIL_PASSWORD') else 'Nicht gesetzt',
+        'MAIL_DEFAULT_SENDER': current_app.config.get('MAIL_DEFAULT_SENDER'),
+        'MAIL_NOTIFICATION_SENDER': current_app.config.get('MAIL_NOTIFICATION_SENDER'),
+        'MAIL_PASSWORD_RESET_SENDER': current_app.config.get('MAIL_PASSWORD_RESET_SENDER'),
+        'WEG_ARCHIVE_EMAIL': current_app.config.get('WEG_ARCHIVE_EMAIL')
+    }
+    
+    if print_output:
+        print("\n=== Aktive E-Mail-Einstellungen in der App ===")
+        for key, value in active_settings.items():
+            print(f"{key}: {value}")
+    
+    return {
+        'db_settings': db_settings,
+        'active_settings': active_settings
+    }

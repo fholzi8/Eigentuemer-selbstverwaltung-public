@@ -792,6 +792,41 @@ def email_settings():
         active_tab='email_settings'
     )
 
+@settings_bp.route('/test-email-connection', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def test_email_connection():
+    from services.email_config_service import diagnose_email_settings
+    from utils.email_utils import test_smtp_connection, send_test_email
+    
+    result = {'success': False, 'message': ''}
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'diagnose':
+            # E-Mail-Einstellungen diagnostizieren
+            diagnose_email_settings()
+            result['success'] = True
+            result['message'] = 'E-Mail-Einstellungen wurden ausgegeben. Bitte überprüfe die Konsole/Log-Datei.'
+        
+        elif action == 'test_connection':
+            # SMTP-Verbindung testen
+            success = test_smtp_connection()
+            result['success'] = success
+            result['message'] = 'SMTP-Verbindungstest erfolgreich.' if success else 'SMTP-Verbindungstest fehlgeschlagen. Bitte überprüfe die Konsole/Log-Datei für Details.'
+        
+        elif action == 'send_test':
+            # Test-E-Mail senden
+            recipient = request.form.get('recipient')
+            if not recipient:
+                result['message'] = 'Bitte gib eine E-Mail-Adresse an.'
+            else:
+                success = send_test_email(recipient)
+                result['success'] = success
+                result['message'] = f'Test-E-Mail wurde an {recipient} gesendet.' if success else f'Fehler beim Senden der Test-E-Mail an {recipient}.'
+    
+    return render_template('settings/test_email.html', result=result)
+
 @settings_bp.route('/parameter-settings')
 @login_required
 @admin_required

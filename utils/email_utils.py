@@ -218,3 +218,98 @@ def send_test_email(recipient, sender=None):
         print(f"Fehler beim Senden der Test-E-Mail: {e}")
         return False
     
+def test_smtp_connection(use_config=True, manual_settings=None):
+    """
+    Testet die SMTP-Verbindung direkt
+    
+    Args:
+        use_config (bool): Wenn True, werden die Einstellungen aus der App-Konfiguration verwendet
+        manual_settings (dict, optional): Manuelle Einstellungen für den Test
+            {
+                'server': 'smtp.example.com',
+                'port': 465,
+                'use_ssl': True,
+                'use_tls': False,
+                'username': 'user@example.com',
+                'password': 'password',
+                'test_recipient': 'recipient@example.com'
+            }
+    
+    Returns:
+        bool: True bei Erfolg, False bei Fehler
+    """
+    import smtplib
+    from email.mime.text import MIMEText
+    
+    try:
+        app = current_app._get_current_object()
+        
+        if use_config:
+            # Konfiguration aus der App holen
+            server = app.config.get('MAIL_SERVER')
+            port = app.config.get('MAIL_PORT')
+            use_ssl = app.config.get('MAIL_USE_SSL', False)
+            use_tls = app.config.get('MAIL_USE_TLS', False)
+            username = app.config.get('MAIL_USERNAME')
+            password = app.config.get('MAIL_PASSWORD')
+            test_recipient = app.config.get('MAIL_USERNAME')  # Standardmäßig an sich selbst senden
+        else:
+            # Manuelle Einstellungen verwenden
+            if not manual_settings:
+                raise ValueError("Wenn use_config=False, muss manual_settings angegeben werden")
+            
+            server = manual_settings.get('server')
+            port = manual_settings.get('port')
+            use_ssl = manual_settings.get('use_ssl', False)
+            use_tls = manual_settings.get('use_tls', False)
+            username = manual_settings.get('username')
+            password = manual_settings.get('password')
+            test_recipient = manual_settings.get('test_recipient', username)
+        
+        print(f"\n=== SMTP-Verbindungstest ===")
+        print(f"Server: {server}")
+        print(f"Port: {port}")
+        print(f"SSL: {use_ssl}")
+        print(f"TLS: {use_tls}")
+        print(f"Benutzername: {username}")
+        print(f"Passwort: {'Gesetzt' if password else 'Nicht gesetzt'}")
+        
+        # SMTP-Verbindung herstellen
+        print("\nVerbindung wird hergestellt...")
+        if use_ssl:
+            smtp = smtplib.SMTP_SSL(server, port)
+        else:
+            smtp = smtplib.SMTP(server, port)
+            if use_tls:
+                print("Starte TLS...")
+                smtp.starttls()
+        
+        # Verbindungsdetails ausgeben
+        print(f"Verbunden mit {server}:{port}")
+        
+        # Login
+        if username and password:
+            print(f"Anmeldung mit Benutzername: {username}")
+            smtp.login(username, password)
+            print("Anmeldung erfolgreich")
+        
+        # Test-E-Mail senden
+        if test_recipient:
+            msg = MIMEText("Dies ist eine Test-E-Mail von der WEG-App. SMTP-Verbindungstest.")
+            msg['Subject'] = "WEG-App: SMTP-Test"
+            msg['From'] = username
+            msg['To'] = test_recipient
+            
+            print(f"Sende Test-E-Mail an {test_recipient}...")
+            smtp.send_message(msg)
+            print("Test-E-Mail gesendet")
+        
+        smtp.quit()
+        print("Verbindung geschlossen")
+        print("\nTest erfolgreich! SMTP-Verbindung funktioniert.")
+        return True
+    except Exception as e:
+        print(f"\nFehler bei SMTP-Test: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False

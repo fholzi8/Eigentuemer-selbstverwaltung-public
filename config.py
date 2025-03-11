@@ -35,21 +35,21 @@ class Config:
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB maximale Dateigröße
     
     # E-Mail-Konfiguration
-    MAIL_DEFAULT_SENDER = 'WEG-Verwaltung <weg.friedrichshafenerstrasse@gmail.com>'
-    MAIL_NOTIFICATION_SENDER = 'WEG-Benachrichtigungen <weg.friedrichshafenerstrasse+flask@gmail.com>'
-    MAIL_PASSWORD_RESET_SENDER = 'WEG-Sicherheit <weg.friedrichshafenerstrasse+sicherheit@gmail.com>'
-    WEG_ARCHIVE_EMAIL = 'weg.friedrichshafenerstrasse+archiv@gmail.com'
-    MAIL_SERVER = 'smtp.gmail.com'
+    #MAIL_DEFAULT_SENDER = 'WEG-Verwaltung <weg.friedrichshafenerstrasse@gmail.com>'
+    #MAIL_NOTIFICATION_SENDER = 'WEG-Benachrichtigungen <weg.friedrichshafenerstrasse+flask@gmail.com>'
+    #MAIL_PASSWORD_RESET_SENDER = 'WEG-Sicherheit <weg.friedrichshafenerstrasse+sicherheit@gmail.com>'
+    #WEG_ARCHIVE_EMAIL = 'weg.friedrichshafenerstrasse+archiv@gmail.com'
+    #MAIL_SERVER = 'smtp.gmail.com'
     # mit STARTTLS
     # MAIL_PORT = 587
     # MAIL_USE_TLS = True
     # MAIL_USE_SSL = False
     # mit SSL
-    MAIL_PORT = 465
-    MAIL_USE_TLS = False
-    MAIL_USE_SSL = True
-    MAIL_USERNAME = 'weg.friedrichshafenerstrasse@gmail.com'
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    #MAIL_PORT = 465
+    #MAIL_USE_TLS = False
+    #MAIL_USE_SSL = True
+    #MAIL_USERNAME = 'weg.friedrichshafenerstrasse@gmail.com'
+    #MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
    
 
     # Zeitzone
