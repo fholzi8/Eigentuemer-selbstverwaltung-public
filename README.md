@@ -4,13 +4,32 @@ WEG-Abrechnungsanwendung ist eine Flask Anwendung
 Diese Flask-Web-Anwendung ist für die Verwaltung und Abrechnung einer Wohneigentümergemeinschaft (WEG) 
 entwickelt worden mit die folgende Hauptfunktionen bietet: 
 
+![image](https://github.com/user-attachments/assets/fd5ba2b0-758e-4116-b1f7-9fc6afbb9b20)
+
 1. Transaktionsverwaltung: Import von Banktransaktionen aus CSV/Excel, manuelle Erfassung und Bearbeitung 
+
+![image](https://github.com/user-attachments/assets/cdfaf846-d477-4bab-a5db-b334ff090887)
+
 2. Miteigentümerverwaltung: Verwaltung der Miteigentümer mit ihren verschiedenen Anteilen (MEA, VF-Einheiten, TG-Einheiten) 
+
+![image](https://github.com/user-attachments/assets/8adfe59c-1f02-4458-9e80-b50e4b83cf79)
+
 3. Abrechnungssystem: Erstellung von Abrechnungen mit korrekter Kostenverteilung nach Verteilungsschlüsseln 
+
+![image](https://github.com/user-attachments/assets/301eee56-5e38-446c-a7a1-6c34712501c0)
+
 4. Wirtschafsplanverwaltung: Erstellung eines Wirtschaftsplan mit korrekter Kostenverteilung nach Verteilungsschlüsseln 
+
+![image](https://github.com/user-attachments/assets/bbf915d1-938f-44ff-ad68-230abf9db4a4)
+
 5. Benutzerverwaltung von mehreren Benutzer (Rollen: Admin + Benutzer)
+
 6. Datenexport von Transaktionen, Kontostand, Wirtschaftsplan und DB-Backup (letztes fehlt nocht)
+
 7. PDF-Export: Erstellung detaillierter PDF-Abrechnungen pro Miteigentümer Besonderheiten der Implementierung 
+
+
+
     
     * Drei verschiedene Verteilungsschlüssel: 
         ** Einheiten: Alle Miteigentümer zahlen anteilig 
@@ -20,30 +39,37 @@ entwickelt worden mit die folgende Hauptfunktionen bietet:
     * Benutzeroberfläche mit Bootstrap und responsivem Design 
     * PDF-Export der Abrechnungen mit ReportLab 
 
+Folgende Sicherheitsmaßnahmen implementiert:
+    1. CSRF-Schutz
+    2. Content Security Policy (CSP)
+    3. Erweiterte Session-Konfiguration
+    4. Rate Limiting
+    5. Sichere Upload-Verarbeitung
+    6. Waitress für Produktionsdeployment
+
 Behobene Technische Probleme 
     1. Python-Versionskompatibilität (besonders für pandas) 
     2. Typfehler bei Decimal/Float-Berechnungen 
     3. Rendering-Probleme im Chrome-Browser 
     4. Division-by-Zero-Fehler in der Benutzeroberfläche 
     5. PDF-Formatierungsfehler 
+    6. Globale Email-Settings nicht verlinkt
+
+Es werden beim Starten der APP noch folgende Umgebungsvariablen benötigt:
+    1. SECRET_KEY
+    2. MAIL_PASSWORD # hier sollten die Globalen Emailsettings diese Funktion bald übernehmen
 
 Roadmap: 
 
 1. Weiterentwicklung der Anwendung: 
-    * Vergleich von Wirtschaftsplan und tatsächlichen Kosten (Kategorien sind unterschiedlich) *check*
-    * Rechnungen (pdf/jpeg) an Transaktionen anhängen *check*
-    * Email-Versand für Änderungen bei Transaktionen/Wirtschaftsplan/Benutzer *check*
-    * Benutzerauthentifizierung verstärken *progressing*
     * Mehrere Abrechnungszeiträume verwalten 
-    * Verbesserung des PDF-Exports 
+    * Verbesserung des PDF-Exports
+    * Kontostand mit Jahresabschluss kombinieren 
     * Kontostand online synchronisieren
+    * Mobile Ansicht optimieren
+    * Touch-freundliche Bedienelemente
 
 2. Produktivdeploy: 
-    * Konfiguration für sicheren Produktiveinsatz *check*
-    * Rate-Limiter *check*
-    * Content Security Policy *check but unsafe-mode*
-    * wsgi (waitress) verwenden *check*
-    * Secret Keys verstärken (config.py) *check*
     * Backup-Strategien für die Datenbank 
     * Optimierungen für bessere Performance 
 
