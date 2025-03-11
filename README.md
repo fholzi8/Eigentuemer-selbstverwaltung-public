@@ -40,24 +40,24 @@ entwickelt worden mit die folgende Hauptfunktionen bietet:
     * PDF-Export der Abrechnungen mit ReportLab 
 
 Folgende Sicherheitsmaßnahmen implementiert:
-    1. CSRF-Schutz
-    2. Content Security Policy (CSP)
-    3. Erweiterte Session-Konfiguration
-    4. Rate Limiting
-    5. Sichere Upload-Verarbeitung
-    6. Waitress für Produktionsdeployment
+    * CSRF-Schutz
+    * Content Security Policy (CSP)
+    * Erweiterte Session-Konfiguration
+    * Rate Limiting
+    * Sichere Upload-Verarbeitung
+    * Waitress für Produktionsdeployment
 
 Behobene Technische Probleme 
-    1. Python-Versionskompatibilität (besonders für pandas) 
-    2. Typfehler bei Decimal/Float-Berechnungen 
-    3. Rendering-Probleme im Chrome-Browser 
-    4. Division-by-Zero-Fehler in der Benutzeroberfläche 
-    5. PDF-Formatierungsfehler 
-    6. Globale Email-Settings nicht verlinkt
+    * Python-Versionskompatibilität (besonders für pandas) 
+    * Typfehler bei Decimal/Float-Berechnungen 
+    * Rendering-Probleme im Chrome-Browser 
+    * Division-by-Zero-Fehler in der Benutzeroberfläche 
+    * PDF-Formatierungsfehler 
+    * Globale Email-Settings nicht verlinkt
 
 Es werden beim Starten der APP noch folgende Umgebungsvariablen benötigt:
-    1. SECRET_KEY
-    2. MAIL_PASSWORD # hier sollten die Globalen Emailsettings diese Funktion bald übernehmen
+    * SECRET_KEY
+    * MAIL_PASSWORD # hier sollten die Globalen Emailsettings diese Funktion bald übernehmen
 
 Roadmap: 
 
