@@ -28,13 +28,10 @@ entwickelt worden mit die folgende Hauptfunktionen bietet:
 
 7. PDF-Export: Erstellung detaillierter PDF-Abrechnungen pro Miteigentümer Besonderheiten der Implementierung 
 
-
-
-    
-    * Drei verschiedene Verteilungsschlüssel: 
-        ** Einheiten: Alle Miteigentümer zahlen anteilig 
-        ** VF-Einheiten: Nur Miteigentümer mit Wohnungen (VF=1) zahlen 
-        ** TG-Einheiten: Nur Miteigentümer mit Tiefgaragenplätzen (TG=1) zahlen 
+    * Drei verschiedene Verteilungsschlüssel:
+        * Einheiten: Alle Miteigentümer zahlen anteilig
+        * VF-Einheiten: Nur Miteigentümer mit Wohnungen (VF=1) zahlen
+        * TG-Einheiten: Nur Miteigentümer mit Tiefgaragenplätzen (TG=1) zahlen 
     * Unterscheidung zwischen umlagefähigen und nicht umlagefähigen Kosten 
     * Benutzeroberfläche mit Bootstrap und responsivem Design 
     * PDF-Export der Abrechnungen mit ReportLab 
@@ -47,8 +44,8 @@ Folgende Sicherheitsmaßnahmen implementiert:
     * Sichere Upload-Verarbeitung
     * Waitress für Produktionsdeployment
 
-Behobene Technische Probleme 
-    * Python-Versionskompatibilität (besonders für pandas) 
+Behobene Technische Probleme
+    * Python-Versionskompatibilität (besonders für pandas)
     * Typfehler bei Decimal/Float-Berechnungen 
     * Rendering-Probleme im Chrome-Browser 
     * Division-by-Zero-Fehler in der Benutzeroberfläche 
