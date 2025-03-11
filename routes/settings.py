@@ -12,6 +12,8 @@ from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, Wirts
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
+from services.logging_service import get_logs
+from datetime import datetime, timedelta
 
 
 # Blueprint initialisieren
@@ -833,3 +835,57 @@ def test_email_connection():
 def parameter_settings():
     """Zeigt die Übersicht der Parametereinstellungen an"""
     return render_template('settings/parameter_settings.html')
+
+
+@settings_bp.route('/logs', methods=['GET'])
+@login_required
+@admin_required
+def logs_view():
+    """Zeigt die Log-Einträge an"""
+    
+    # Filter aus Request-Parametern
+    category = request.args.get('category')
+    level = request.args.get('level')
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
+    
+    # Datumsfilter
+    days = request.args.get('days', 7, type=int)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+    
+    # Offset für Paginierung
+    offset = (page - 1) * per_page
+    
+    # Logs abrufen
+    logs, total_count = get_logs(
+        category=category, 
+        level=level, 
+        limit=per_page, 
+        offset=offset,
+        start_date=start_date,
+        end_date=end_date
+    )
+    
+    # Paginierungsinformationen
+    pages = (total_count + per_page - 1) // per_page
+    has_prev = page > 1
+    has_next = page < pages
+    
+    # Benutzer für die Anzeige laden
+    user_ids = set(log.user_id for log in logs if log.user_id is not None)
+    users = {user.id: user.username for user in User.query.filter(User.id.in_(user_ids)).all()} if user_ids else {}
+    
+    return render_template(
+        'settings/logs.html',
+        logs=logs,
+        users=users,
+        category=category,
+        level=level,
+        days=days,
+        page=page,
+        pages=pages,
+        has_prev=has_prev,
+        has_next=has_next,
+        total_count=total_count
+    )

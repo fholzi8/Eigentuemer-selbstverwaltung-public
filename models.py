@@ -244,3 +244,18 @@ class EmailConfiguration(db.Model):
     
     def __repr__(self):
         return f'<EmailConfiguration {self.key}={self.value}>'
+    
+class LogEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.now, index=True)
+    category = db.Column(db.String(50), nullable=False, index=True)  # 'transaction', 'wirtschaftsplan', 'user', 'error'
+    level = db.Column(db.String(20), nullable=False, index=True)  # 'info', 'warning', 'error'
+    message = db.Column(db.Text, nullable=False)
+    details = db.Column(db.Text, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    
+    # Beziehung zum Benutzer
+    user = db.relationship('User', backref='log_entries')
+    
+    def __repr__(self):
+        return f'<LogEntry {self.timestamp} {self.category} {self.level} {self.message[:50]}...>'

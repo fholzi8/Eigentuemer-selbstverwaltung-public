@@ -1,0 +1,258 @@
+{% extends "layout.html" %}
+
+{% block title %}- Logs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>System-Logs</h1>
+    <a href="{{ url_for('settings.systeminfo') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Zurück
+    </a>
+</div>
+
+<!-- Filter -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Filter</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('settings.logs_view') }}" id="filter-form">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label for="category" class="form-label">Kategorie</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">Alle</option>
+                        <option value="transaction" {% if category=='transaction' %}selected{% endif %}>Transaktionen
+                        </option>
+                        <option value="wirtschaftsplan" {% if category=='wirtschaftsplan' %}selected{% endif %}>
+                            Wirtschaftsplan</option>
+                        <option value="user" {% if category=='user' %}selected{% endif %}>Benutzer</option>
+                        <option value="error" {% if category=='error' %}selected{% endif %}>Fehler</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="level" class="form-label">Level</label>
+                    <select class="form-select" id="level" name="level">
+                        <option value="">Alle</option>
+                        <option value="info" {% if level=='info' %}selected{% endif %}>Info</option>
+                        <option value="warning" {% if level=='warning' %}selected{% endif %}>Warnung</option>
+                        <option value="error" {% if level=='error' %}selected{% endif %}>Fehler</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="days" class="form-label">Zeitraum</label>
+                    <select class="form-select" id="days" name="days">
+                        <option value="1" {% if days==1 %}selected{% endif %}>Letzter Tag</option>
+                        <option value="7" {% if days==7 %}selected{% endif %}>Letzte Woche</option>
+                        <option value="30" {% if days==30 %}selected{% endif %}>Letzter Monat</option>
+                        <option value="90" {% if days==90 %}selected{% endif %}>Letzte 3 Monate</option>
+                        <option value="365" {% if days==365 %}selected{% endif %}>Letztes Jahr</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary d-block w-100">Filtern</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabs für Kategorien -->
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if not category else '' }}"
+            href="{{ url_for('settings.logs_view', level=level, days=days) }}">
+            Alle
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if category == 'transaction' else '' }}"
+            href="{{ url_for('settings.logs_view', category='transaction', level=level, days=days) }}">
+            Transaktionen
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if category == 'wirtschaftsplan' else '' }}"
+            href="{{ url_for('settings.logs_view', category='wirtschaftsplan', level=level, days=days) }}">
+            Wirtschaftsplan
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if category == 'user' else '' }}"
+            href="{{ url_for('settings.logs_view', category='user', level=level, days=days) }}">
+            Benutzer
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if category == 'error' else '' }}"
+            href="{{ url_for('settings.logs_view', category='error', level=level, days=days) }}">
+            Fehler
+        </a>
+    </li>
+</ul>
+
+<!-- Log-Tabelle -->
+<div class="card">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                Log-Einträge
+                {% if category %}({{ category|capitalize }}){% endif %}
+                {% if level %}({{ level|capitalize }}){% endif %}
+            </h5>
+            <span class="badge bg-secondary">{{ total_count }} Einträge gefunden</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Zeitpunkt</th>
+                        <th>Kategorie</th>
+                        <th>Level</th>
+                        <th>Benutzer</th>
+                        <th>Nachricht</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if log.category == 'transaction' %}bg-primary
+                                {% elif log.category == 'wirtschaftsplan' %}bg-success
+                                {% elif log.category == 'user' %}bg-info
+                                {% elif log.category == 'error' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ log.category }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if log.level == 'info' %}bg-info
+                                {% elif log.level == 'warning' %}bg-warning
+                                {% elif log.level == 'error' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ log.level }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if log.user_id %}
+                            {% if log.user_id in users %}
+                            {{ users[log.user_id] }}
+                            {% else %}
+                            ID: {{ log.user_id }}
+                            {% endif %}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>{{ log.message }}</td>
+                        <td>
+                            {% if log.details %}
+                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
+                                data-bs-target="#logDetailsModal{{ log.id }}">
+                                Details
+                            </button>
+
+                            <!-- Details-Modal -->
+                            <div class="modal fade" id="logDetailsModal{{ log.id }}" tabindex="-1"
+                                aria-labelledby="logDetailsModalLabel{{ log.id }}" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="logDetailsModalLabel{{ log.id }}">Log-Details
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Schließen"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Zeitpunkt:</strong> {{ log.timestamp.strftime('%d.%m.%Y
+                                                %H:%M:%S') }}</p>
+                                            <p><strong>Kategorie:</strong> {{ log.category }}</p>
+                                            <p><strong>Level:</strong> {{ log.level }}</p>
+                                            <p><strong>Nachricht:</strong> {{ log.message }}</p>
+
+                                            <h6>Details:</h6>
+                                            <pre class="bg-light p-3 rounded"><code>{{ log.details }}</code></pre>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Schließen</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-3">
+                            <i class="bi bi-inbox me-2"></i>Keine Log-Einträge gefunden.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-light">
+        <nav aria-label="Log-Navigation">
+            <ul class="pagination justify-content-center mb-0">
+                {% if has_prev %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('settings.logs_view', page=page-1, category=category, level=level, days=days) }}">
+                        <i class="bi bi-chevron-left"></i> Zurück
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link"><i class="bi bi-chevron-left"></i> Zurück</span>
+                </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link">Seite {{ page }} von {{ pages }}</span>
+                </li>
+
+                {% if has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('settings.logs_view', page=page+1, category=category, level=level, days=days) }}">
+                        Weiter <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Weiter <i class="bi bi-chevron-right"></i></span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Automatisches Absenden des Formulars bei Änderung der Filter
+        const filterForm = document.getElementById('filter-form');
+        const filterInputs = filterForm.querySelectorAll('select');
+
+        filterInputs.forEach(input => {
+            input.addEventListener('change', function () {
+                filterForm.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}
