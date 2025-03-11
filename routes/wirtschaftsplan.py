@@ -32,7 +32,7 @@ def uebersicht():
     
     # Ergänze mit aktuellen und vergangenen Jahren, falls nicht in der Liste
     current_year = datetime.date.today().year
-    for year in range(current_year - 2, current_year + 1):
+    for year in range(current_year - 1, current_year + 2):
         if year not in alle_jahre:
             alle_jahre.append(year)
     alle_jahre.sort(reverse=True)
