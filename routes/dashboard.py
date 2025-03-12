@@ -2,7 +2,7 @@
 Dashboard-Blueprint für die Startseite und allgemeine Übersicht
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
 from flask_login import login_required, current_user
 import datetime
 
@@ -13,10 +13,17 @@ from services.kontostand_service import get_current_kontostand
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
-#dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/')
+def check_secret_key():
+    """Prüft, ob SECRET_KEY konfiguriert ist"""
+    secret_key = current_app.config.get('SECRET_KEY')
+    return secret_key is not None and secret_key not in ['development', 'default_key', '', None]
 
 @dashboard_bp.route('/')
 def root():
+    # Prüfen, ob SECRET_KEY konfiguriert ist
+    if not check_secret_key():
+        return redirect(url_for('setup.index'))
+        
     if current_user.is_authenticated:
         return redirect(url_for('dashboard.index'))
     return redirect(url_for('auth.login'))
@@ -24,6 +31,10 @@ def root():
 @dashboard_bp.route('/dashboard')
 @login_required
 def index():
+    # Prüfen, ob SECRET_KEY konfiguriert ist
+    if not check_secret_key():
+        return redirect(url_for('setup.index'))
+        
     # Verfügbare Jahre für Transaktionen
     tx_jahre = db.session.query(Transaktion.jahr).distinct().order_by(Transaktion.jahr.desc()).all()
     tx_jahre = [j[0] for j in tx_jahre]

@@ -10,6 +10,7 @@ from .miteigentuemer import miteigentuemer_bp
 from .abrechnung import abrechnung_bp
 from .wirtschaftsplan import wirtschaftsplan_bp
 from .settings import settings_bp
+from .setup import setup_bp
 
 # Liste aller Blueprints für die Registrierung in app.py
 all_blueprints = [
@@ -19,5 +20,6 @@ all_blueprints = [
     miteigentuemer_bp,
     abrechnung_bp,
     wirtschaftsplan_bp,
-    settings_bp
+    settings_bp,
+    setup_bp
 ]
