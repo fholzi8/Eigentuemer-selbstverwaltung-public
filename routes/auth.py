@@ -11,6 +11,7 @@ import logging
 from models import db, User
 from utils.email_utils import send_password_reset_email, send_test_email, send_email
 from utils.security import is_password_strong
+from services.logging_service import log_user_event, log_error
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -32,12 +33,26 @@ def login():
             if not user.password_hash.startswith('$argon2'):
                 user.set_password(password)  # Setzt ein neues Argon2-Hash
                 db.session.commit()
+
+                # Log-Eintrag erstellen
+                log_user_event(
+                    message=f"Passwort von {user.username} wurde erfolgreich mit Argon2-Hash gesetzt.",
+                    affected_user=user,
+                    user_id=current_user.id
+                )
                 
             # Letztes Login aktualisieren, falls das Feld existiert
             if hasattr(user, 'last_login'):
                 user.last_login = datetime.utcnow()
                 db.session.commit()
                 
+                # Log-Eintrag erstellen
+                log_user_event(
+                    message=f"Passwort von {user.username} wurde erfolgreich mit Hash gesetzt.",
+                    affected_user=user,
+                    user_id=current_user.id
+                )
+
             login_user(user)
             next_page = request.args.get('next')
             if next_page and next_page.startswith('/'):
@@ -100,6 +115,12 @@ def reset_password(token):
         user.set_password(password)
         db.session.commit()
         
+        # Log-Eintrag erstellen
+        log_user_event(
+            message=f"Passwort des {user.username} wurde erfolgreich zurückgesetzt.",
+            affected_user=user,
+            user_id=current_user.id
+        )
         flash('Ihr Passwort wurde erfolgreich zurückgesetzt. Sie können sich jetzt anmelden.', 'success')
         return redirect(url_for('auth.login'))
     
@@ -157,6 +178,7 @@ def profile():
                 flash('Ihr Passwort wurde aktualisiert.', 'success')
         
         db.session.commit()
+
         return redirect(url_for('auth.profile'))
         
     return render_template('auth/profile.html')

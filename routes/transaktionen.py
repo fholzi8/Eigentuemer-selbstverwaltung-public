@@ -14,6 +14,8 @@ from models import db, Transaktion, Miteigentuemer, User
 from utils import allowed_file, kategorisiere_transaktion, parse_german_date, importiere_csv
 from services.transaktion_service import get_filtered_transaktionen, get_transaction_statistics
 from services.anhang_service import save_anhang, delete_anhang
+from services.logging_service import log_transaction_event, log_error
+
 
 
 transaktionen_bp = Blueprint('transaktionen', __name__, url_prefix='/transaktionen')
@@ -148,6 +150,7 @@ def delete(transaktion_id):
         db.session.delete(transaktion)
         db.session.commit()
         
+        
         # E-Mail-Benachrichtigung senden
         try:
             from utils.email_utils import send_transaction_notification
@@ -156,15 +159,29 @@ def delete(transaktion_id):
                
             for user in admin_users:
                 print(f"Versuche E-Mail zu senden an: {user.username}, E-Mail: {getattr(user, 'email', 'Keine E-Mail')}")
+                
                 if hasattr(user, 'email') and user.email:
                     try:
                         send_transaction_notification(user, transaktion, "aktualisiert")
+                        # Log-Eintrag erstellen
+                        log_transaction_event(
+                            message=f"Email an {user.email} gesendet für Transaktionsänderung",
+                            transaction=transaktion,
+                            user_id=current_user.id
+                        )
                         print(f"E-Mail an {user.email} gesendet")
                     except Exception as mail_error:
                         print(f"Fehler beim Senden der E-Mail an {user.email}: {str(mail_error)}")
                 else:
                     print(f"Benutzer {user.username} hat keine E-Mail-Adresse")
         except Exception as e:
+            # Fehler loggen
+            log_error(
+                message=f"Allgemeiner Fehler bei E-Mail-Benachrichtigung",
+                exception=e,
+                user_id=current_user.id,
+                details={"form_data": request.form}
+            )
             print(f"Allgemeiner Fehler bei E-Mail-Benachrichtigung: {str(e)}")
 
         flash('Transaktion erfolgreich gelöscht', 'success')
@@ -179,6 +196,13 @@ def delete(transaktion_id):
                                per_page=per_page))
     except Exception as e:
         db.session.rollback()
+        # Fehler loggen
+        log_error(
+            message=f"Allgemeiner Fehler bei E-Mail-Benachrichtigung",
+            exception=e,
+            user_id=current_user.id,
+            details={"form_data": request.form}
+        )
         flash(f'Fehler beim Löschen der Transaktion: {str(e)}', 'danger')
         return redirect(url_for('transaktionen.liste'))
 
@@ -218,12 +242,25 @@ def bearbeiten(transaktion_id):
                     if hasattr(user, 'email') and user.email:
                         try:
                             send_transaction_notification(user, transaktion, "aktualisiert")
+                            # Log-Eintrag erstellen
+                            log_transaction_event(
+                                message=f"Email an {user.email} gesendet für Transaktionsänderung",
+                                transaction=transaktion,
+                                user_id=current_user.id
+                            )
                             print(f"E-Mail an {user.email} gesendet")
                         except Exception as mail_error:
                             print(f"Fehler beim Senden der E-Mail an {user.email}: {str(mail_error)}")
                     else:
                         print(f"Benutzer {user.username} hat keine E-Mail-Adresse")
             except Exception as e:
+                # Fehler loggen
+                log_error(
+                    message=f"Allgemeiner Fehler bei E-Mail-Benachrichtigung",
+                    exception=e,
+                    user_id=current_user.id,
+                    details={"form_data": request.form}
+                )
                 print(f"Allgemeiner Fehler bei E-Mail-Benachrichtigung: {str(e)}")
 
             flash('Transaktion aktualisiert', 'success')
@@ -296,12 +333,25 @@ def neu():
                     if hasattr(user, 'email') and user.email:
                         try:
                             send_transaction_notification(user, transaktion, "hinzugefügt")
+                            # Log-Eintrag erstellen
+                            log_transaction_event(
+                                message=f"Email an {user.email} gesendet für Transaktionsänderung",
+                                transaction=transaktion,
+                                user_id=current_user.id
+                            )
                             print(f"E-Mail an {user.email} gesendet")
                         except Exception as mail_error:
                             print(f"Fehler beim Senden der E-Mail an {user.email}: {str(mail_error)}")
                     else:
                         print(f"Benutzer {user.username} hat keine E-Mail-Adresse")
             except Exception as e:
+                # Fehler loggen
+                log_error(
+                    message=f"Allgemeiner Fehler bei E-Mail-Benachrichtigung",
+                    exception=e,
+                    user_id=current_user.id,
+                    details={"form_data": request.form}
+                )
                 print(f"Allgemeiner Fehler bei E-Mail-Benachrichtigung: {str(e)}")
 
             flash('Transaktion erfolgreich hinzugefügt')

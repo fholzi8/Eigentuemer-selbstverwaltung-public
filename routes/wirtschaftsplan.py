@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 
 from models import db, Wirtschaftsplan, Miteigentuemer, WirtschaftsplanMetadata, Transaktion, User 
 from services.wirtschaftsplan_service import get_wirtschaftsplan_data, import_wirtschaftsplan, get_actual_costs
+from services.logging_service import log_wirtschaftsplan_event, log_error
 from utils import allowed_file, parse_german_date  # direkt aus utils importieren
 
 wirtschaftsplan_bp = Blueprint('wirtschaftsplan', __name__, url_prefix='/wirtschaftsplan')
@@ -104,10 +105,23 @@ def neu():
             db.session.add(eintrag)
             db.session.commit()
             
+            # Log-Eintrag erstellen
+            log_wirtschaftsplan_event(
+                message=f"Neuer Wirtschaftsplaneintrag erfolgreich hinzugefügt: {eintrag.bezeichnung}",
+                wirtschaftsplan=eintrag,
+                user_id=current_user.id
+            )
             flash('Wirtschaftsplan-Eintrag erfolgreich hinzugefügt')
             return redirect(url_for('wirtschaftsplan.uebersicht', jahr=jahr))
         except Exception as e:
             db.session.rollback()
+            # Fehler loggen
+            log_error(
+                message=f"Fehler beim Erstellen des Wirtschaftsplan-Eintrags",
+                exception=e,
+                user_id=current_user.id,
+                details={"form_data": request.form}
+            )
             flash(f'Fehler beim Erstellen des Wirtschaftsplan-Eintrags: {str(e)}')
     
     # Verfügbare Jahre dynamisch ermitteln (aktuelles Jahr + 2 Jahre in die Vergangenheit + 1 Jahr in die Zukunft)
@@ -139,11 +153,23 @@ def bearbeiten(eintrag_id):
             eintrag.notiz = request.form.get('notiz', '')
             
             db.session.commit()
-            
+            # Log-Eintrag erstellen
+            log_wirtschaftsplan_event(
+                message=f"Neuer Wirtschaftsplaneintrag erfolgreich aktualisiert: {eintrag.bezeichnung}",
+                wirtschaftsplan=eintrag,
+                user_id=current_user.id
+            )
             flash('Wirtschaftsplan-Eintrag erfolgreich aktualisiert')
             return redirect(url_for('wirtschaftsplan.uebersicht', jahr=eintrag.jahr))
         except Exception as e:
             db.session.rollback()
+            # Fehler loggen
+            log_error(
+                message=f"Fehler beim Aktualisieren des Wirtschaftsplan-Eintrags",
+                exception=e,
+                user_id=current_user.id,
+                details={"form_data": request.form}
+            )
             flash(f'Fehler beim Aktualisieren des Wirtschaftsplan-Eintrags: {str(e)}')
     
     return render_template('wirtschaftsplan/bearbeiten.html', eintrag=eintrag)

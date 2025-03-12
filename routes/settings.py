@@ -12,7 +12,7 @@ from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, Wirts
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
-from services.logging_service import get_logs
+from services.logging_service import get_logs, log_user_event, log_error
 from datetime import datetime, timedelta
 
 
@@ -81,6 +81,12 @@ def user_edit(user_id):
             user.is_admin = 'is_admin' in request.form
         
         db.session.commit()
+        # Log-Eintrag erstellen
+        log_user_event(
+            message=f"{user.username} wurde erfolgreich aktualisiert.",
+            affected_user=user,
+            user_id=current_user.id
+        )
         flash('Benutzer wurde aktualisiert.', 'success')
         return redirect(url_for('settings.users_list'))
     
@@ -127,6 +133,13 @@ def user_new():
         db.session.add(user)
         db.session.commit()
         
+        # Log-Eintrag erstellen
+        log_user_event(
+            message=f"{user.username} wurde erfolgreich erstellt.",
+            affected_user=user,
+            user_id=current_user.id
+        )
+
         if email:
             try:
                 from utils.email_utils import send_email
@@ -175,6 +188,12 @@ def user_delete(user_id):
     try:
         db.session.delete(user)
         db.session.commit()
+        # Log-Eintrag erstellen
+        log_user_event(
+            message=f"{user.username} wurde erfolgreich gelöscht.",
+            affected_user=user,
+            user_id=current_user.id
+        )
         flash(f"Benutzer {user.username} erfolgreich gelöscht", "success")
     except Exception as e:
         db.session.rollback()
@@ -204,6 +223,13 @@ def user_preferences():
         user.notify_user_changes = 'notify_user_changes' in request.form
         
         db.session.commit()
+
+        # Log-Eintrag erstellen
+        log_user_event(
+            message=f"Benachrichtigungseinstellungen von {user.username} wurde erfolgreich aktualisiert.",
+            affected_user=user,
+            user_id=current_user.id
+        )
         flash('Einstellungen erfolgreich aktualisiert', 'success')
         
     return render_template('settings/preferences.html')
