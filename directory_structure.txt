@@ -1,7 +1,8 @@
 Verzeichnisstruktur für: /Users/fholzi8/VSCode - Programme/WEG-App
-Erstellt am: 2025-03-05 15:18:56
+Erstellt am: 2025-03-11 23:04:12
 ================================================================================
 
+├── .gitignore
 ├── README.md
 ├── README.pdf
 ├── WEG-App.code-workspace
@@ -9,8 +10,10 @@ Erstellt am: 2025-03-05 15:18:56
 ├── config.py
 ├── directory_tree.py
 ├── extensions.py
+├── fix_guthaben_nullwerte.py
 ├── flask-app-email.txt
 ├── init_db.py
+├── init_email_configs.py
 ├── logs/
     ├── waitress.log
     ├── weg-app.log
@@ -21,6 +24,7 @@ Erstellt am: 2025-03-05 15:18:56
     ├── init_admin.py
     ├── init_kontostand.py
     ├── init_mappings.py
+    ├── init_roadmap.py
     ├── migrate_db.py
     ├── migrate_to_postgres.py
     ├── setup_mappings.py
@@ -32,6 +36,7 @@ Erstellt am: 2025-03-05 15:18:56
     ├── env.py
     ├── script.py.mako
     ├── versions/
+        ├── 31d2927bca31_add_previous_year_balance_to_.py
         ├── 63dbb09c8eed_initial_migration.py
 ├── models.py
 ├── prompt-anweisung.txt
@@ -50,8 +55,10 @@ Erstellt am: 2025-03-05 15:18:56
     ├── __init__.py
     ├── abrechnung_service.py
     ├── anhang_service.py
+    ├── email_config_service.py
     ├── kategorie_mapping_service.py
     ├── kontostand_service.py
+    ├── logging_service.py
     ├── transaktion_service.py
     ├── wirtschaftsplan_service.py
 ├── static/
@@ -99,10 +106,16 @@ Erstellt am: 2025-03-05 15:18:56
         ├── neu.html
     ├── settings/
         ├── data_management.html
+        ├── email_settings.html
         ├── export.html
         ├── index.html
+        ├── jahresabschluss_bearbeiten.html
+        ├── jahresabschluss_liste.html
+        ├── jahresabschluss_neu.html
         ├── kategorie_mapping.html
         ├── kontostand_manage.html
+        ├── logs.html
+        ├── parameter_settings.html
         ├── systeminfo.html
         ├── user_edit.html
         ├── user_new.html
@@ -118,6 +131,7 @@ Erstellt am: 2025-03-05 15:18:56
         ├── import.html
         ├── neu.html
         ├── uebersicht.html
+├── test_email_config.py
 ├── uploads/
     ├── rechnungen/
     ├── transaktionen_weg.csv
@@ -136,4 +150,5 @@ Erstellt am: 2025-03-05 15:18:56
     ├── security.py
     ├── utils.py
 ├── weg_abrechnung.db
+├── weg_app_structure.txt
 ├── wsgi.py
