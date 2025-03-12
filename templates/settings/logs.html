@@ -3,9 +3,9 @@
 {% block title %}- Logs{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row">
     <h1>System-Logs</h1>
-    <a href="{{ url_for('settings.systeminfo') }}" class="btn btn-outline-secondary">
+    <a href="{{ url_for('settings.systeminfo') }}" class="btn btn-outline-secondary mt-2 mt-md-0">
         <i class="bi bi-arrow-left me-1"></i>Zurück
     </a>
 </div>
@@ -17,8 +17,8 @@
     </div>
     <div class="card-body">
         <form method="GET" action="{{ url_for('settings.logs_view') }}" id="filter-form">
-            <div class="row">
-                <div class="col-md-3 mb-3">
+            <div class="row g-3">
+                <div class="col-12 col-md-3">
                     <label for="category" class="form-label">Kategorie</label>
                     <select class="form-select" id="category" name="category">
                         <option value="">Alle</option>
@@ -30,7 +30,7 @@
                         <option value="error" {% if category=='error' %}selected{% endif %}>Fehler</option>
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-12 col-md-3">
                     <label for="level" class="form-label">Level</label>
                     <select class="form-select" id="level" name="level">
                         <option value="">Alle</option>
@@ -39,7 +39,7 @@
                         <option value="error" {% if level=='error' %}selected{% endif %}>Fehler</option>
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-12 col-md-3">
                     <label for="days" class="form-label">Zeitraum</label>
                     <select class="form-select" id="days" name="days">
                         <option value="1" {% if days==1 %}selected{% endif %}>Letzter Tag</option>
@@ -49,8 +49,8 @@
                         <option value="365" {% if days==365 %}selected{% endif %}>Letztes Jahr</option>
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">&nbsp;</label>
+                <div class="col-12 col-md-3">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
                     <button type="submit" class="btn btn-primary d-block w-100">Filtern</button>
                 </div>
             </div>
@@ -58,54 +58,56 @@
     </div>
 </div>
 
-<!-- Tabs für Kategorien -->
-<ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
-        <a class="nav-link {{ 'active' if not category else '' }}"
-            href="{{ url_for('settings.logs_view', level=level, days=days) }}">
-            Alle
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {{ 'active' if category == 'transaction' else '' }}"
-            href="{{ url_for('settings.logs_view', category='transaction', level=level, days=days) }}">
-            Transaktionen
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {{ 'active' if category == 'wirtschaftsplan' else '' }}"
-            href="{{ url_for('settings.logs_view', category='wirtschaftsplan', level=level, days=days) }}">
-            Wirtschaftsplan
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {{ 'active' if category == 'user' else '' }}"
-            href="{{ url_for('settings.logs_view', category='user', level=level, days=days) }}">
-            Benutzer
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link {{ 'active' if category == 'error' else '' }}"
-            href="{{ url_for('settings.logs_view', category='error', level=level, days=days) }}">
-            Fehler
-        </a>
-    </li>
-</ul>
+<!-- Tabs für Kategorien - scrollbar auf Mobilgeräten -->
+<div class="nav-tabs-wrapper mb-3 overflow-auto">
+    <ul class="nav nav-tabs flex-nowrap">
+        <li class="nav-item">
+            <a class="nav-link {{ 'active' if not category else '' }}"
+                href="{{ url_for('settings.logs_view', level=level, days=days) }}">
+                Alle
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ 'active' if category == 'transaction' else '' }}"
+                href="{{ url_for('settings.logs_view', category='transaction', level=level, days=days) }}">
+                Transaktionen
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ 'active' if category == 'wirtschaftsplan' else '' }}"
+                href="{{ url_for('settings.logs_view', category='wirtschaftsplan', level=level, days=days) }}">
+                Wirtschaftsplan
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ 'active' if category == 'user' else '' }}"
+                href="{{ url_for('settings.logs_view', category='user', level=level, days=days) }}">
+                Benutzer
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ 'active' if category == 'error' else '' }}"
+                href="{{ url_for('settings.logs_view', category='error', level=level, days=days) }}">
+                Fehler
+            </a>
+        </li>
+    </ul>
+</div>
 
 <!-- Log-Tabelle -->
 <div class="card">
     <div class="card-header bg-light">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <h5 class="mb-0 me-2">
                 Log-Einträge
                 {% if category %}({{ category|capitalize }}){% endif %}
                 {% if level %}({{ level|capitalize }}){% endif %}
             </h5>
-            <span class="badge bg-secondary">{{ total_count }} Einträge gefunden</span>
+            <span class="badge bg-secondary mt-2 mt-md-0">{{ total_count }} Einträge gefunden</span>
         </div>
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <div class="table-responsive table-responsive-card">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
@@ -120,8 +122,8 @@
                 <tbody>
                     {% for log in logs %}
                     <tr>
-                        <td>{{ log.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
-                        <td>
+                        <td data-label="Zeitpunkt">{{ log.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                        <td data-label="Kategorie">
                             <span class="badge 
                                 {% if log.category == 'transaction' %}bg-primary
                                 {% elif log.category == 'wirtschaftsplan' %}bg-success
@@ -131,7 +133,7 @@
                                 {{ log.category }}
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Level">
                             <span class="badge 
                                 {% if log.level == 'info' %}bg-info
                                 {% elif log.level == 'warning' %}bg-warning
@@ -140,7 +142,7 @@
                                 {{ log.level }}
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Benutzer">
                             {% if log.user_id %}
                             {% if log.user_id in users %}
                             {{ users[log.user_id] }}
@@ -151,8 +153,8 @@
                             -
                             {% endif %}
                         </td>
-                        <td>{{ log.message }}</td>
-                        <td>
+                        <td data-label="Nachricht">{{ log.message }}</td>
+                        <td data-label="Details">
                             {% if log.details %}
                             <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
                                 data-bs-target="#logDetailsModal{{ log.id }}">
@@ -162,7 +164,7 @@
                             <!-- Details-Modal -->
                             <div class="modal fade" id="logDetailsModal{{ log.id }}" tabindex="-1"
                                 aria-labelledby="logDetailsModalLabel{{ log.id }}" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
+                                <div class="modal-dialog modal-lg modal-fullscreen-sm-down">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="logDetailsModalLabel{{ log.id }}">Log-Details
@@ -178,7 +180,9 @@
                                             <p><strong>Nachricht:</strong> {{ log.message }}</p>
 
                                             <h6>Details:</h6>
-                                            <pre class="bg-light p-3 rounded"><code>{{ log.details }}</code></pre>
+                                            <div class="pre-scrollable">
+                                                <pre class="bg-light p-3 rounded"><code>{{ log.details }}</code></pre>
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary"
@@ -205,7 +209,7 @@
     </div>
     <div class="card-footer bg-light">
         <nav aria-label="Log-Navigation">
-            <ul class="pagination justify-content-center mb-0">
+            <ul class="pagination pagination-mobile justify-content-center mb-0">
                 {% if has_prev %}
                 <li class="page-item">
                     <a class="page-link"
@@ -253,6 +257,18 @@
                 filterForm.submit();
             });
         });
+
+        // Verbesserte Tooltip-Konfiguration für mobile Geräte
+        if (document.querySelectorAll('[data-bs-toggle="tooltip"]').length > 0) {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    container: 'body',
+                    boundary: 'window',
+                    trigger: window.innerWidth < 768 ? 'click' : 'hover focus', // Auf mobilen Geräten nur bei Klick zeigen
+                });
+            });
+        }
     });
 </script>
 {% endblock %}

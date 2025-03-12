@@ -591,7 +591,11 @@ def systeminfo():
     """
     Zeigt Systeminformationen an
     """
-    from models import Miteigentuemer, Transaktion, Wirtschaftsplan, User, RoadmapItem
+    from models import Miteigentuemer, Transaktion, Wirtschaftsplan, User
+    import platform
+    import flask
+    import sys
+    import os
     
     # Statistiken aus der Datenbank sammeln
     stats = {
@@ -601,21 +605,14 @@ def systeminfo():
         'benutzer_count': User.query.count()
     }
     
-    # Roadmap-Daten abrufen und nach Zeitrahmen gruppieren
-    roadmap_items = RoadmapItem.query.order_by(RoadmapItem.position).all()
-    roadmap = {
-        'short_term': [],
-        'medium_term': [],
-        'long_term': []
+    # System-Umgebungsinformationen
+    system_info = {
+        'os': f"{platform.system()} {platform.release()}",
+        'python_version': platform.python_version(),
+        'flask_version': flask.__version__,
+        'database_type': current_app.config.get('SQLALCHEMY_DATABASE_URI', '').split(':')[0],
+        'server': os.environ.get('SERVER_SOFTWARE', 'Waitress' if 'waitress' in sys.modules else 'Flask Development Server')
     }
-    
-    for item in roadmap_items:
-        roadmap[item.timeframe].append({
-            'id': item.id,
-            'title': item.title,
-            'description': item.description,
-            'status': item.status
-        })
     
     return render_template(
         'settings/systeminfo.html',
@@ -623,7 +620,7 @@ def systeminfo():
         transaktionen_count=stats['transaktionen_count'],
         wirtschaftsplan_count=stats['wirtschaftsplan_count'],
         benutzer_count=stats['benutzer_count'],
-        roadmap=roadmap
+        system_info=system_info
     )
 
 
@@ -915,3 +912,27 @@ def logs_view():
         has_next=has_next,
         total_count=total_count
     )
+
+@settings_bp.route('/roadmap')
+@login_required
+def roadmap_view():
+    """
+    Zeigt die Roadmap-Ansicht
+    """
+    # Roadmap-Daten abrufen und nach Zeitrahmen gruppieren
+    roadmap_items = RoadmapItem.query.order_by(RoadmapItem.position).all()
+    roadmap = {
+        'short_term': [],
+        'medium_term': [],
+        'long_term': []
+    }
+    
+    for item in roadmap_items:
+        roadmap[item.timeframe].append({
+            'id': item.id,
+            'title': item.title,
+            'description': item.description,
+            'status': item.status
+        })
+    
+    return render_template('settings/roadmap.html', roadmap=roadmap)
