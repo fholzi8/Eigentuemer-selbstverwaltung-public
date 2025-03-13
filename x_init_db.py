@@ -27,20 +27,20 @@ def create_admin():
 def create_miteigentuemer():
     """Erstellt Beispiel-Miteigentümer"""
     miteigentuemer_data = [
-        {"name": "Florian Holzapfel und Roswitha Böhm", "mea": 70327, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "DOMDEY Irmgard", "mea": 89862, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "Margerete Häusler-Canstein & Birgit Canstein", "mea": 67722, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "ErbG: Jutta Koneberg-Freisinger & Söhne", "mea": 70327, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "Marlen Ulrike & Werner Altenburg", "mea": 101282, "vf_einheiten": 0, "tg_einheiten": 0, "einheiten": 1},
-        {"name": "KLEMISCH Rositha", "mea": 77837, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "Elfriede & Erich Steurer", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "JANSCH Christina", "mea": 54098, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "BEKIM Dani Und Besa", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "ErbG: Markus Friedrich Köpp & Ulrike Carolin Binsmaier", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "ErbG Bauer", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "SCHWEPFINGER Christopher", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "Erb Kabisch", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
-        {"name": "Ali Shekar & Rezvan Dokht Nazari", "mea": 143957, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1}
+        {"name": "Miteigentümer 1", "mea": 70327, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 2", "mea": 89862, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 3", "mea": 67722, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 4", "mea": 70327, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 5", "mea": 101282, "vf_einheiten": 0, "tg_einheiten": 0, "einheiten": 1},
+        {"name": "Miteigentümer 6", "mea": 77837, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 7", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 8", "mea": 54098, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 9", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 10", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 11", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 12", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 13", "mea": 54098, "vf_einheiten": 1, "tg_einheiten": 1, "einheiten": 1},
+        {"name": "Miteigentümer 14", "mea": 143957, "vf_einheiten": 0, "tg_einheiten": 1, "einheiten": 1}
     ]
     
     for m_data in miteigentuemer_data:
@@ -59,42 +59,42 @@ def create_example_transaktionen():
         # Einzahlungen (positiv)
         {
             "datum": datetime.date(current_year, 2, 25),
-            "beschreibung": "Überweisung - Werner Altenburg - Werner Altenburg, Einzahlung Haus 5",
-            "kategorie": "Matera SAS",
+            "beschreibung": "Überweisung - Miteigentümer 5 - Einzahlung Haus 5",
+            "kategorie": "Hausverwaltung",
             "kostenart": "Einzahlung",
             "betrag": Decimal("300.00"),
             "umlagefaehig": False,
             "verteilungsschluessel": "Einheiten",
-            "miteigentuemer_id": 5,  # Marlen Ulrike & Werner Altenburg
+            "miteigentuemer_id": 5,  # Miteigentümer 5
             "jahr": current_year
         },
         {
             "datum": datetime.date(current_year, 1, 2),
-            "beschreibung": "Überweisung - Christopher Schwepfinger - Haushaltsplan fuer Friedrichshafener Strasse 59",
-            "kategorie": "WEG Friedrichshafener Str. 37 - 63",
+            "beschreibung": "Überweisung - Miteigentümer 12 - Haushaltsplan",
+            "kategorie": "WEG Musterstraße",
             "kostenart": "Einzahlung",
             "betrag": Decimal("700.00"),
             "umlagefaehig": False,
             "verteilungsschluessel": "Einheiten",
-            "miteigentuemer_id": 12,  # SCHWEPFINGER Christopher
+            "miteigentuemer_id": 12,  # Miteigentümer 12
             "jahr": current_year
         },
         {
             "datum": datetime.date(current_year - 1, 6, 26),
-            "beschreibung": "Überweisung - Irmgard Domdey - Hausgeld 2024",
-            "kategorie": "WEG Friedrichshafener str. 37-63",
+            "beschreibung": "Überweisung - Miteigentümer 2 - Hausgeld 2024",
+            "kategorie": "WEG Musterstraße",
             "kostenart": "Einzahlung",
             "betrag": Decimal("500.00"),
             "umlagefaehig": False,
             "verteilungsschluessel": "Einheiten",
-            "miteigentuemer_id": 2,  # DOMDEY Irmgard
+            "miteigentuemer_id": 2,  # Miteigentümer 2
             "jahr": current_year - 1
         },
         
         # Ausgaben (negativ) - Verteilungsschlüssel: Einheiten
         {
             "datum": datetime.date(current_year, 1, 28),
-            "beschreibung": "Bankeinzug - Friedrichshafener Str. 37, Abschlag Strom 01/2025 Betrag 33,00 Eur",
+            "beschreibung": "Bankeinzug - Musterstraße, Abschlag Strom 01/2025 Betrag 33,00 Eur",
             "kategorie": "Strom",
             "kostenart": "Strom",
             "betrag": Decimal("-33.00"),
@@ -117,7 +117,7 @@ def create_example_transaktionen():
         {
             "datum": datetime.date(current_year - 1, 10, 15),
             "beschreibung": "Bankeinzug - REF-9C8269B20782A844AE",
-            "kategorie": "Matera",
+            "kategorie": "Hausverwaltung",
             "kostenart": "Verwaltung",
             "betrag": Decimal("-2866.00"),
             "umlagefaehig": True,
@@ -127,8 +127,8 @@ def create_example_transaktionen():
         },
         {
             "datum": datetime.date(current_year - 1, 10, 4),
-            "beschreibung": "Bankeinzug - 09/2024 K-NR. 906623520-1 V-NR. 950327453",
-            "kategorie": "Vodafone Deutschland GmbH",
+            "beschreibung": "Bankeinzug - 09/2024 K-NR. 123456789-1 V-NR. 987654321",
+            "kategorie": "Telekomanbieter",
             "kostenart": "Telekommunikation",
             "betrag": Decimal("-854.66"),
             "umlagefaehig": True,
@@ -138,8 +138,8 @@ def create_example_transaktionen():
         },
         {
             "datum": datetime.date(current_year - 1, 6, 17),
-            "beschreibung": "Bankeinzug - HAFT UNF HE-1051-3372 04.06.2024",
-            "kategorie": "Versicherungskammer Bayern",
+            "beschreibung": "Bankeinzug - HAFT UNF HE-1234-5678 04.06.2024",
+            "kategorie": "Versicherungsgesellschaft",
             "kostenart": "Versicherung",
             "betrag": Decimal("-70.66"),
             "umlagefaehig": True,
@@ -198,7 +198,7 @@ def create_example_transaktionen():
         {
             "datum": datetime.date(current_year - 1, 10, 8),
             "beschreibung": "Überweisung - Rechnung Nr. 2024_040 mit Kundennummer: 10247 - TG-Einfahrt",
-            "kategorie": "Kleines Bauunternehmen Würmtal",
+            "kategorie": "Bauunternehmen",
             "kostenart": "Instandhaltung",
             "betrag": Decimal("-4533.28"),
             "umlagefaehig": True,
@@ -209,7 +209,7 @@ def create_example_transaktionen():
         {
             "datum": datetime.date(current_year - 1, 6, 14),
             "beschreibung": "Übertragung - Rücklagen für TG-Sanierung",
-            "kategorie": "WEG Friedrichshafener Str. 41",
+            "kategorie": "WEG Musterstraße",
             "kostenart": "Rücklage",
             "betrag": Decimal("-5000.00"),
             "umlagefaehig": False,
@@ -246,7 +246,7 @@ def create_wirtschaftsplan():
             "betrag": Decimal("1432.32"),
             "verteilungsschluessel": "Einheiten",
             "umlagefaehig": True,
-            "notiz": "Vertrag mit Ibrahimovic"
+            "notiz": "Vertrag mit Dienstleister"
         },
         {
             "jahr": current_year,
@@ -255,7 +255,7 @@ def create_wirtschaftsplan():
             "betrag": Decimal("70.66"),
             "verteilungsschluessel": "Einheiten",
             "umlagefaehig": True,
-            "notiz": "Versicherungskammer Bayern"
+            "notiz": "Versicherungsgesellschaft"
         },
         {
             "jahr": current_year,
@@ -277,7 +277,7 @@ def create_wirtschaftsplan():
         },
         {
             "jahr": current_year,
-            "bezeichnung": "Matera Verwaltungs-/Supportkosten",
+            "bezeichnung": "Verwaltungs-/Supportkosten",
             "kategorie": "Verwaltung",
             "betrag": Decimal("2016.00"),
             "verteilungsschluessel": "Einheiten",
