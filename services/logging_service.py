@@ -156,3 +156,88 @@ def get_logs(category=None, level=None, limit=100, offset=0, start_date=None, en
         logs = logs.offset(offset).limit(limit)
     
     return logs.all(), total_count
+
+def set_log_retention_days(days):
+    """Setzt die Anzahl der Tage, für die Logs aufbewahrt werden sollen"""
+    from models import db, SystemSettings
+    
+    setting = SystemSettings.query.filter_by(key='log_retention_days').first()
+    if setting:
+        setting.value = str(days)
+    else:
+        setting = SystemSettings(
+            key='log_retention_days',
+            value=str(days),
+            description='Anzahl der Tage, für die Logs aufbewahrt werden'
+        )
+        db.session.add(setting)
+    
+    db.session.commit()
+    return True
+
+def get_log_retention_days():
+    """Gibt die Anzahl der Tage zurück, für die Logs aufbewahrt werden"""
+    from models import SystemSettings
+    
+    days = SystemSettings.get_value('log_retention_days', '30')  # Standard: 30 Tage
+    return int(days)
+
+def cleanup_old_logs():
+    """Löscht Logs, die älter als die eingestellte Retention Period sind"""
+    from models import db, LogEntry
+    from datetime import datetime, timedelta
+    
+    retention_days = get_log_retention_days()
+    cutoff_date = datetime.now() - timedelta(days=retention_days)
+    
+    # Logs löschen, die älter als das Cutoff-Datum sind
+    deleted_count = LogEntry.query.filter(LogEntry.timestamp < cutoff_date).delete()
+    
+    db.session.commit()
+    return deleted_count
+
+def schedule_log_cleanup():
+    """Plant die regelmäßige Bereinigung alter Logs"""
+    from services.logging_service import cleanup_old_logs
+    from datetime import datetime
+    from models import SystemSettings
+    
+    # Letzten Cleanup-Zeitpunkt prüfen
+    last_cleanup = SystemSettings.get_value('last_log_cleanup')
+    if last_cleanup:
+        last_cleanup_date = datetime.strptime(last_cleanup, '%Y-%m-%d')
+        today = datetime.now().date()
+        
+        # Nur einmal täglich bereinigen
+        if (today - last_cleanup_date.date()).days < 1:
+            return
+    
+    # Alte Logs bereinigen
+    deleted_count = cleanup_old_logs()
+    
+    # Zeitpunkt des letzten Cleanups speichern
+    from models import db, SystemSettings
+    
+    setting = SystemSettings.query.filter_by(key='last_log_cleanup').first()
+    today_str = datetime.now().strftime('%Y-%m-%d')
+    
+    if setting:
+        setting.value = today_str
+    else:
+        setting = SystemSettings(
+            key='last_log_cleanup',
+            value=today_str,
+            description='Datum der letzten Log-Bereinigung'
+        )
+        db.session.add(setting)
+    
+    db.session.commit()
+    
+    # Log-Eintrag über die erfolgreiche Bereinigung
+    if deleted_count > 0:
+        from services.logging_service import log_system_event
+        log_system_event(
+            message=f'Automatische Log-Bereinigung: {deleted_count} alte Einträge wurden gelöscht.',
+            category='system',
+            level='info'
+        )

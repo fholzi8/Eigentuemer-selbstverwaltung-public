@@ -12,7 +12,7 @@ from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, Wirts
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
-from services.logging_service import get_logs, log_user_event, log_error
+from services.logging_service import get_logs, log_user_event, log_error, get_log_retention_days, set_log_retention_days, cleanup_old_logs
 from datetime import datetime, timedelta
 
 
@@ -624,8 +624,6 @@ def systeminfo():
     )
 
 
-# 3. Füge eine neue Route hinzu, um die Roadmap zu aktualisieren
-
 @settings_bp.route('/update_roadmap', methods=['POST'])
 @login_required
 @admin_required
@@ -864,6 +862,9 @@ def parameter_settings():
 @login_required
 @admin_required
 def logs_view():
+    # Automatische Log-Bereinigung bei Bedarf durchführen
+    #schedule_log_cleanup()
+
     """Zeigt die Log-Einträge an"""
     
     # Filter aus Request-Parametern
@@ -936,3 +937,30 @@ def roadmap_view():
         })
     
     return render_template('settings/roadmap.html', roadmap=roadmap)
+
+@settings_bp.route('/log-settings', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def log_settings():
+    """Einstellungen für den Log-Viewer"""
+    
+    if request.method == 'POST':
+        retention_days = request.form.get('retention_days', type=int)
+        if retention_days is not None and retention_days > 0:
+            set_log_retention_days(retention_days)
+            
+            # Wenn "cleanup_now" ausgewählt wurde, alte Logs sofort bereinigen
+            if 'cleanup_now' in request.form:
+                deleted_count = cleanup_old_logs()
+                flash(f'{deleted_count} alte Log-Einträge wurden gelöscht.', 'success')
+            else:
+                flash('Log-Aufbewahrungsdauer erfolgreich aktualisiert.', 'success')
+        else:
+            flash('Bitte geben Sie eine gültige Anzahl von Tagen ein.', 'danger')
+        
+        return redirect(url_for('settings.log_settings'))
+    
+    # Aktuelle Einstellung laden
+    retention_days = get_log_retention_days()
+    
+    return render_template('settings/log_settings.html', retention_days=retention_days)

@@ -259,3 +259,21 @@ class LogEntry(db.Model):
     
     def __repr__(self):
         return f'<LogEntry {self.timestamp} {self.category} {self.level} {self.message[:50]}...>'
+
+class SystemSettings(db.Model):
+    __tablename__ = 'system_settings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(50), unique=True, nullable=False)
+    value = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    
+    @classmethod
+    def get_value(cls, key, default=None):
+        setting = cls.query.filter_by(key=key).first()
+        return setting.value if setting else default
+    
+    def __repr__(self):
+        return f'<SystemSettings {self.key}={self.value}>'
