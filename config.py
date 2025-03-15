@@ -73,7 +73,12 @@ class ProductionConfig(Config):
     SECRET_KEY = os.environ.get('SECRET_KEY')
     if not SECRET_KEY:
         raise ValueError("No SECRET_KEY set for production environment")
-    
+    #if not SECRET_KEY:
+    #    SECRET_KEY = 'fgdwfgqwiufbufbuervbqehferiu842956412985141'  # Dies erlaubt das Starten der App
+    #    NEEDS_SETUP = True  # Flag, um anzuzeigen, dass Setup nötig ist
+    #else:
+    #    NEEDS_SETUP = False
+
     # Für PythonAnywhere: Stellen Sie sicher, dass die Datenbank im richtigen Verzeichnis liegt
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(Config.BASE_DIR, 'weg_abrechnung.db')
