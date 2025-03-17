@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+
+{% block title %}- Brief-Vorlagen{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Brief-Vorlagen</h1>
+    <div class="btn-group">
+        <a href="{{ url_for('vorlagen.brief_neu') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Neue Vorlage
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Verfügbare Brief-Vorlagen</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Titel</th>
+                        <th>Typ</th>
+                        <th>Erstellt am</th>
+                        <th>Zuletzt aktualisiert</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vorlage in vorlagen %}
+                    <tr>
+                        <td>{{ vorlage.titel }}</td>
+                        <td>
+                            {% if vorlage.typ == 'eigentuemerversammlung' %}
+                            <span class="badge bg-primary">Eigentümerversammlung</span>
+                            {% elif vorlage.typ == 'umlaufbeschluss' %}
+                            <span class="badge bg-success">Umlaufbeschluss</span>
+                            {% elif vorlage.typ == 'rundschreiben' %}
+                            <span class="badge bg-info">Rundschreiben</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ vorlage.erstellt_am.strftime('%d.%m.%Y') }}</td>
+                        <td>{{ vorlage.aktualisiert_am.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('vorlagen.brief_bearbeiten', vorlage_id=vorlage.id) }}"
+                                    class="btn btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Bearbeiten</span>
+                                </a>
+                                <a href="{{ url_for('vorlagen.brief_vorschau', vorlage_id=vorlage.id) }}"
+                                    class="btn btn-outline-info">
+                                    <i class="bi bi-eye"></i> <span class="d-none d-md-inline">Vorschau</span>
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal{{ vorlage.id }}">
+                                    <i class="bi bi-trash"></i> <span class="d-none d-md-inline">Löschen</span>
+                                </button>
+                            </div>
+
+                            <!-- Delete Modal -->
+                            <div class="modal fade" id="deleteModal{{ vorlage.id }}" tabindex="-1"
+                                aria-labelledby="deleteModalLabel{{ vorlage.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteModalLabel{{ vorlage.id }}">
+                                                Vorlage löschen
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Schließen"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Möchten Sie die Brief-Vorlage "{{ vorlage.titel }}" wirklich löschen?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Abbrechen
+                                            </button>
+                                            <form
+                                                action="{{ url_for('vorlagen.brief_loeschen', vorlage_id=vorlage.id) }}"
+                                                method="post">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-danger">Löschen</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="bi bi-inbox me-2"></i>Keine Brief-Vorlagen vorhanden.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Informationen zu Brief-Vorlagen</h5>
+    </div>
+    <div class="card-body">
+        <p>Brief-Vorlagen können folgende Platzhalter verwenden:</p>
+        <ul>
+            <li><code>{{datum}}</code> - Aktuelles Datum</li>
+            <li><code>{{name}}</code> - Name des Miteigentümers</li>
+            <li><code>{{adresse}}</code> - Adresse der WEG</li>
+            <li><code>{{hausmeister}}</code> - Name des Hausmeisters</li>
+            <li><code>{{mea}}</code> - Miteigentumsanteile</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

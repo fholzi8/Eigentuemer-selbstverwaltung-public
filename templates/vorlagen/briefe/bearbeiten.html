@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+
+{% block title %}- Brief-Vorlage bearbeiten{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Brief-Vorlage bearbeiten</h1>
+    <a href="{{ url_for('vorlagen.briefe_liste') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Zurück zu Vorlagen
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Brief-Vorlage bearbeiten</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('vorlagen.brief_bearbeiten', vorlage_id=vorlage.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+                <label for="titel" class="form-label">Titel</label>
+                <input type="text" class="form-control" id="titel" name="titel" value="{{ vorlage.titel }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="typ" class="form-label">Typ</label>
+                <select class="form-select" id="typ" name="typ" required>
+                    <option value="eigentuemerversammlung" {% if vorlage.typ=='eigentuemerversammlung' %}selected{%
+                        endif %}>
+                        Eigentümerversammlung
+                    </option>
+                    <option value="umlaufbeschluss" {% if vorlage.typ=='umlaufbeschluss' %}selected{% endif %}>
+                        Umlaufbeschluss
+                    </option>
+                    <option value="rundschreiben" {% if vorlage.typ=='rundschreiben' %}selected{% endif %}>
+                        Rundschreiben
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="inhalt" class="form-label">Inhalt</label>
+                <p class="text-muted">Verwenden Sie Platzhalter wie <code>{{datum}}</code>, <code>{{name}}</code>, etc.
+                </p>
+                <textarea class="form-control" id="inhalt" name="inhalt" rows="15"
+                    required>{{ vorlage.inhalt }}</textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                    <a href="{{ url_for('vorlagen.brief_vorschau', vorlage_id=vorlage.id) }}" class="btn btn-info ms-2"
+                        target="_blank">
+                        <i class="bi bi-eye"></i> Vorschau
+                    </a>
+                </div>
+                <a href="{{ url_for('vorlagen.briefe_liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Verfügbare Platzhalter</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Allgemeine Platzhalter</h6>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{datum}}</code>
+                        <span>Aktuelles Datum (z.B. 17.03.2025)</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{name}}</code>
+                        <span>Name des Miteigentümers</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{adresse}}</code>
+                        <span>Adresse der WEG</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Miteigentümer-spezifische Platzhalter</h6>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{mea}}</code>
+                        <span>Miteigentumsanteile</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{einheiten}}</code>
+                        <span>Anzahl der Einheiten</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    // Einfacher WYSIWYG-Editor für das Inhalt-Feld
+    document.addEventListener('DOMContentLoaded', function () {
+        // Platzhalter hervorheben 
+        const textarea = document.getElementById('inhalt');
+
+        function highlightPlaceholders() {
+            // Implementierung für Hervorhebung von Platzhaltern im Textarea
+            // Hier könnte man WYSIWYG-Editor wie TinyMCE oder CKEditor einbinden
+        }
+
+        // Event-Listener
+        textarea.addEventListener('input', highlightPlaceholders);
+        highlightPlaceholders();
+
+        // Platzhalter einfügen bei Klick auf Platzhalter-Element
+        document.querySelectorAll('.list-group-item code').forEach(function (el) {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', function () {
+                const placeholder = this.textContent;
+
+                // Platzhalter an Cursor-Position einfügen
+                const cursorPos = textarea.selectionStart;
+                const textBefore = textarea.value.substring(0, cursorPos);
+                const textAfter = textarea.value.substring(cursorPos);
+
+                textarea.value = textBefore + placeholder + textAfter;
+                textarea.focus();
+                textarea.selectionStart = cursorPos + placeholder.length;
+                textarea.selectionEnd = cursorPos + placeholder.length;
+            });
+        });
+    });
+</script>
+{% endblock %}

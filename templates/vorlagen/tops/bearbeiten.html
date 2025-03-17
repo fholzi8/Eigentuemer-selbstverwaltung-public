@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}- Tagesordnungspunkt bearbeiten{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Tagesordnungspunkt bearbeiten</h1>
+    <a href="{{ url_for('vorlagen.tops_liste') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Zurück zur Liste
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Tagesordnungspunkt bearbeiten</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('vorlagen.top_bearbeiten', top_id=top.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <label for="titel" class="form-label">Titel</label>
+                    <input type="text" class="form-control" id="titel" name="titel" value="{{ top.titel }}" required>
+                </div>
+                <div class="col-md-2">
+                    <label for="jahr" class="form-label">Jahr</label>
+                    <select class="form-select" id="jahr" name="jahr">
+                        <option value="">Kein Jahr</option>
+                        {% for y in range(current_year, current_year - 5, -1) %}
+                        <option value="{{ y }}" {% if y==current_year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="position" class="form-label">Position</label>
+                    <input type="number" class="form-control" id="position" name="position" min="1"
+                        value="{{ top.position }}" required>
+                    <small class="form-text text-muted">Reihenfolge in der TOP-Liste</small>
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="aktiv" {% if top.status=='aktiv' %}selected{% endif %}>Aktiv</option>
+                        <option value="entwurf" {% if top.status=='entwurf' %}selected{% endif %}>Entwurf</option>
+                        <option value="archiviert" {% if top.status=='archiviert' %}selected{% endif %}>Archiviert
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="beschreibung" class="form-label">Beschreibung / Details</label>
+                <textarea class="form-control" id="beschreibung" name="beschreibung"
+                    rows="10">{{ top.beschreibung }}</textarea>
+                <small class="form-text text-muted">
+                    Detaillierte Informationen zum TOP, die in der Einladung verwendet werden können
+                </small>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Erstellt am</label>
+                    <p class="form-control-plaintext">{{ top.erstellt_am.strftime('%d.%m.%Y %H:%M') }}</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Zuletzt aktualisiert</label>
+                    <p class="form-control-plaintext">{{ top.aktualisiert_am.strftime('%d.%m.%Y %H:%M') }}</p>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Speichern</button>
+                <a href="{{ url_for('vorlagen.tops_liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Hinweise zu Tagesordnungspunkten</h5>
+    </div>
+    <div class="card-body">
+        <p>Tagesordnungspunkte (TOPs) dienen als Vorlage für Eigentümerversammlungen und können immer wieder verwendet
+            werden.</p>
+        <ul>
+            <li><strong>Aktiv:</strong> Dieser TOP wird aktuell verwendet oder steht für die nächste Versammlung bereit.
+            </li>
+            <li><strong>Entwurf:</strong> Der TOP befindet sich in Bearbeitung und ist noch nicht für die Verwendung
+                vorgesehen.</li>
+            <li><strong>Archiviert:</strong> Der TOP wurde bereits verwendet und ist für die Dokumentation archiviert.
+            </li>
+        </ul>
+        <p>Die Position bestimmt die Reihenfolge der TOPs in der Tagesordnung. Standard-TOPs wie "Begrüßung" oder
+            "Verschiedenes" sollten niedrige bzw. hohe Positionsnummern haben.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Automatisch größer werdendes Textarea
+        const textarea = document.getElementById('beschreibung');
+
+        // Initial die Größe anpassen
+        textarea.style.height = 'auto';
+        textarea.style.height = (textarea.scrollHeight) + 'px';
+
+        textarea.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    });
+</script>
+{% endblock %}

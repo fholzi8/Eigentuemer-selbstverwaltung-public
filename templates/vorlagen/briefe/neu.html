@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block title %}- Neue Brief-Vorlage{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Neue Brief-Vorlage</h1>
+    <a href="{{ url_for('vorlagen.briefe_liste') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Zurück zu Vorlagen
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Brief-Vorlage erstellen</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('vorlagen.brief_neu') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+                <label for="titel" class="form-label">Titel</label>
+                <input type="text" class="form-control" id="titel" name="titel"
+                    placeholder="z.B. Einladung zur Eigentümerversammlung" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="typ" class="form-label">Typ</label>
+                <select class="form-select" id="typ" name="typ" required>
+                    <option value="eigentuemerversammlung">Eigentümerversammlung</option>
+                    <option value="umlaufbeschluss">Umlaufbeschluss</option>
+                    <option value="rundschreiben">Rundschreiben</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="inhalt" class="form-label">Inhalt</label>
+                <p class="text-muted">Verwenden Sie Platzhalter wie <code>{{datum}}</code>, <code>{{name}}</code>, etc.
+                </p>
+                <textarea class="form-control" id="inhalt" name="inhalt" rows="15" required>
+WEG [Adresse]
+{{datum}}
+
+Sehr geehrte(r) Herr/Frau {{name}},
+
+...
+
+Mit freundlichen Grüßen
+[Name]
+                </textarea>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Speichern</button>
+                <a href="{{ url_for('vorlagen.briefe_liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Verfügbare Platzhalter</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Allgemeine Platzhalter</h6>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{datum}}</code>
+                        <span>Aktuelles Datum (z.B. 17.03.2025)</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{name}}</code>
+                        <span>Name des Miteigentümers</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{adresse}}</code>
+                        <span>Adresse der WEG</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Miteigentümer-spezifische Platzhalter</h6>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{mea}}</code>
+                        <span>Miteigentumsanteile</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <code>{{einheiten}}</code>
+                        <span>Anzahl der Einheiten</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    // Einfacher WYSIWYG-Editor für das Inhalt-Feld
+    document.addEventListener('DOMContentLoaded', function () {
+        // Platzhalter hervorheben
+        const textarea = document.getElementById('inhalt');
+
+        function highlightPlaceholders() {
+            // Implementierung für Hervorhebung von Platzhaltern im Textarea
+            // Hier könnte man WYSIWYG-Editor wie TinyMCE oder CKEditor einbinden
+        }
+
+        // Event-Listener
+        textarea.addEventListener('input', highlightPlaceholders);
+        highlightPlaceholders();
+    });
+</script>
+{% endblock %}

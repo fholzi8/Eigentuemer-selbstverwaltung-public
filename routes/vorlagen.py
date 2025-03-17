@@ -2,7 +2,7 @@
 Vorlagen-Blueprint zur Verwaltung von Brief-Vorlagen, Tagesordnungspunkten und wichtigen Dokumenten
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, send_from_directory
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
@@ -130,12 +130,14 @@ def top_neu():
         beschreibung = request.form.get('beschreibung')
         position = request.form.get('position', 0, type=int)
         status = request.form.get('status', 'aktiv')
+        jahr = request.form.get('jahr', type=int)
         
         top = TagesordnungspunktVorlage(
             titel=titel,
             beschreibung=beschreibung,
             position=position,
             status=status,
+            jahr=jahr,
             erstellt_von=current_user.id,
             erstellt_am=datetime.datetime.now()
         )
@@ -149,7 +151,9 @@ def top_neu():
             db.session.rollback()
             flash(f'Fehler beim Erstellen des Tagesordnungspunkts: {str(e)}', 'danger')
     
-    return render_template('vorlagen/tops/neu.html')
+    current_year = datetime.datetime.now().year
+
+    return render_template('vorlagen/tops/neu.html', current_year=current_year)
 
 @vorlagen_bp.route('/tops/<int:top_id>', methods=['GET', 'POST'])
 @login_required
@@ -162,6 +166,7 @@ def top_bearbeiten(top_id):
         top.beschreibung = request.form.get('beschreibung')
         top.position = request.form.get('position', 0, type=int)
         top.status = request.form.get('status', 'aktiv')
+        top.jahr = request.form.get('jahr', type=int)
         top.aktualisiert_am = datetime.datetime.now()
         
         try:
@@ -172,7 +177,9 @@ def top_bearbeiten(top_id):
             db.session.rollback()
             flash(f'Fehler beim Aktualisieren des Tagesordnungspunkts: {str(e)}', 'danger')
     
-    return render_template('vorlagen/tops/bearbeiten.html', top=top)
+    current_year = datetime.datetime.now().year
+
+    return render_template('vorlagen/tops/bearbeiten.html', top=top, current_year=current_year)
 
 @vorlagen_bp.route('/tops/<int:top_id>/delete', methods=['POST'])
 @login_required
@@ -191,33 +198,20 @@ def top_loeschen(top_id):
     return redirect(url_for('vorlagen.tops_liste'))
 
 # Routen für Wichtige Dokumente
-@vorlagen_bp.route('/dokumente', methods=['GET'])
+@vorlagen_bp.route('/dokumente', methods=['GET', 'POST'])
 @login_required
 def dokumente_liste():
     """Liste aller wichtigen Dokumente"""
-    # Filter für Kategorie
+    # Filter für Kategorie und Jahr
     filter_kategorie = request.args.get('kategorie', '')
+    filter_jahr = request.args.get('jahr', '', type=str)
     
-    if filter_kategorie:
-        dokumente = WichtigesDokument.query.filter_by(kategorie=filter_kategorie).order_by(WichtigesDokument.titel).all()
-    else:
-        dokumente = WichtigesDokument.query.order_by(WichtigesDokument.kategorie, WichtigesDokument.titel).all()
-    
-    # Alle verfügbaren Kategorien für Filter
-    kategorien = db.session.query(WichtigesDokument.kategorie).distinct().all()
-    kategorien = [k[0] for k in kategorien if k[0] is not None]
-    
-    return render_template('vorlagen/dokumente/liste.html', dokumente=dokumente, 
-                          kategorien=kategorien, filter_kategorie=filter_kategorie)
-
-@vorlagen_bp.route('/dokumente/neu', methods=['GET', 'POST'])
-@login_required
-def dokument_neu():
-    """Neues wichtiges Dokument hochladen"""
+    # Handhabung von POST-Anfragen (Dokument hochladen)
     if request.method == 'POST':
         titel = request.form.get('titel')
         beschreibung = request.form.get('beschreibung')
         kategorie = request.form.get('kategorie')
+        jahr = request.form.get('jahr', type=int)  # Jahr aus Formular
         
         if 'file' not in request.files:
             flash('Keine Datei ausgewählt', 'danger')
@@ -245,6 +239,7 @@ def dokument_neu():
                 titel=titel,
                 beschreibung=beschreibung,
                 kategorie=kategorie,
+                jahr=jahr,  # Jahr hinzufügen
                 dateiname=filename,
                 original_dateiname=file.filename,
                 dateityp=dateityp,
@@ -260,29 +255,116 @@ def dokument_neu():
         except Exception as e:
             db.session.rollback()
             flash(f'Fehler beim Hochladen des Dokuments: {str(e)}', 'danger')
+            return redirect(request.url)
     
-    return render_template('vorlagen/dokumente/neu.html')
-
-@vorlagen_bp.route('/dokumente/<int:dokument_id>', methods=['GET', 'POST'])
-@login_required
-def dokument_bearbeiten(dokument_id):
-    """Wichtiges Dokument bearbeiten (nur Metadaten)"""
-    dokument = WichtigesDokument.query.get_or_404(dokument_id)
+    # Basisabfrage
+    query = WichtigesDokument.query
     
-    if request.method == 'POST':
-        dokument.titel = request.form.get('titel')
-        dokument.beschreibung = request.form.get('beschreibung')
-        dokument.kategorie = request.form.get('kategorie')
+    # Filter anwenden
+    if filter_kategorie:
+        query = query.filter_by(kategorie=filter_kategorie)
         
-        try:
-            db.session.commit()
-            flash('Dokument erfolgreich aktualisiert', 'success')
-            return redirect(url_for('vorlagen.dokumente_liste'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Fehler beim Aktualisieren des Dokuments: {str(e)}', 'danger')
+    if filter_jahr and filter_jahr != 'alle':
+        query = query.filter_by(jahr=int(filter_jahr))
     
-    return render_template('vorlagen/dokumente/bearbeiten.html', dokument=dokument)
+    # Sortierte Dokumente abrufen
+    dokumente = query.order_by(WichtigesDokument.kategorie, WichtigesDokument.titel).all()
+    
+    # Alle verfügbaren Kategorien für Filter
+    kategorien = db.session.query(WichtigesDokument.kategorie).distinct().all()
+    kategorien = [k[0] for k in kategorien if k[0] is not None]
+    
+    # Alle verfügbaren Jahre für Filter
+    jahre = db.session.query(WichtigesDokument.jahr).distinct().order_by(WichtigesDokument.jahr.desc()).all()
+    jahre = [j[0] for j in jahre if j[0] is not None]
+    
+    # Dateien aus den verschiedenen Verzeichnissen
+    upload_files = []  # Für den uploads-Ordner
+    rechnungen_files = []  # Für uploads/rechnungen
+    dokumente_files = []  # Für uploads/dokumente
+    
+    # 1. Dateien aus dem Hauptupload-Verzeichnis
+    uploads_path = current_app.config['UPLOAD_FOLDER']
+    try:
+        if os.path.exists(uploads_path):
+            for filename in os.listdir(uploads_path):
+                file_path = os.path.join(uploads_path, filename)
+                if os.path.isfile(file_path):
+                    file_ext = os.path.splitext(filename)[1][1:].lower()
+                    file_size = os.path.getsize(file_path)
+                    file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+                    
+                    upload_files.append({
+                        'name': filename,
+                        'type': file_ext,
+                        'path': filename,  # Relativer Pfad
+                        'size': file_size,
+                        'modified': file_modified
+                    })
+    except Exception as e:
+        flash(f'Fehler beim Lesen des Upload-Verzeichnisses: {str(e)}', 'warning')
+    
+    # 2. Dateien aus dem Rechnungen-Verzeichnis
+    rechnungen_path = os.path.join(uploads_path, 'rechnungen')
+    try:
+        if os.path.exists(rechnungen_path):
+            for filename in os.listdir(rechnungen_path):
+                file_path = os.path.join(rechnungen_path, filename)
+                if os.path.isfile(file_path):
+                    file_ext = os.path.splitext(filename)[1][1:].lower()
+                    file_size = os.path.getsize(file_path)
+                    file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+                    
+                    rechnungen_files.append({
+                        'name': filename,
+                        'type': file_ext,
+                        'path': os.path.join('rechnungen', filename),  # Relativer Pfad
+                        'size': file_size,
+                        'modified': file_modified
+                    })
+    except Exception as e:
+        flash(f'Fehler beim Lesen des Rechnungen-Verzeichnisses: {str(e)}', 'warning')
+    
+    # 3. Dateien aus dem Dokumente-Verzeichnis
+    dokumente_path = os.path.join(uploads_path, 'dokumente')
+    try:
+        if os.path.exists(dokumente_path):
+            for filename in os.listdir(dokumente_path):
+                file_path = os.path.join(dokumente_path, filename)
+                if os.path.isfile(file_path):
+                    file_ext = os.path.splitext(filename)[1][1:].lower()
+                    file_size = os.path.getsize(file_path)
+                    file_modified = datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+                    
+                    dokumente_files.append({
+                        'name': filename,
+                        'type': file_ext,
+                        'path': os.path.join('dokumente', filename),  # Relativer Pfad
+                        'size': file_size,
+                        'modified': file_modified
+                    })
+    except Exception as e:
+        flash(f'Fehler beim Lesen des Dokumente-Verzeichnisses: {str(e)}', 'warning')
+    
+    # Aktuelles Jahr für das Upload-Formular
+    current_year = datetime.datetime.now().year
+    
+    return render_template('vorlagen/dokumente/liste.html', 
+                          dokumente=dokumente, 
+                          kategorien=kategorien, 
+                          jahre=jahre,
+                          filter_kategorie=filter_kategorie,
+                          filter_jahr=filter_jahr,
+                          upload_files=upload_files,
+                          rechnungen_files=rechnungen_files,
+                          dokumente_files=dokumente_files,
+                          current_year=current_year)
+
+@vorlagen_bp.route('/uploads/<path:filename>')
+@login_required
+def view_uploaded_file(filename):
+    """Zeigt eine hochgeladene Datei an"""
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename, as_attachment=False)
 
 @vorlagen_bp.route('/dokumente/<int:dokument_id>/view')
 @login_required

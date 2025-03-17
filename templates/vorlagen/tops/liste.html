@@ -1,0 +1,145 @@
+{% extends "layout.html" %}
+
+{% block title %}- Tagesordnungspunkte{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Tagesordnungspunkte</h1>
+    <div class="btn-group">
+        <a href="{{ url_for('vorlagen.top_neu') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Neuer TOP
+        </a>
+        <a href="{{ url_for('vorlagen.tops_liste') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise me-1"></i>Aktualisieren
+        </a>
+        </div>
+        </div>
+        
+        <!-- Filter-Bereich -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Filter</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('vorlagen.tops_liste') }}" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="alle" {% if filter_status=='alle' %}selected{% endif %}>Alle anzeigen</option>
+                            <option value="aktiv" {% if filter_status=='aktiv' %}selected{% endif %}>Aktiv</option>
+                            <option value="entwurf" {% if filter_status=='entwurf' %}selected{% endif %}>Entwurf</option>
+                            <option value="archiviert" {% if filter_status=='archiviert' %}selected{% endif %}>Archiviert
+                            </option>
+                        </select>
+                    </div>
+        
+                    <div class="col-md-3">
+                        <label for="jahr" class="form-label">Jahr</label>
+                        <select class="form-select" id="jahr" name="jahr">
+                            <option value="">Alle Jahre</option>
+                            {% for jahr in jahre %}
+                            <option value="{{ jahr }}" {% if jahr|string==filter_jahr %}selected{% endif %}>
+                                {{ jahr }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+        
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-filter me-1"></i>Filtern
+                        </button>
+                        <a href="{{ url_for('vorlagen.tops_liste') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Filter zurücksetzen
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Tagesordnungspunkte</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Pos.</th>
+                                <th>Titel</th>
+                                <th>Status</th>
+                                <th>Erstellt am</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for top in tops %}
+                            <tr>
+                                <td>{{ top.position }}</td>
+                                <td>{{ top.titel }}</td>
+                                <td>
+                                    {% if top.status == 'aktiv' %}
+                                    <span class="badge bg-success">Aktiv</span>
+                                    {% elif top.status == 'entwurf' %}
+                                    <span class="badge bg-warning">Entwurf</span>
+                                    {% elif top.status == 'archiviert' %}
+                                    <span class="badge bg-secondary">Archiviert</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ top.erstellt_am.strftime('%d.%m.%Y') }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('vorlagen.top_bearbeiten', top_id=top.id) }}"
+                                            class="btn btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Bearbeiten</span>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal{{ top.id }}">
+                                            <i class="bi bi-trash"></i> <span class="d-none d-md-inline">Löschen</span>
+                                        </button>
+                                    </div>
+        
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal{{ top.id }}" tabindex="-1"
+                                        aria-labelledby="deleteModalLabel{{ top.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel{{ top.id }}">
+                                                        TOP löschen
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Schließen"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Möchten Sie den Tagesordnungspunkt "{{ top.titel }}" wirklich löschen?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                        Abbrechen
+                                                    </button>
+                                                    <form action="{{ url_for('vorlagen.top_loeschen', top_id=top.id) }}"
+                                                        method="post">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="btn btn-danger">Löschen</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="bi bi-inbox me-2"></i>Keine Tagesordnungspunkte vorhanden.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endblock %}

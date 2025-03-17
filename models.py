@@ -305,6 +305,7 @@ class TagesordnungspunktVorlage(db.Model):
     beschreibung = db.Column(db.Text, nullable=True)
     position = db.Column(db.Integer, default=0)  # Reihenfolge in der Liste der TOPs
     status = db.Column(db.String(20), default='aktiv')  # 'aktiv', 'archiviert', 'entwurf'
+    jahr = db.Column(db.Integer, nullable=True)
     
     erstellt_von = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     erstellt_am = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -323,7 +324,8 @@ class WichtigesDokument(db.Model):
     titel = db.Column(db.String(200), nullable=False)
     beschreibung = db.Column(db.Text, nullable=True)
     kategorie = db.Column(db.String(50), nullable=False)  # 'steuernummer', 'hausordnung', 'dsgvo', 'vertraege'
-    
+    jahr = db.Column(db.Integer, nullable=True)  # Neues Feld für Jahr
+
     dateiname = db.Column(db.String(255), nullable=False)
     original_dateiname = db.Column(db.String(255), nullable=False)
     dateityp = db.Column(db.String(50), nullable=False)  # z.B. 'pdf', 'jpg'

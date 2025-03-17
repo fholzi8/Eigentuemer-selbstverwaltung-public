@@ -59,6 +59,33 @@
                             <i class="bi bi-file-earmark-text me-1"></i>Abrechnung
                         </a>
                     </li>
+                    <!-- Im Navigationsbereich der layout.html -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if request.blueprint == 'vorlagen' %}active{% endif %}" href="#"
+                            id="vorlagenDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-file-text me-1"></i>Vorlagen
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="vorlagenDropdown">
+                            <li>
+                                <a class="dropdown-item {% if request.path.startswith('/vorlagen/briefe') %}active{% endif %}"
+                                    href="{{ url_for('vorlagen.briefe_liste') }}">
+                                    <i class="bi bi-envelope me-2"></i>Briefe
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.path.startswith('/vorlagen/tops') %}active{% endif %}"
+                                    href="{{ url_for('vorlagen.tops_liste') }}">
+                                    <i class="bi bi-list-check me-2"></i>Tagesordnungspunkte
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {% if request.path.startswith('/vorlagen/dokumente') %}active{% endif %}"
+                                    href="{{ url_for('vorlagen.dokumente_liste') }}">
+                                    <i class="bi bi-file-earmark me-2"></i>Wichtige Dokumente
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <!-- Einstellungen Menüpunkt -->
@@ -121,6 +148,7 @@
                             </li>
                         </ul>
                     </li>
+
                     <!-- Benutzer-Dropdown-Menü -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
