@@ -9,7 +9,7 @@ import os
 import datetime
 from sqlalchemy import desc
 
-from models import db, BriefVorlage, TagesordnungspunktVorlage, WichtigesDokument, Miteigentuemer, User
+from models import db, BriefVorlage, TagesordnungspunktVorlage, WichtigesDokument, Miteigentuemer, User, Selbstverwaltung
 from services.vorlagen_service import get_brief_vorlagen, get_tops, get_wichtige_dokumente
 from services.anhang_service import save_anhang, delete_anhang
 
