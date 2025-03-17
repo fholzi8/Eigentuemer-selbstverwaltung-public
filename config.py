@@ -71,11 +71,11 @@ class ProductionConfig(Config):
     BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:5001')
     # In Produktionsumgebungen muss immer eine sichere SECRET_KEY gesetzt werden
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    if not SECRET_KEY:
-        raise ValueError("No SECRET_KEY set for production environment")
     #if not SECRET_KEY:
-    #    SECRET_KEY = 'fgdwfgqwiufbufbuervbqehferiu842956412985141'  # Dies erlaubt das Starten der App
-    #    NEEDS_SETUP = True  # Flag, um anzuzeigen, dass Setup nötig ist
+    #    raise ValueError("No SECRET_KEY set for production environment")
+    if not SECRET_KEY:
+        SECRET_KEY = 'fgdwfgqwiufbufbuervbqehferiu842956412985141'  # Dies erlaubt das Starten der App
+        NEEDS_SETUP = True  # Flag, um anzuzeigen, dass Setup nötig ist
     #else:
     #    NEEDS_SETUP = False
 

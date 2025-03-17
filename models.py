@@ -277,3 +277,70 @@ class SystemSettings(db.Model):
     
     def __repr__(self):
         return f'<SystemSettings {self.key}={self.value}>'
+
+# neue Klassen für Vorlagen
+
+class BriefVorlage(db.Model):
+    """Modell für Brief-Vorlagen wie Eigentümerversammlung, Umlaufbeschluss, Rundschreiben"""
+    id = db.Column(db.Integer, primary_key=True)
+    titel = db.Column(db.String(200), nullable=False)
+    typ = db.Column(db.String(50), nullable=False)  # 'eigentuemerversammlung', 'umlaufbeschluss', 'rundschreiben'
+    inhalt = db.Column(db.Text, nullable=False)  # Der Vorlagentext mit Platzhaltern
+    
+    erstellt_von = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    erstellt_am = db.Column(db.DateTime, default=datetime.datetime.now)
+    aktualisiert_am = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    
+    # Beziehung zum Benutzer
+    user = db.relationship('User', backref='brief_vorlagen')
+    
+    def __repr__(self):
+        return f'<BriefVorlage {self.titel}>'
+
+
+class TagesordnungspunktVorlage(db.Model):
+    """Modell für Tagesordnungspunkte von Versammlungen"""
+    id = db.Column(db.Integer, primary_key=True)
+    titel = db.Column(db.String(200), nullable=False)
+    beschreibung = db.Column(db.Text, nullable=True)
+    position = db.Column(db.Integer, default=0)  # Reihenfolge in der Liste der TOPs
+    status = db.Column(db.String(20), default='aktiv')  # 'aktiv', 'archiviert', 'entwurf'
+    
+    erstellt_von = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    erstellt_am = db.Column(db.DateTime, default=datetime.datetime.now)
+    aktualisiert_am = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    
+    # Beziehung zum Benutzer
+    user = db.relationship('User', backref='tagesordnungspunkt_vorlagen')
+    
+    def __repr__(self):
+        return f'<TagesordnungspunktVorlage {self.titel}>'
+
+
+class WichtigesDokument(db.Model):
+    """Modell für wichtige Dokumente wie Steuernummer, Hausordnung, DSGVO, Verträge"""
+    id = db.Column(db.Integer, primary_key=True)
+    titel = db.Column(db.String(200), nullable=False)
+    beschreibung = db.Column(db.Text, nullable=True)
+    kategorie = db.Column(db.String(50), nullable=False)  # 'steuernummer', 'hausordnung', 'dsgvo', 'vertraege'
+    
+    dateiname = db.Column(db.String(255), nullable=False)
+    original_dateiname = db.Column(db.String(255), nullable=False)
+    dateityp = db.Column(db.String(50), nullable=False)  # z.B. 'pdf', 'jpg'
+    
+    hochgeladen_von = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    hochgeladen_am = db.Column(db.DateTime, default=datetime.datetime.now)
+    aktualisiert_am = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    
+    # Beziehung zum Benutzer
+    user = db.relationship('User', backref='wichtige_dokumente')
+    
+    def __repr__(self):
+        return f'<WichtigesDokument {self.titel}>'
+    
+    def get_file_path(self):
+        """Gibt den vollständigen Dateipfad zurück"""
+        from flask import current_app
+        import os
+        upload_folder = os.path.join(current_app.config['UPLOAD_FOLDER'], 'dokumente')
+        return os.path.join(upload_folder, self.dateiname)
