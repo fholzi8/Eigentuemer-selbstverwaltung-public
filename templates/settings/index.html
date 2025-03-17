@@ -87,9 +87,12 @@
             </div>
             <div class="card-body d-flex flex-column">
                 <p>Miteigentümer und deren Anteile verwalten.</p>
-                <div class="mt-auto">
+                <div class="mt-auto d-flex gap-3"> <!-- gap-3 für mehr Abstand zwischen den Buttons -->
                     <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-primary">
                         <i class="bi bi-people-fill"></i> Zur Miteigentümerverwaltung
+                    </a>
+                    <a href="{{ url_for('settings.selbstverwaltung') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-building"></i> Selbstverwaltung
                     </a>
                 </div>
             </div>

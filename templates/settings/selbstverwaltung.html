@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block title %}- Selbstverwaltung{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Daten der Selbstverwaltung</h1>
+    <a href="{{ url_for('settings.index') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Zurück zu Einstellungen
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Stammdaten der Eigentümergemeinschaft</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('settings.selbstverwaltung') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="name" class="form-label">Name der WEG <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ daten.name }}" required>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label for="adresse" class="form-label">Adresse <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="adresse" name="adresse" value="{{ daten.adresse }}" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="plz" class="form-label">PLZ <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="plz" name="plz" value="{{ daten.plz }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="ort" class="form-label">Ort <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="ort" name="ort" value="{{ daten.ort }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="land" class="form-label">Land <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="land" name="land" value="{{ daten.land }}" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="verwalter" class="form-label">Verwalter <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="verwalter" name="verwalter"
+                        value="{{ daten.verwalter }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="email" class="form-label">E-Mail <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ daten.email }}" required>
+                    <small class="form-text text-muted">
+                        <a href="{{ url_for('settings.email_settings') }}">E-Mail-Einstellungen konfigurieren</a>
+                    </small>
+                </div>
+                <div class="col-md-4">
+                    <label for="telefon" class="form-label">Telefon <span class="text-danger">*</span></label>
+                    <input type="tel" class="form-control" id="telefon" name="telefon" value="{{ daten.telefon }}"
+                        required>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h5>Verwaltungsbeirat (optional)</h5>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="beirat_vorsitz" class="form-label">Vorsitz des Verwaltungsbeirats</label>
+                    <input type="text" class="form-control" id="beirat_vorsitz" name="beirat_vorsitz"
+                        value="{{ daten.beirat_vorsitz }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="beirat_vorsitz_kontakt" class="form-label">Kontakt (Vorsitz)</label>
+                    <input type="text" class="form-control" id="beirat_vorsitz_kontakt" name="beirat_vorsitz_kontakt"
+                        value="{{ daten.beirat_vorsitz_kontakt }}">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="beisitzer" class="form-label">Beisitzer</label>
+                    <input type="text" class="form-control" id="beisitzer" name="beisitzer"
+                        value="{{ daten.beisitzer }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="beisitzer_kontakt" class="form-label">Kontakt (Beisitzer)</label>
+                    <input type="text" class="form-control" id="beisitzer_kontakt" name="beisitzer_kontakt"
+                        value="{{ daten.beisitzer_kontakt }}">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="beirat_mitglieder" class="form-label">Weitere Mitglieder</label>
+                    <textarea class="form-control" id="beirat_mitglieder" name="beirat_mitglieder"
+                        rows="3">{{ daten.beirat_mitglieder }}</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="beirat_mitglieder_kontakt" class="form-label">Kontakt (Mitglieder)</label>
+                    <textarea class="form-control" id="beirat_mitglieder_kontakt" name="beirat_mitglieder_kontakt"
+                        rows="3">{{ daten.beirat_mitglieder_kontakt }}</textarea>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            <h5>Zusätzliche Informationen (optional)</h5>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="steuernummer" class="form-label">Steuernummer der Eigentümergemeinschaft</label>
+                    <input type="text" class="form-control" id="steuernummer" name="steuernummer"
+                        value="{{ daten.steuernummer }}">
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Speichern
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Hinweis</h5>
+    </div>
+    <div class="card-body">
+        <p>Die mit <span class="text-danger">*</span> gekennzeichneten Felder sind Pflichtfelder und müssen ausgefüllt
+            werden.</p>
+        <p>Diese Daten werden in der Anwendung für verschiedene Funktionen verwendet, wie z.B. für die Generierung von
+            Dokumenten und Briefen.</p>
+    </div>
+</div>
+{% endblock %}

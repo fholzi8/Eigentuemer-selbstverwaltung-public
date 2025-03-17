@@ -306,7 +306,7 @@ class TagesordnungspunktVorlage(db.Model):
     position = db.Column(db.Integer, default=0)  # Reihenfolge in der Liste der TOPs
     status = db.Column(db.String(20), default='aktiv')  # 'aktiv', 'archiviert', 'entwurf'
     jahr = db.Column(db.Integer, nullable=True)
-    
+
     erstellt_von = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     erstellt_am = db.Column(db.DateTime, default=datetime.datetime.now)
     aktualisiert_am = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
@@ -346,3 +346,30 @@ class WichtigesDokument(db.Model):
         import os
         upload_folder = os.path.join(current_app.config['UPLOAD_FOLDER'], 'dokumente')
         return os.path.join(upload_folder, self.dateiname)
+
+class Selbstverwaltung(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Mandatory fields
+    name = db.Column(db.String(200), nullable=False)
+    adresse = db.Column(db.String(200), nullable=False)
+    plz = db.Column(db.String(10), nullable=False)
+    ort = db.Column(db.String(100), nullable=False)
+    land = db.Column(db.String(100), nullable=False, default='Deutschland')
+    verwalter = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    telefon = db.Column(db.String(50), nullable=False)
+    
+    # Optional fields
+    beisitzer = db.Column(db.String(100), nullable=True)
+    beisitzer_kontakt = db.Column(db.String(200), nullable=True)
+    beirat_vorsitz = db.Column(db.String(100), nullable=True)
+    beirat_vorsitz_kontakt = db.Column(db.String(200), nullable=True)
+    beirat_mitglieder = db.Column(db.Text, nullable=True)  # Für mehrere Mitglieder
+    beirat_mitglieder_kontakt = db.Column(db.Text, nullable=True)
+    steuernummer = db.Column(db.String(50), nullable=True)
+    
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
+    
+    def __repr__(self):
+        return f'<Selbstverwaltung {self.name}, {self.adresse}, {self.plz} {self.ort}>'

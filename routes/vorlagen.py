@@ -81,12 +81,25 @@ def brief_bearbeiten(vorlage_id):
 def brief_vorschau(vorlage_id):
     """Brief-Vorlage anzeigen mit Platzhaltern ersetzt durch echte Daten"""
     vorlage = BriefVorlage.query.get_or_404(vorlage_id)
-    miteigentuemer = Miteigentuemer.query.all()
     
-    # Hier Platzhalter durch echte Daten ersetzen
+    # Selbstverwaltungsdaten abrufen
+    selbstverwaltung = Selbstverwaltung.query.first()
+    
+    # Inhalt mit Platzhaltern ersetzen
     vorschau_inhalt = vorlage.inhalt
-    # z.B. {{datum}} durch aktuelles Datum ersetzen
+    
+    # Datum ersetzen
     vorschau_inhalt = vorschau_inhalt.replace('{{datum}}', datetime.datetime.now().strftime('%d.%m.%Y'))
+    
+    # Selbstverwaltungsdaten ersetzen, falls vorhanden
+    if selbstverwaltung:
+        vorschau_inhalt = vorschau_inhalt.replace('{{weg_name}}', selbstverwaltung.name or '')
+        vorschau_inhalt = vorschau_inhalt.replace('{{adresse}}', selbstverwaltung.adresse or '')
+        vorschau_inhalt = vorschau_inhalt.replace('{{plz}}', selbstverwaltung.plz or '')
+        vorschau_inhalt = vorschau_inhalt.replace('{{ort}}', selbstverwaltung.ort or '')
+        vorschau_inhalt = vorschau_inhalt.replace('{{verwalter}}', selbstverwaltung.verwalter or '')
+        vorschau_inhalt = vorschau_inhalt.replace('{{beirat}}', selbstverwaltung.beirat_vorsitz or '')
+        vorschau_inhalt = vorschau_inhalt.replace('{{beisitzer}}', selbstverwaltung.beisitzer or '')
     
     return render_template('vorlagen/briefe/vorschau.html', vorlage=vorlage, inhalt=vorschau_inhalt)
 

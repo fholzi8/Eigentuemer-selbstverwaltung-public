@@ -8,7 +8,7 @@ import os
 import datetime
 from werkzeug.security import generate_password_hash
 from decimal import Decimal
-from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, WirtschaftsplanMetadata, Kontostand, RoadmapItem, JahresabschlussKontostand
+from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, WirtschaftsplanMetadata, Kontostand, RoadmapItem, JahresabschlussKontostand, Selbstverwaltung
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
@@ -964,3 +964,57 @@ def log_settings():
     retention_days = get_log_retention_days()
     
     return render_template('settings/log_settings.html', retention_days=retention_days)
+
+@settings_bp.route('/selbstverwaltung', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def selbstverwaltung():
+    """
+    Zeigt und verwaltet die Daten der Selbstverwaltung
+    """
+    # Daten abrufen oder neuen Eintrag erstellen
+    daten = Selbstverwaltung.query.first()
+    if daten is None:
+        daten = Selbstverwaltung(
+            name="",
+            adresse="",
+            plz="",
+            ort="",
+            land="Deutschland",
+            verwalter="",
+            email="",
+            telefon=""
+        )
+        db.session.add(daten)
+        db.session.commit()
+    
+    if request.method == 'POST':
+        # Pflichtfelder
+        daten.name = request.form.get('name')
+        daten.adresse = request.form.get('adresse')
+        daten.plz = request.form.get('plz')
+        daten.ort = request.form.get('ort')
+        daten.land = request.form.get('land')
+        daten.verwalter = request.form.get('verwalter')
+        daten.email = request.form.get('email')
+        daten.telefon = request.form.get('telefon')
+        
+        # Optionale Felder
+        daten.beisitzer = request.form.get('beisitzer')
+        daten.beisitzer_kontakt = request.form.get('beisitzer_kontakt')
+        daten.beirat_vorsitz = request.form.get('beirat_vorsitz')
+        daten.beirat_vorsitz_kontakt = request.form.get('beirat_vorsitz_kontakt')
+        daten.beirat_mitglieder = request.form.get('beirat_mitglieder')
+        daten.beirat_mitglieder_kontakt = request.form.get('beirat_mitglieder_kontakt')
+        daten.steuernummer = request.form.get('steuernummer')
+        
+        try:
+            db.session.commit()
+            flash('Daten der Selbstverwaltung erfolgreich aktualisiert', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Fehler beim Speichern der Daten: {str(e)}', 'danger')
+        
+        return redirect(url_for('settings.selbstverwaltung'))
+    
+    return render_template('settings/selbstverwaltung.html', daten=daten)
