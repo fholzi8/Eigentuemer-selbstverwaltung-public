@@ -75,7 +75,7 @@ class ProductionConfig(Config):
     #    raise ValueError("No SECRET_KEY set for production environment")
     if not SECRET_KEY:
         SECRET_KEY = 'fgdwfgqwiufbufbuervbqehferiu842956412985141'  # Dies erlaubt das Starten der App
-        NEEDS_SETUP = True  # Flag, um anzuzeigen, dass Setup nötig ist
+    #    NEEDS_SETUP = True  # Flag, um anzuzeigen, dass Setup nötig ist
     #else:
     #    NEEDS_SETUP = False
 
