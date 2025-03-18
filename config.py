@@ -30,7 +30,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'
     
     # Upload-Einstellungen
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'data/uploads')
     ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls', 'pdf', 'jpg', 'jpeg', 'png'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB maximale Dateigröße   
 

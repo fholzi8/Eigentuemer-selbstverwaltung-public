@@ -53,7 +53,7 @@ mail.init_app(app)
 
 # Error-Level/Report für CSP-Verstöße 
 @csrf.exempt
-@app.route('/csp-report', methods=['POST'])
+@app.route('/logs/csp-report', methods=['POST'])
 @limiter.exempt # Vom Rate-Limiting ausnehmen
 def csp_report():
     """Logging endpoint for CSP violations"""
@@ -106,6 +106,7 @@ with app.app_context():
 # Stellen Sie sicher, dass der Upload-Ordner existiert
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'rechnungen'), exist_ok=True)
+os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'dokumente'), exist_ok=True)
 
 # Login-Manager initialisieren
 login_manager = LoginManager()
