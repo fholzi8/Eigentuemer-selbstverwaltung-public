@@ -21,8 +21,8 @@ def check_secret_key():
 @dashboard_bp.route('/')
 def root():
     # Prüfen, ob SECRET_KEY konfiguriert ist
-    if not check_secret_key():
-        return redirect(url_for('setup.index'))
+    #if not check_secret_key():
+    #    return redirect(url_for('setup.index'))
         
     if current_user.is_authenticated:
         return redirect(url_for('dashboard.index'))
@@ -32,8 +32,8 @@ def root():
 @login_required
 def index():
     # Prüfen, ob SECRET_KEY konfiguriert ist
-    if not check_secret_key():
-        return redirect(url_for('setup.index'))
+    #if not check_secret_key():
+    #    return redirect(url_for('setup.index'))
         
     # Verfügbare Jahre für Transaktionen
     tx_jahre = db.session.query(Transaktion.jahr).distinct().order_by(Transaktion.jahr.desc()).all()

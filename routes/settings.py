@@ -8,7 +8,7 @@ import os
 import datetime
 from werkzeug.security import generate_password_hash
 from decimal import Decimal
-from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, WirtschaftsplanMetadata, Kontostand, RoadmapItem, JahresabschlussKontostand, Selbstverwaltung
+from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, WirtschaftsplanMetadata, Kontostand, RoadmapItem, JahresabschlussKontostand, Selbstverwaltung, BriefVorlage, TagesordnungspunktVorlage, WichtigesDokument, KategorieKostenartMapping, LogEntry
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
@@ -282,34 +282,135 @@ def delete_data():
         flash("Bitte bestätigen Sie den Löschvorgang", "error")
         return redirect(url_for('settings.data_management'))
     
-    # Backup erstellen, bevor Daten gelöscht werden
     try:
         if data_type == 'transaktionen' and year:
             # Lösche Transaktionen für ein bestimmtes Jahr
-            count = Transaktion.query.filter_by(jahr=year).delete()
+            # Zuerst Anhänge löschen, die zu diesen Transaktionen gehören
+            from models import TransaktionAnhang
+            
+            # Finde alle Transaktions-IDs für das angegebene Jahr
+            tx_ids = [tx.id for tx in Transaktion.query.filter_by(jahr=year).all()]
+            
+            # Lösche alle Anhänge zu diesen Transaktionen
+            if tx_ids:
+                anhang_count = TransaktionAnhang.query.filter(TransaktionAnhang.transaktion_id.in_(tx_ids)).delete(synchronize_session='fetch')
+                print(f"Gelöschte Anhänge: {anhang_count}")
+            
+            # Lösche die Transaktionen
+            tx_count = Transaktion.query.filter_by(jahr=year).delete()
+            
             db.session.commit()
-            flash(f"{count} Transaktionen für das Jahr {year} wurden gelöscht", "success")
+            flash(f"{tx_count} Transaktionen für das Jahr {year} wurden gelöscht", "success")
         
         elif data_type == 'transaktionen_all':
+            # Lösche alle Transaktionsanhänge
+            from models import TransaktionAnhang
+            anhang_count = TransaktionAnhang.query.delete()
+            
             # Lösche alle Transaktionen
-            count = Transaktion.query.delete()
+            tx_count = Transaktion.query.delete()
+            
             db.session.commit()
-            flash(f"{count} Transaktionen wurden gelöscht", "success")
+            flash(f"{anhang_count} Anhänge und {tx_count} Transaktionen wurden gelöscht", "success")
         
         elif data_type == 'wirtschaftsplan' and year:
             # Lösche Wirtschaftsplan für ein bestimmtes Jahr
-            count = Wirtschaftsplan.query.filter_by(jahr=year).delete()
+            wp_count = Wirtschaftsplan.query.filter_by(jahr=year).delete()
             # Auch die Metadaten löschen
-            WirtschaftsplanMetadata.query.filter_by(jahr=year).delete()
+            meta_count = WirtschaftsplanMetadata.query.filter_by(jahr=year).delete()
+            
             db.session.commit()
-            flash(f"Wirtschaftsplan für das Jahr {year} wurde gelöscht", "success")
+            flash(f"{wp_count} Wirtschaftsplaneinträge und {meta_count} Metadaten für das Jahr {year} wurden gelöscht", "success")
         
         elif data_type == 'wirtschaftsplan_all':
             # Lösche alle Wirtschaftspläne
-            count_wp = Wirtschaftsplan.query.delete()
-            count_meta = WirtschaftsplanMetadata.query.delete()
+            wp_count = Wirtschaftsplan.query.delete()
+            meta_count = WirtschaftsplanMetadata.query.delete()
+            
             db.session.commit()
-            flash(f"{count_wp} Wirtschaftsplaneinträge und {count_meta} Metadaten wurden gelöscht", "success")
+            flash(f"{wp_count} Wirtschaftsplaneinträge und {meta_count} Metadaten wurden gelöscht", "success")
+        
+        elif data_type == 'miteigentuemer':
+            # Lösche alle Miteigentümer
+            # Zuerst alle Transaktionen aktualisieren, die auf Miteigentümer verweisen
+            Transaktion.query.update({'miteigentuemer_id': None})
+            
+            # Jetzt Miteigentümer löschen
+            count = Miteigentuemer.query.delete()
+            
+            db.session.commit()
+            flash(f"{count} Miteigentümer wurden gelöscht", "success")
+        
+        elif data_type == 'kontostaende':
+            # Lösche alle Kontostände
+            count = Kontostand.query.delete()
+            
+            db.session.commit()
+            flash(f"{count} Kontostände wurden gelöscht", "success")
+        
+        elif data_type == 'jahresabschluesse':
+            # Lösche alle Jahresabschlüsse
+            count = JahresabschlussKontostand.query.delete()
+            
+            db.session.commit()
+            flash(f"{count} Jahresabschlüsse wurden gelöscht", "success")
+        
+        elif data_type == 'vorlagen':
+            # Lösche Brief-Vorlagen
+            brief_count = BriefVorlage.query.delete()
+            # Lösche Tagesordnungspunkte
+            top_count = TagesordnungspunktVorlage.query.delete()
+            # Lösche Wichtige Dokumente
+            dok_count = WichtigesDokument.query.delete()
+            
+            db.session.commit()
+            flash(f"{brief_count} Brief-Vorlagen, {top_count} Tagesordnungspunkte und {dok_count} Dokumente wurden gelöscht", "success")
+        
+        elif data_type == 'logs':
+            # Lösche alle Logs
+            count = LogEntry.query.delete()
+            
+            db.session.commit()
+            flash(f"{count} Log-Einträge wurden gelöscht", "success")
+        
+        elif data_type == 'alles':
+            # Lösche ALLE Daten (außer Benutzer!)
+            # Es ist wichtig, die Reihenfolge zu beachten, um Fremdschlüssel-Constraints nicht zu verletzen
+            
+            # 1. Transaktionsanhänge
+            from models import TransaktionAnhang
+            TransaktionAnhang.query.delete()
+            
+            # 2. Transaktionen 
+            Transaktion.query.delete()
+            
+            # 3. Wirtschaftspläne und Metadaten
+            Wirtschaftsplan.query.delete()
+            WirtschaftsplanMetadata.query.delete()
+            
+            # 4. Miteigentümer
+            Miteigentuemer.query.delete()
+            
+            # 5. Kontostände und Jahresabschlüsse
+            Kontostand.query.delete()
+            JahresabschlussKontostand.query.delete()
+            
+            # 6. Vorlagen und Dokumente
+            BriefVorlage.query.delete()
+            TagesordnungspunktVorlage.query.delete()
+            WichtigesDokument.query.delete()
+            
+            # 7. Mappings und andere Konfigurationen
+            KategorieKostenartMapping.query.delete()
+            
+            # 8. Logs
+            LogEntry.query.delete()
+            
+            # 9. Selbstverwaltungsdaten
+            Selbstverwaltung.query.delete()
+            
+            db.session.commit()
+            flash("Alle Daten wurden erfolgreich gelöscht. Benutzerkonten wurden beibehalten.", "success")
         
         else:
             flash("Ungültige Auswahl", "error")
@@ -320,7 +421,7 @@ def delete_data():
     
     return redirect(url_for('settings.data_management'))
 
-# Fügen Sie diese Routen in settings.py hinzu
+# Füge die Routinge für den Kontostand ein 
 
 @settings_bp.route('/kontostand', methods=['GET', 'POST'])
 @login_required

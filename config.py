@@ -14,8 +14,14 @@ class Config:
     BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:5001') 
 
     # Datenbankeinstellungen
+
+    # Datenbankeinstellungen
+    # Stelle sicher, dass der data/db Ordner existiert
+    DB_DIR = os.path.join(BASE_DIR, 'data', 'db')
+    os.makedirs(DB_DIR, exist_ok=True)  # Erstelle den Ordner, falls er nicht existiert
+
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(BASE_DIR, 'weg_abrechnung.db')
+        'sqlite:///' + os.path.join(DB_DIR, 'weg_abrechnung.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Sicherheitseinstellungen

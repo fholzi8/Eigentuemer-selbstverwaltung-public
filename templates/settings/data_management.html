@@ -6,60 +6,427 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Datenverwaltung</h1>
     <a href="{{ url_for('settings.index') }}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i>Zurück
+        <i class="bi bi-arrow-left"></i> Zurück zu Einstellungen
     </a>
 </div>
 
 <div class="alert alert-warning">
-    <div class="d-flex align-items-center mb-2">
-        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
-        <h5 class="mb-0">Achtung: Hier können Daten dauerhaft gelöscht werden!</h5>
-    </div>
-    <p class="mb-0">Die Löschung von Daten kann nicht rückgängig gemacht werden. Stellen Sie sicher, dass Sie eine aktuelle Sicherung haben, bevor Sie fortfahren.</p>
+    <h5 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>Vorsicht bei Datenoperationen!</h5>
+    <p>Das Löschen von Daten ist unwiderruflich. Es wird empfohlen, vor größeren Löschoperationen ein Backup zu
+        erstellen.</p>
 </div>
 
-<div class="row">
-    <!-- Statistik-Karten -->
-    <div class="col-12 mb-4">
-        <div class="card">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">Datenstatistik</h5>
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Datenstatistik</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Transaktionen</h5>
+                        <p class="card-text display-6">{{ stats.transaktionen_count }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
-                    <div class="col">
-                        <div class="card border-primary h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-primary">Transaktionen</h5>
-                                <p class="display-4">{{ stats.transaktionen_count }}</p>
-                                <p class="text-muted small">Einträge in der Datenbank</p>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Miteigentümer</h5>
+                        <p class="card-text display-6">{{ stats.miteigentuemer_count }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Wirtschaftsplan</h5>
+                        <p class="card-text display-6">{{ stats.wirtschaftsplan_count }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Benutzer</h5>
+                        <p class="card-text display-6">{{ stats.user_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Daten löschen</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-danger mb-4">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Achtung: Diese Aktionen können nicht rückgängig gemacht werden!</strong>
+        </p>
+
+        <ul class="nav nav-tabs mb-4" id="data-management-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="transaktionen-tab" data-bs-toggle="tab"
+                    data-bs-target="#transaktionen" type="button" role="tab" aria-controls="transaktionen"
+                    aria-selected="true">Transaktionen</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="wirtschaftsplan-tab" data-bs-toggle="tab" data-bs-target="#wirtschaftsplan"
+                    type="button" role="tab" aria-controls="wirtschaftsplan"
+                    aria-selected="false">Wirtschaftsplan</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="miteigentuemer-tab" data-bs-toggle="tab" data-bs-target="#miteigentuemer"
+                    type="button" role="tab" aria-controls="miteigentuemer" aria-selected="false">Miteigentümer</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="finanzen-tab" data-bs-toggle="tab" data-bs-target="#finanzen" type="button"
+                    role="tab" aria-controls="finanzen" aria-selected="false">Finanzen</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="vorlagen-tab" data-bs-toggle="tab" data-bs-target="#vorlagen" type="button"
+                    role="tab" aria-controls="vorlagen" aria-selected="false">Vorlagen</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button"
+                    role="tab" aria-controls="system" aria-selected="false">System</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="data-management-tabs-content">
+            <!-- Tab: Transaktionen -->
+            <div class="tab-pane fade show active" id="transaktionen" role="tabpanel"
+                aria-labelledby="transaktionen-tab">
+                <h5 class="mb-4">Transaktionen löschen</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">Transaktionen eines Jahres löschen</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="transaktionen">
+
+                                    <div class="mb-3">
+                                        <label for="year" class="form-label">Jahr auswählen</label>
+                                        <select class="form-select" id="year" name="year" required>
+                                            <option value="">-- Jahr wählen --</option>
+                                            {% for jahr in transaktionen_jahre %}
+                                            <option value="{{ jahr }}">{{ jahr }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm1" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm1">
+                                            Ich bestätige, dass ich alle Transaktionen für das ausgewählte Jahr löschen
+                                            möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Transaktionen für Jahr löschen
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="card border-success h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-success">Miteigentümer</h5>
-                                <p class="display-4">{{ stats.miteigentuemer_count }}</p>
-                                <p class="text-muted small">Einträge in der Datenbank</p>
+
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">Alle Transaktionen löschen</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="transaktionen_all">
+
+                                    <div class="alert alert-danger">
+                                        <strong>Achtung:</strong> Diese Aktion löscht alle Transaktionen und zugehörigen
+                                        Anhänge!
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm2" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm2">
+                                            Ich bestätige, dass ich <strong>alle</strong> Transaktionen löschen möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Alle Transaktionen löschen
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="card border-info h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-info">Wirtschaftsplan</h5>
-                                <p class="display-4">{{ stats.wirtschaftsplan_count }}</p>
-                                <p class="text-muted small">Einträge in der Datenbank</p>
+                </div>
+            </div>
+
+            <!-- Tab: Wirtschaftsplan -->
+            <div class="tab-pane fade" id="wirtschaftsplan" role="tabpanel" aria-labelledby="wirtschaftsplan-tab">
+                <h5 class="mb-4">Wirtschaftsplan löschen</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">Wirtschaftsplan eines Jahres löschen</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="wirtschaftsplan">
+
+                                    <div class="mb-3">
+                                        <label for="wp_year" class="form-label">Jahr auswählen</label>
+                                        <select class="form-select" id="wp_year" name="year" required>
+                                            <option value="">-- Jahr wählen --</option>
+                                            {% for jahr in wirtschaftsplan_jahre %}
+                                            <option value="{{ jahr }}">{{ jahr }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm3" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm3">
+                                            Ich bestätige, dass ich den Wirtschaftsplan für das ausgewählte Jahr löschen
+                                            möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Wirtschaftsplan für Jahr löschen
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="card border-secondary h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-secondary">Benutzer</h5>
-                                <p class="display-4">{{ stats.user_count }}</p>
-                                <p class="text-muted small">Einträge in der Datenbank</p>
+
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">Alle Wirtschaftspläne löschen</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="wirtschaftsplan_all">
+
+                                    <div class="alert alert-danger">
+                                        <strong>Achtung:</strong> Diese Aktion löscht alle Wirtschaftsplaneinträge und
+                                        Metadaten!
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm4" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm4">
+                                            Ich bestätige, dass ich <strong>alle</strong> Wirtschaftspläne löschen
+                                            möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Alle Wirtschaftspläne löschen
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Miteigentümer -->
+            <div class="tab-pane fade" id="miteigentuemer" role="tabpanel" aria-labelledby="miteigentuemer-tab">
+                <h5 class="mb-4">Miteigentümer löschen</h5>
+
+                <div class="card mb-3">
+                    <div class="card-header">Alle Miteigentümer löschen</div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="data_type" value="miteigentuemer">
+
+                            <div class="alert alert-danger">
+                                <strong>Achtung:</strong> Diese Aktion löscht alle Miteigentümer! Verweise auf
+                                Miteigentümer in Transaktionen werden entfernt.
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="confirm5" name="confirm" required>
+                                <label class="form-check-label" for="confirm5">
+                                    Ich bestätige, dass ich <strong>alle</strong> Miteigentümer löschen möchte.
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Alle Miteigentümer löschen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Finanzen -->
+            <div class="tab-pane fade" id="finanzen" role="tabpanel" aria-labelledby="finanzen-tab">
+                <h5 class="mb-4">Finanzdaten löschen</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">Alle Kontostände löschen</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="kontostaende">
+
+                                    <div class="alert alert-danger">
+                                        <strong>Achtung:</strong> Diese Aktion löscht alle Kontostand-Einträge!
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm6" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm6">
+                                            Ich bestätige, dass ich <strong>alle</strong> Kontostände löschen möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Alle Kontostände löschen
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">Alle Jahresabschlüsse löschen</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="jahresabschluesse">
+
+                                    <div class="alert alert-danger">
+                                        <strong>Achtung:</strong> Diese Aktion löscht alle Jahresabschlüsse!
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm7" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm7">
+                                            Ich bestätige, dass ich <strong>alle</strong> Jahresabschlüsse löschen
+                                            möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Alle Jahresabschlüsse löschen
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Vorlagen -->
+            <div class="tab-pane fade" id="vorlagen" role="tabpanel" aria-labelledby="vorlagen-tab">
+                <h5 class="mb-4">Vorlagen löschen</h5>
+
+                <div class="card mb-3">
+                    <div class="card-header">Alle Vorlagen löschen</div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="data_type" value="vorlagen">
+
+                            <div class="alert alert-danger">
+                                <strong>Achtung:</strong> Diese Aktion löscht alle Brief-Vorlagen, Tagesordnungspunkte
+                                und wichtigen Dokumente!
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="confirm8" name="confirm" required>
+                                <label class="form-check-label" for="confirm8">
+                                    Ich bestätige, dass ich <strong>alle</strong> Vorlagen und Dokumente löschen möchte.
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Alle Vorlagen löschen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: System -->
+            <div class="tab-pane fade" id="system" role="tabpanel" aria-labelledby="system-tab">
+                <h5 class="mb-4">Systemdaten löschen</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header">Alle Logs löschen</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="logs">
+
+                                    <div class="alert alert-danger">
+                                        <strong>Achtung:</strong> Diese Aktion löscht alle Log-Einträge!
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm9" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm9">
+                                            Ich bestätige, dass ich <strong>alle</strong> Log-Einträge löschen möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Alle Logs löschen
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-danger text-white">ALLE DATEN LÖSCHEN</div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('settings.delete_data') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="data_type" value="alles">
+
+                                    <div class="alert alert-danger">
+                                        <strong>EXTREME VORSICHT!</strong> Diese Aktion löscht ALLE Daten der Anwendung
+                                        außer Benutzerkonten!
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirm10" name="confirm"
+                                            required>
+                                        <label class="form-check-label" for="confirm10">
+                                            Ich bestätige, dass ich <strong>ALLE DATEN</strong> der Anwendung löschen
+                                            möchte.
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-danger btn-lg">
+                                        <i class="bi bi-trash"></i> ALLE DATEN LÖSCHEN
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -67,125 +434,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Löschoptionen -->
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-danger text-white">
-                <h5 class="mb-0">Transaktionsdaten löschen</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('settings.delete_data') }}" id="deleteTransactionsForm">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div class="mb-3">
-                        <label for="transaktionJahr" class="form-label">Wählen Sie ein Jahr</label>
-                        <select class="form-select" id="transaktionJahr" name="year">
-                            <option value="">-- Alle Jahre --</option>
-                            {% for jahr in transaktionen_jahre %}
-                            <option value="{{ jahr }}">{{ jahr }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="data_type" id="transaktionenJahr" value="transaktionen" checked>
-                            <label class="form-check-label" for="transaktionenJahr">
-                                Transaktionen für ein bestimmtes Jahr löschen
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="data_type" id="transaktionenAll" value="transaktionen_all">
-                            <label class="form-check-label" for="transaktionenAll">
-                                Alle Transaktionen löschen
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="confirmTransaktionen" name="confirm">
-                        <label class="form-check-label" for="confirmTransaktionen">
-                            Ich bestätige, dass ich die ausgewählten Daten unwiderruflich löschen möchte
-                        </label>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-danger w-100" onclick="return confirmDelete('Transaktionen')">
-                        <i class="bi bi-trash me-2"></i>Transaktionen löschen
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header bg-danger text-white">
-                <h5 class="mb-0">Wirtschaftsplandaten löschen</h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('settings.delete_data') }}" id="deleteWirtschaftsplanForm">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <div class="mb-3">
-                        <label for="wirtschaftsplanJahr" class="form-label">Wählen Sie ein Jahr</label>
-                        <select class="form-select" id="wirtschaftsplanJahr" name="year">
-                            <option value="">-- Alle Jahre --</option>
-                            {% for jahr in wirtschaftsplan_jahre %}
-                            <option value="{{ jahr }}">{{ jahr }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="data_type" id="wirtschaftsplanJahr" value="wirtschaftsplan" checked>
-                            <label class="form-check-label" for="wirtschaftsplanJahr">
-                                Wirtschaftsplan für ein bestimmtes Jahr löschen
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="data_type" id="wirtschaftsplanAll" value="wirtschaftsplan_all">
-                            <label class="form-check-label" for="wirtschaftsplanAll">
-                                Alle Wirtschaftspläne löschen
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="confirmWirtschaftsplan" name="confirm">
-                        <label class="form-check-label" for="confirmWirtschaftsplan">
-                            Ich bestätige, dass ich die ausgewählten Daten unwiderruflich löschen möchte
-                        </label>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-danger w-100" onclick="return confirmDelete('Wirtschaftsplan')">
-                        <i class="bi bi-trash me-2"></i>Wirtschaftsplandaten löschen
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
-
-{% endblock %}
-
-{% block scripts %}
-<script nonce="{{ csp_nonce }}">
-    function confirmDelete(type) {
-        if (!document.getElementById('confirm' + type).checked) {
-            alert('Bitte bestätigen Sie den Löschvorgang, indem Sie das Kontrollkästchen aktivieren.');
-            return false;
-        }
-        
-        return confirm('ACHTUNG: Sie sind dabei, ' + type + '-Daten unwiderruflich zu löschen. Diese Aktion kann nicht rückgängig gemacht werden! Möchten Sie fortfahren?');
-    }
-    
-    // Deaktiviere Jahr-Auswahl wenn "Alle" gewählt ist
-    document.getElementById('transaktionenAll').addEventListener('change', function() {
-        document.getElementById('transaktionJahr').disabled = this.checked;
-    });
-    
-    document.getElementById('wirtschaftsplanAll').addEventListener('change', function() {
-        document.getElementById('wirtschaftsplanJahr').disabled = this.checked;
-    });
-</script>
 {% endblock %}

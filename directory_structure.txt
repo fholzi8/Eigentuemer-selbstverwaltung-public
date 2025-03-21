@@ -1,35 +1,39 @@
 Verzeichnisstruktur für: /Users/fholzi8/VSCode - Programme/WEG-App
-Erstellt am: 2025-03-11 23:04:12
+Erstellt am: 2025-03-18 07:47:15
 ================================================================================
 
+├── .env
 ├── .gitignore
+├── Containerfile
+├── README-container.md
 ├── README.md
-├── README.pdf
 ├── WEG-App.code-workspace
 ├── app.py
 ├── config.py
+├── data/
+    ├── manual-scripts/
+        ├── backup.sh
+    ├── uploads/
+        ├── dokumente/
+            ├── Hausordnung_2024.docx
+            ├── Hausordnung_2024.pdf
+            ├── Steuernummer_WEG_2024-04.pdf
+        ├── rechnungen/
+        ├── transaktionen_weg.csv
+        ├── transaktionen_weg.xlsx
+        ├── transaktionen_weg2.csv
+        ├── transaktionen_weg2.xlsx
+        ├── wirtschaftsplan_2024.xlsx
+        ├── wirtschaftsplan_2025.xlsx
+├── directory_structure.txt
 ├── directory_tree.py
+├── export/
+    ├── logs/
+        ├── waitress.log
+        ├── weg-app.log
 ├── extensions.py
-├── fix_guthaben_nullwerte.py
-├── flask-app-email.txt
-├── init_db.py
-├── init_email_configs.py
 ├── logs/
-    ├── waitress.log
     ├── weg-app.log
-├── manual-scripts/
-    ├── backup.sh
-    ├── bankdaten_zu_csv.py
-    ├── complete-init-db.py
-    ├── init_admin.py
-    ├── init_kontostand.py
-    ├── init_mappings.py
-    ├── init_roadmap.py
-    ├── migrate_db.py
-    ├── migrate_to_postgres.py
-    ├── setup_mappings.py
-    ├── test_email.py
-    ├── update_db_for_anhaenge.py
 ├── migrations/
     ├── README
     ├── alembic.ini
@@ -37,11 +41,14 @@ Erstellt am: 2025-03-11 23:04:12
     ├── script.py.mako
     ├── versions/
         ├── 31d2927bca31_add_previous_year_balance_to_.py
+        ├── 468c1c7db981_jahresdaten_für_tops_und_dokumente.py
         ├── 63dbb09c8eed_initial_migration.py
+        ├── cebd3d623c59_anpassung_der_selbstverwaltung_name_als_.py
 ├── models.py
 ├── prompt-anweisung.txt
 ├── requirements.txt
 ├── roadmap-recommendations.md
+├── roadmap-recommendations.pdf
 ├── routes/
     ├── __init__.py
     ├── abrechnung.py
@@ -49,7 +56,9 @@ Erstellt am: 2025-03-11 23:04:12
     ├── dashboard.py
     ├── miteigentuemer.py
     ├── settings.py
+    ├── setup.py
     ├── transaktionen.py
+    ├── vorlagen.py
     ├── wirtschaftsplan.py
 ├── services/
     ├── __init__.py
@@ -60,6 +69,7 @@ Erstellt am: 2025-03-11 23:04:12
     ├── kontostand_service.py
     ├── logging_service.py
     ├── transaktion_service.py
+    ├── vorlagen_service.py
     ├── wirtschaftsplan_service.py
 ├── static/
     ├── css/
@@ -72,6 +82,7 @@ Erstellt am: 2025-03-11 23:04:12
         ├── csrf-setup.js
         ├── forms.js
         ├── jquery.min.js
+        ├── mobile-optimizations.js
         ├── password-strength.js
 ├── templates/
     ├── abrechnung/
@@ -100,6 +111,7 @@ Erstellt am: 2025-03-11 23:04:12
         ├── 500.html
         ├── simple_404.html
     ├── layout.html
+    ├── layout_minimal.html
     ├── miteigentuemer/
         ├── bearbeiten.html
         ├── liste.html
@@ -114,32 +126,41 @@ Erstellt am: 2025-03-11 23:04:12
         ├── jahresabschluss_neu.html
         ├── kategorie_mapping.html
         ├── kontostand_manage.html
+        ├── log_settings.html
         ├── logs.html
         ├── parameter_settings.html
+        ├── roadmap.html
+        ├── selbstverwaltung.html
         ├── systeminfo.html
         ├── user_edit.html
         ├── user_new.html
         ├── users_list.html
+    ├── setup/
+        ├── index.html
+        ├── restart.html
     ├── transaktionen/
         ├── anhang.html
         ├── bearbeiten.html
         ├── liste.html
         ├── neu.html
         ├── upload.html
+    ├── vorlagen/
+        ├── briefe/
+            ├── bearbeiten.html
+            ├── liste.html
+            ├── neu.html
+            ├── vorschau.html
+        ├── dokumente/
+            ├── liste.html
+        ├── tops/
+            ├── bearbeiten.html
+            ├── liste.html
+            ├── neu.html
     ├── wirtschaftsplan/
         ├── bearbeiten.html
         ├── import.html
         ├── neu.html
         ├── uebersicht.html
-├── test_email_config.py
-├── uploads/
-    ├── rechnungen/
-    ├── transaktionen_weg.csv
-    ├── transaktionen_weg.xlsx
-    ├── transaktionen_weg2.csv
-    ├── transaktionen_weg2.xlsx
-    ├── wirtschaftsplan_2024.xlsx
-    ├── wirtschaftsplan_2025.xlsx
 ├── utils/
     ├── __init__.py
     ├── email.py
@@ -150,5 +171,5 @@ Erstellt am: 2025-03-11 23:04:12
     ├── security.py
     ├── utils.py
 ├── weg_abrechnung.db
-├── weg_app_structure.txt
 ├── wsgi.py
+├── x_init_db.py
