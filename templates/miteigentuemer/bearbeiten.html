@@ -5,111 +5,58 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Miteigentümer bearbeiten</h1>
-    <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Zurück zur Übersicht</a>
+    <div class="btn-group">
+        <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Zurück zur Übersicht</a>
+        <a href="{{ url_for('miteigentuemer.anteil_bearbeiten', miteigentuemer_id=miteigentuemer.id) }}"
+            class="btn btn-outline-primary">Anteile bearbeiten</a>
+    </div>
 </div>
 
 <div class="card">
     <div class="card-header bg-light">
-        <h5 class="mb-0">{{ miteigentuemer.name }}</h5>
+        <h5 class="mb-0">Kontaktinformationen für {{ miteigentuemer.name }}</h5>
     </div>
     <div class="card-body">
         <form method="POST" action="{{ url_for('miteigentuemer.bearbeiten', miteigentuemer_id=miteigentuemer.id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ miteigentuemer.name }}"
-                    required>
-                <small class="form-text text-muted">Vollständiger Name des Miteigentümers</small>
+                <label for="strasse" class="form-label">Straße</label>
+                <input type="text" class="form-control" id="strasse" name="strasse"
+                    value="{{ miteigentuemer.strasse or '' }}">
+                <small class="form-text text-muted">Straße und Hausnummer</small>
             </div>
 
             <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="mea" class="form-label">MEA-Werte</label>
-                    <input type="number" class="form-control" id="mea" name="mea" min="0"
-                        value="{{ miteigentuemer.mea }}" required>
-                    <small class="form-text text-muted">Miteigentumsanteile (z.B. 70327)</small>
+                <div class="col-md-4">
+                    <label for="plz" class="form-label">PLZ</label>
+                    <input type="text" class="form-control" id="plz" name="plz" value="{{ miteigentuemer.plz or '' }}">
                 </div>
-                <div class="col-md-6">
-                    <label for="einheiten" class="form-label">Einheiten</label>
-                    <input type="number" class="form-control" id="einheiten" name="einheiten" min="0"
-                        value="{{ miteigentuemer.einheiten }}">
-                    <small class="form-text text-muted">Anzahl der Wohneinheiten</small>
+                <div class="col-md-8">
+                    <label for="ort" class="form-label">Ort</label>
+                    <input type="text" class="form-control" id="ort" name="ort" value="{{ miteigentuemer.ort or '' }}">
                 </div>
             </div>
 
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <label for="vf_einheiten" class="form-label">VF-Einheiten</label>
-                    <input type="number" class="form-control" id="vf_einheiten" name="vf_einheiten" min="0"
-                        value="{{ miteigentuemer.vf_einheiten }}">
-                    <small class="form-text text-muted">Verteilerfaktor-Einheiten für Wohnungen</small>
-                </div>
-                <div class="col-md-6">
-                    <label for="tg_einheiten" class="form-label">TG-Einheiten</label>
-                    <input type="number" class="form-control" id="tg_einheiten" name="tg_einheiten" min="0"
-                        value="{{ miteigentuemer.tg_einheiten }}">
-                    <small class="form-text text-muted">Tiefgaragen-Einheiten</small>
-                </div>
-            </div>
             <div class="mb-3">
-                <label for="guthaben_jahr" class="form-label">Guthaben-Jahr</label>
-                <select class="form-select" id="guthaben_jahr" name="guthaben_jahr">
-                    {% for y in range(vorjahr-3, vorjahr+1) %}
-                    <option value="{{ y }}" {% if miteigentuemer.guthaben_jahr==y %}selected{% endif %}>{{ y }}</option>
-                    {% endfor %}
-                </select>
+                <label for="telefon" class="form-label">Telefon</label>
+                <input type="tel" class="form-control" id="telefon" name="telefon"
+                    value="{{ miteigentuemer.telefon or '' }}">
+                <small class="form-text text-muted">Telefonnummer für Kontaktaufnahme</small>
             </div>
-            
+
             <div class="mb-3">
-                <label for="guthaben_vorjahr" class="form-label">Guthaben-Betrag</label>
-                <div class="input-group">
-                    <input type="number" class="form-control" id="guthaben_vorjahr" name="guthaben_vorjahr"
-                        value="{{ miteigentuemer.guthaben_vorjahr or '0.00' }}" step="0.01">
-                    <span class="input-group-text">€</span>
-                </div>
-                <div class="form-text">Positiver Wert = Guthaben, Negativer Wert = offene Forderung</div>
+                <label for="email" class="form-label">E-Mail</label>
+                <input type="email" class="form-control" id="email" name="email"
+                    value="{{ miteigentuemer.email or '' }}">
+                <small class="form-text text-muted">E-Mail-Adresse für Benachrichtigungen</small>
             </div>
+
             <div class="d-flex justify-content-between">
                 <button type="submit" class="btn btn-primary">Speichern</button>
                 <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
             </div>
         </form>
-    </div>
-</div>
-
-<div class="card mt-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Transaktionen dieses Miteigentümers</h5>
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>Datum</th>
-                        <th>Beschreibung</th>
-                        <th>Kostenart</th>
-                        <th class="text-end">Betrag</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for transaktion in miteigentuemer.transaktionen %}
-                    <tr>
-                        <td>{{ transaktion.datum.strftime('%d.%m.%Y') }}</td>
-                        <td>{{ transaktion.beschreibung | truncate(50) }}</td>
-                        <td>{{ transaktion.kostenart }}</td>
-                        <td class="text-end {{ 'text-success' if transaktion.betrag > 0 else 'text-danger' }}">
-                            {{ "%.2f"|format(transaktion.betrag) }} €
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" class="text-center py-3">Keine Transaktionen gefunden.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
     </div>
 </div>
 {% endblock %}

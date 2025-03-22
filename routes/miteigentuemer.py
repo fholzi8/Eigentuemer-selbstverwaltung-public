@@ -3,7 +3,7 @@ Miteigentümer-Blueprint zur Verwaltung von Miteigentümern
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from models import db, Miteigentuemer
 from datetime import datetime
 from decimal import Decimal
@@ -68,9 +68,10 @@ def neu():
     
     return render_template('miteigentuemer/neu.html', vorjahr=vorjahr, jahre=jahre)
 
-@miteigentuemer_bp.route('/<int:miteigentuemer_id>', methods=['GET', 'POST'])
+@miteigentuemer_bp.route('/<int:miteigentuemer_id>/anteile', methods=['GET', 'POST'])
 @login_required
-def bearbeiten(miteigentuemer_id):
+def anteil_bearbeiten(miteigentuemer_id):
+    """Bearbeitet die Anteile eines Miteigentümers"""
     miteigentuemer = Miteigentuemer.query.get_or_404(miteigentuemer_id)
     
     if request.method == 'POST':
@@ -86,13 +87,52 @@ def bearbeiten(miteigentuemer_id):
         miteigentuemer.guthaben_vorjahr = Decimal(str(guthaben_vorjahr))
         miteigentuemer.guthaben_jahr = request.form.get('guthaben_jahr', type=int, default=2023)
         
-        db.session.commit()
-        flash(f'Miteigentümer {miteigentuemer.name} wurde aktualisiert', 'success')
+        try:
+            db.session.commit()
+            flash(f'Miteigentümer {miteigentuemer.name} wurde aktualisiert', 'success')
+        except Exception as e:
+            from utils.error_handling import handle_db_error
+            handle_db_error(e, "Miteigentümer Anteile aktualisieren", current_user.id, {
+                'miteigentuemer_id': miteigentuemer_id
+            })
+            flash(f'Fehler beim Aktualisieren des Miteigentümers: {str(e)}', 'danger')
+        
         return redirect(url_for('miteigentuemer.liste'))
     
     # Vorjahr für die Anzeige bestimmen (aktuelles Jahr - 1)
     vorjahr = datetime.now().year - 1
     
-    return render_template('miteigentuemer/bearbeiten.html', 
+    return render_template('miteigentuemer/anteil_bearbeiten.html', 
                           miteigentuemer=miteigentuemer,
                           vorjahr=vorjahr)
+
+@miteigentuemer_bp.route('/<int:miteigentuemer_id>', methods=['GET', 'POST'])
+@login_required
+def bearbeiten(miteigentuemer_id):
+    """Bearbeitet die Kontaktdaten eines Miteigentümers"""
+    miteigentuemer = Miteigentuemer.query.get_or_404(miteigentuemer_id)
+    
+    if request.method == 'POST':
+        # Kontaktdaten aktualisieren
+        miteigentuemer.strasse = request.form.get('strasse')
+        miteigentuemer.plz = request.form.get('plz')
+        miteigentuemer.ort = request.form.get('ort')
+        miteigentuemer.telefon = request.form.get('telefon')
+        miteigentuemer.email = request.form.get('email')
+        
+        # has_contact_info Flag setzen, wenn mindestens E-Mail oder Telefon vorhanden ist
+        miteigentuemer.has_contact_info = bool(miteigentuemer.email or miteigentuemer.telefon)
+        
+        try:
+            db.session.commit()
+            flash(f'Kontaktdaten von {miteigentuemer.name} wurden aktualisiert', 'success')
+        except Exception as e:
+            from utils.error_handling import handle_db_error
+            handle_db_error(e, "Miteigentümer Kontaktdaten aktualisieren", current_user.id, {
+                'miteigentuemer_id': miteigentuemer_id
+            })
+            flash(f'Fehler beim Aktualisieren der Kontaktdaten: {str(e)}', 'danger')
+        
+        return redirect(url_for('miteigentuemer.liste'))
+    
+    return render_template('miteigentuemer/bearbeiten.html', miteigentuemer=miteigentuemer)

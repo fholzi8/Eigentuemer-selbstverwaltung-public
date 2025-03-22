@@ -95,7 +95,6 @@ class User(UserMixin, db.Model):
         return User.query.get(user_id)
 
 # Klasse für Miteigentümer
-# In models.py - Miteigentuemer-Klasse ergänzen
 class Miteigentuemer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
@@ -107,6 +106,16 @@ class Miteigentuemer(db.Model):
     # Neues Feld für das Guthaben aus dem Vorjahr
     guthaben_vorjahr = db.Column(db.Numeric(10, 2), default=0.00)
     guthaben_jahr = db.Column(db.Integer, default=2023)  # Jahr, aus dem das Guthaben stammt
+    
+    # Neue Kontaktinformationsfelder
+    strasse = db.Column(db.String(200), nullable=True)
+    plz = db.Column(db.String(10), nullable=True)
+    ort = db.Column(db.String(100), nullable=True)
+    telefon = db.Column(db.String(50), nullable=True)
+    email = db.Column(db.String(100), nullable=True)
+    
+    # Flag, ob Kontaktinformationen vollständig sind
+    has_contact_info = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
         return f'<Miteigentuemer {self.name}>'
