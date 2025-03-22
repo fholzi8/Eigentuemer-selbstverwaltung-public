@@ -241,3 +241,12 @@ def schedule_log_cleanup():
             category='system',
             level='info'
         )
+
+def log_system_event(message, level='info', details=None, user_id=None):
+    """Helper für System-Logs"""
+    system_details = {}
+    
+    if details:
+        system_details.update(details)
+    
+    return log_event('system', level, message, details=system_details, user_id=user_id)

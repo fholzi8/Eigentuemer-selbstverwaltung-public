@@ -27,6 +27,7 @@
                         <option value="wirtschaftsplan" {% if category=='wirtschaftsplan' %}selected{% endif %}>
                             Wirtschaftsplan</option>
                         <option value="user" {% if category=='user' %}selected{% endif %}>Benutzer</option>
+                        <option value="system" {% if category=='system' %}selected{% endif %}>System</option>
                         <option value="error" {% if category=='error' %}selected{% endif %}>Fehler</option>
                     </select>
                 </div>
@@ -86,6 +87,12 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link {{ 'active' if category == 'system' else '' }}"
+                href="{{ url_for('settings.logs_view', category='system', level=level, days=days) }}">
+                System
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link {{ 'active' if category == 'error' else '' }}"
                 href="{{ url_for('settings.logs_view', category='error', level=level, days=days) }}">
                 Fehler
@@ -128,6 +135,7 @@
                                 {% if log.category == 'transaction' %}bg-primary
                                 {% elif log.category == 'wirtschaftsplan' %}bg-success
                                 {% elif log.category == 'user' %}bg-info
+                                {% elif log.category == 'system' %}bg-dark
                                 {% elif log.category == 'error' %}bg-danger
                                 {% else %}bg-secondary{% endif %}">
                                 {{ log.category }}
