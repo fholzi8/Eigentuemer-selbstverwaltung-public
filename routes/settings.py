@@ -12,7 +12,8 @@ from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, Wirts
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
-from services.logging_service import get_logs, log_user_event, log_error, get_log_retention_days, set_log_retention_days, cleanup_old_logs
+from services.logging_service import get_logs, log_user_event, log_event, log_error, get_log_retention_days, set_log_retention_days, cleanup_old_logs
+from utils.error_handling import handle_db_error
 from datetime import datetime, timedelta
 
 
@@ -737,40 +738,107 @@ def update_roadmap():
         return redirect(url_for('dashboard.index'))
     
     try:
-        # Bestehende Einträge löschen
-        RoadmapItem.query.delete()
+        # Bestehende Einträge zählen und ausgeben
+        existing_items = RoadmapItem.query.all()
+        #for item in existing_items:
+        #    print(f"  - ID {item.id}: {item.timeframe}, '{item.title}', Status: {item.status}")
         
-        # Kurzfristige Ziele
-        short_term_items = request.form.to_dict(flat=False)
-        for timeframe in ['short_term', 'medium_term', 'long_term']:
-            if f'{timeframe}[0][title]' in request.form:
-                # Ermittle die Anzahl der Elemente
+        # Bestehende Einträge löschen
+        delete_result = RoadmapItem.query.delete()
+        
+        # Neue Einträge zählen
+        new_items_count = 0
+        new_items = []  # Für Logging-Zwecke
+        
+        # Timeframes und alle möglichen Formular-Feldnamen
+        timeframes_mapping = {
+            'short_term': ['short_term', 'shortTerm'],
+            'medium_term': ['medium_term', 'mediumTerm'],
+            'long_term': ['long_term', 'longTerm']
+        }
+        
+        # Timeframes durchgehen
+        for db_timeframe, field_names in timeframes_mapping.items():
+            timeframe_count = 0
+            
+            # Verschiedene mögliche Feldnamen-Formate durchgehen
+            for field_name in field_names:
                 i = 0
-                while f'{timeframe}[{i}][title]' in request.form:
-                    title = request.form.get(f'{timeframe}[{i}][title]')
-                    description = request.form.get(f'{timeframe}[{i}][description]', '')
-                    status = request.form.get(f'{timeframe}[{i}][status]', 'planned')
+                # Durchlaufe alle möglichen Indices bis wir keinen Titel mehr finden
+                while True:
+                    title_key = f"{field_name}[{i}][title]"
                     
-                    if title.strip():  # Nur Einträge mit Titel hinzufügen
-                        item = RoadmapItem(
-                            title=title,
-                            description=description,
-                            status=status,
-                            timeframe=timeframe,
-                            position=i
-                        )
-                        db.session.add(item)
+                    if title_key in request.form:
+                        title = request.form.get(title_key, '').strip()
+                        description = request.form.get(f"{field_name}[{i}][description]", '')
+                        status = request.form.get(f"{field_name}[{i}][status]", 'planned')
+                        
+                        if title:
+                            item = RoadmapItem(
+                                title=title,
+                                description=description,
+                                status=status,
+                                timeframe=db_timeframe,
+                                position=i
+                            )
+                            db.session.add(item)
+                            new_items.append({
+                                'timeframe': db_timeframe,
+                                'title': title,
+                                'status': status
+                            })
+                            timeframe_count += 1
+                            new_items_count += 1
+                            #print(f"  ✓ Eintrag hinzugefügt: {db_timeframe}[{i}] - Titel: '{title}', Status: '{status}'")
+                    else:
+                        break  # Wenn ein Index nicht gefunden wird, brechen wir für dieses Feldnamen-Format ab
                     
                     i += 1
+                    # Vorsichtshalber eine Grenze setzen
+                    if i >= 50:
+                        break
         
+        # Änderungen speichern
         db.session.commit()
-        flash("Roadmap wurde erfolgreich aktualisiert.", "success")
+        
+        # Log-Eintrag erstellen
+        from services.logging_service import log_event
+        log_event(
+            category='system',
+            level='info',
+            message=f"Roadmap erfolgreich aktualisiert mit {new_items_count} Einträgen",
+            details={
+                'roadmap_items': new_items,
+                'user': current_user.username
+            },
+            user_id=current_user.id
+        )
+        
+        # Ergebnis verifizieren
+        final_items = RoadmapItem.query.all()
+        
+        #flash(f"Roadmap wurde erfolgreich aktualisiert. {new_items_count} Einträge gespeichert.", "success")
     except Exception as e:
         db.session.rollback()
-        flash(f"Fehler beim Aktualisieren der Roadmap: {str(e)}", "error")
+        # Fehler loggen
+        from services.logging_service import log_error
+        from utils.error_handling import handle_db_error  # Dieser Import fehlt in deinem Code
+        
+        log_error(
+            message=f"Fehler beim Aktualisieren der Roadmap: {str(e)}",
+            exception=e,
+            user_id=current_user.id,
+            details={'form_data': dict(request.form)}
+        )
+        
+        handle_db_error(e, "Roadmap aktualisieren", current_user.id, {
+            'form_data': dict(request.form)
+        })
+        
         current_app.logger.error(f"Fehler beim Aktualisieren der Roadmap: {str(e)}")
+        flash(f"Fehler beim Aktualisieren der Roadmap: {str(e)}", "error")
     
-    return redirect(url_for('settings.systeminfo'))
+    return redirect(url_for('settings.roadmap_view'))
 
 
 @settings_bp.route('/jahresabschluss', methods=['GET'])

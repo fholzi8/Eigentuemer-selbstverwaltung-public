@@ -52,7 +52,7 @@ class Config:
         'font-src': "'self' cdnjs.cloudflare.com cdn.jsdelivr.net",
         'connect-src': "'self'",
         'form-action': "'self'",
-        'report-uri': '/csp-report'
+        'report-uri': '/logs/csp-report'
     }
 
 

@@ -19,6 +19,10 @@ if os.environ.get('FLASK_ENV') != 'development':
 # Anwendung importieren
 from app import app as application
 
+# Nach dem Import der Anwendung
+from utils.error_handling import setup_global_error_handler
+setup_global_error_handler(application)
+
 # Datenbank-Modelle importieren (wichtig für das ORM)
 from models import db, User, Miteigentuemer, Transaktion, Wirtschaftsplan, WirtschaftsplanMetadata
 

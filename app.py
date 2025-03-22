@@ -19,7 +19,7 @@ from models import db, User
 from routes import all_blueprints
 from extensions import limiter, mail
 from services.email_config_service import load_email_configs_to_app
-
+from utils.error_handling import setup_global_error_handler
 
 # CSRF-Schutz initialisieren
 csrf = CSRFProtect()
@@ -42,6 +42,9 @@ migrate = Migrate(app, db)
 # Extensions initialisieren
 csrf.init_app(app)
 limiter.init_app(app)
+
+# Nach der Initialisierung aller Extensions
+setup_global_error_handler(app)
 
 # Nach der Initialisierung der Datenbank und vor der Initialisierung von Flask-Mail
 with app.app_context():

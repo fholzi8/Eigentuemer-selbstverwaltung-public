@@ -1,5 +1,5 @@
 Verzeichnisstruktur für: /Users/fholzi8/VSCode - Programme/WEG-App
-Erstellt am: 2025-03-18 07:47:15
+Erstellt am: 2025-03-22 12:57:02
 ================================================================================
 
 ├── .env
@@ -11,6 +11,8 @@ Erstellt am: 2025-03-18 07:47:15
 ├── app.py
 ├── config.py
 ├── data/
+    ├── db/
+        ├── weg_abrechnung.db
     ├── manual-scripts/
         ├── backup.sh
     ├── uploads/
@@ -56,7 +58,6 @@ Erstellt am: 2025-03-18 07:47:15
     ├── dashboard.py
     ├── miteigentuemer.py
     ├── settings.py
-    ├── setup.py
     ├── transaktionen.py
     ├── vorlagen.py
     ├── wirtschaftsplan.py
@@ -111,7 +112,6 @@ Erstellt am: 2025-03-18 07:47:15
         ├── 500.html
         ├── simple_404.html
     ├── layout.html
-    ├── layout_minimal.html
     ├── miteigentuemer/
         ├── bearbeiten.html
         ├── liste.html
@@ -135,9 +135,6 @@ Erstellt am: 2025-03-18 07:47:15
         ├── user_edit.html
         ├── user_new.html
         ├── users_list.html
-    ├── setup/
-        ├── index.html
-        ├── restart.html
     ├── transaktionen/
         ├── anhang.html
         ├── bearbeiten.html
@@ -170,6 +167,4 @@ Erstellt am: 2025-03-18 07:47:15
         ├── export.py
     ├── security.py
     ├── utils.py
-├── weg_abrechnung.db
 ├── wsgi.py
-├── x_init_db.py
