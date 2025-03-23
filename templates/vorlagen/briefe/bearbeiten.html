@@ -61,55 +61,73 @@
     </div>
 </div>
 
-<div class="card mt-4">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Verfügbare Platzhalter</h5>
+<div class="row">
+    <div class="col-md-4">
+        <h6>Allgemeine Platzhalter</h6>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{datum}}</code>
+                <span>Aktuelles Datum (z.B. 17.03.2025)</span>
+            </li>
+        </ul>
     </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <h6>Allgemeine Platzhalter</h6>
-                <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{datum}}</code>
-                        <span>Aktuelles Datum (z.B. 17.03.2025)</span>
-                    </li>
-                </ul>
-            </div>
-            <div class="col-md-6">
-                <h6>WEG-Platzhalter</h6>
-                <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{weg_name}}</code>
-                        <span>Name der WEG</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{adresse}}</code>
-                        <span>Adresse der WEG</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{plz}}</code>
-                        <span>PLZ der WEG</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{ort}}</code>
-                        <span>Ort der WEG</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{verwalter}}</code>
-                        <span>Name des Verwalters</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{beirat}}</code>
-                        <span>Beiratsvorsitz (optional)</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <code>{{beisitzer}}</code>
-                        <span>Beisitzer (optional)</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    <div class="col-md-4">
+        <h6>WEG-Platzhalter</h6>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{weg_name}}</code>
+                <span>Name der WEG</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{adresse}}</code>
+                <span>Adresse der WEG</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{plz}}</code>
+                <span>PLZ der WEG</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{ort}}</code>
+                <span>Ort der WEG</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{verwalter}}</code>
+                <span>Name des Verwalters</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{beirat}}</code>
+                <span>Beiratsvorsitz (optional)</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{beisitzer}}</code>
+                <span>Beisitzer (optional)</span>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <h6>Miteigentümer-Platzhalter</h6>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{name}}</code>
+                <span>Name des Miteigentümers</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{mea}}</code>
+                <span>MEA-Werte</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{strasse}}</code>
+                <span>Straße des Miteigentümers</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{plz_empfaenger}}</code>
+                <span>PLZ des Miteigentümers</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <code>{{ort_empfaenger}}</code>
+                <span>Ort des Miteigentümers</span>
+            </li>
+        </ul>
     </div>
 </div>
 {% endblock %}

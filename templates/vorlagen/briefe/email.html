@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block title %}- E-Mail versenden: {{ vorlage.titel }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Brief per E-Mail versenden</h1>
+    <div>
+        <a href="{{ url_for('vorlagen.brief_vorschau', vorlage_id=vorlage.id) }}" class="btn btn-outline-info me-2">
+            <i class="bi bi-eye"></i> Vorschau
+        </a>
+        <a href="{{ url_for('vorlagen.briefe_liste') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Zurück zur Liste
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ vorlage.titel }} per E-Mail versenden</h5>
+        <span class="badge bg-primary">{{ 'Eigentümerversammlung' if vorlage.typ == 'eigentuemerversammlung' else
+            'Umlaufbeschluss' if vorlage.typ == 'umlaufbeschluss' else
+            'Rundschreiben' }}</span>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('vorlagen.brief_email', vorlage_id=vorlage.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+                <label for="subject" class="form-label">Betreff</label>
+                <input type="text" class="form-control" id="subject" name="subject"
+                    value="WEG-Info: {{ vorlage.titel }}" required>
+                <div class="form-text">Der Betreff der E-Mail</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Empfänger</label>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Wählen Sie die Miteigentümer aus, an die Sie die E-Mail senden möchten.
+                </div>
+
+                <div class="form-check form-check-inline mb-2">
+                    <input class="form-check-input" type="checkbox" id="selectAll">
+                    <label class="form-check-label" for="selectAll">Alle auswählen</label>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;"></th>
+                                <th>Name</th>
+                                <th>E-Mail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in miteigentuemer %}
+                            {% if m.email %}
+                            <tr>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input recipient-checkbox" type="checkbox"
+                                            name="miteigentuemer_{{ m.id }}" id="miteigentuemer_{{ m.id }}">
+                                    </div>
+                                </td>
+                                <td>{{ m.name }}</td>
+                                <td>{{ m.email }}</td>
+                            </tr>
+                            {% endif %}
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-3">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Keine Miteigentümer mit E-Mail-Adresse gefunden.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-envelope"></i> E-Mails senden
+                </button>
+                <a href="{{ url_for('vorlagen.briefe_liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce }}">
+    document.addEventListener('DOMContentLoaded', function () {
+        // "Alle auswählen" Checkbox-Funktionalität
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const recipientCheckboxes = document.querySelectorAll('.recipient-checkbox');
+
+        selectAllCheckbox.addEventListener('change', function () {
+            recipientCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+
+        // Aktualisiere "Alle auswählen", wenn einzelne Checkboxen geändert werden
+        recipientCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const allChecked = Array.from(recipientCheckboxes).every(cb => cb.checked);
+                const anyChecked = Array.from(recipientCheckboxes).some(cb => cb.checked);
+
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+            });
+        });
+    });
+</script>
+{% endblock %}

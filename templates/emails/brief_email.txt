@@ -1,0 +1,8 @@
+{{ title }}
+=========================================
+
+{{ content }}
+
+------------------------------------------
+Diese E-Mail wurde automatisch über die WEG-App der {{ selbstverwaltung.name }} versendet.
+Bei Fragen wenden Sie sich bitte an {{ selbstverwaltung.verwalter }} ({{ selbstverwaltung.email }}).

@@ -10,7 +10,7 @@ import datetime
 from sqlalchemy import desc
 
 from models import db, BriefVorlage, TagesordnungspunktVorlage, WichtigesDokument, Miteigentuemer, User, Selbstverwaltung
-from services.vorlagen_service import get_brief_vorlagen, get_tops, get_wichtige_dokumente
+from services.vorlagen_service import get_brief_vorlagen, get_tops, get_wichtige_dokumente, send_template_email
 from services.anhang_service import save_anhang, delete_anhang
 
 vorlagen_bp = Blueprint('vorlagen', __name__, url_prefix='/vorlagen')
@@ -425,3 +425,40 @@ def dokument_loeschen(dokument_id):
         flash(f'Fehler beim Löschen des Dokuments: {str(e)}', 'danger')
     
     return redirect(url_for('vorlagen.dokumente_liste'))
+
+@vorlagen_bp.route('/briefe/<int:vorlage_id>/email', methods=['GET', 'POST'])
+@login_required
+def brief_email(vorlage_id):
+    """Brief-Vorlage per E-Mail senden"""
+    
+    vorlage = BriefVorlage.query.get_or_404(vorlage_id)
+    
+    # Alle Miteigentümer mit E-Mail-Adresse laden
+    miteigentuemer = Miteigentuemer.query.filter(Miteigentuemer.email.isnot(None)).all()
+    
+    if not miteigentuemer:
+        flash('Es sind keine Miteigentümer mit E-Mail-Adresse vorhanden.', 'warning')
+        return redirect(url_for('vorlagen.brief_vorschau', vorlage_id=vorlage_id))
+    
+    if request.method == 'POST':
+        # Miteigentümer-IDs aus dem Formular extrahieren
+        selected_ids = [int(key.split('_')[1]) for key in request.form if key.startswith('miteigentuemer_') and request.form.get(key) == 'on']
+        
+        if not selected_ids:
+            flash('Bitte wählen Sie mindestens einen Empfänger aus.', 'warning')
+            return redirect(url_for('vorlagen.brief_email', vorlage_id=vorlage_id))
+        
+        # Betreff aus dem Formular
+        subject = request.form.get('subject') or f"WEG-Info: {vorlage.titel}"
+        
+        # E-Mails senden
+        result = send_template_email(vorlage_id, selected_ids, subject)
+        
+        if result['success']:
+            flash(result['message'], 'success')
+        else:
+            flash(result['message'], 'danger')
+        
+        return redirect(url_for('vorlagen.briefe_liste'))
+    
+    return render_template('vorlagen/briefe/email.html', vorlage=vorlage, miteigentuemer=miteigentuemer)

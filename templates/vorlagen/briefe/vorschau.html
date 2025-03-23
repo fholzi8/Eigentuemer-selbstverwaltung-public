@@ -39,11 +39,15 @@
     </div>
     <div class="card-footer bg-light">
         <div class="d-flex justify-content-between">
-            <button class="btn btn-primary" onclick="window.print()">
-                <i class="bi bi-printer"></i> Drucken
-            </button>
-            <a href="{{ url_for('vorlagen.brief_bearbeiten', vorlage_id=vorlage.id) }}"
-                class="btn btn-outline-secondary">
+            <div>
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Drucken
+                </button>
+                <a href="{{ url_for('vorlagen.brief_email', vorlage_id=vorlage.id) }}" class="btn btn-success ms-2">
+                    <i class="bi bi-envelope"></i> Per E-Mail senden
+                </a>
+            </div>
+            <a href="{{ url_for('vorlagen.brief_bearbeiten', vorlage_id=vorlage.id) }}" class="btn btn-outline-secondary">
                 Zurück zur Bearbeitung
             </a>
         </div>

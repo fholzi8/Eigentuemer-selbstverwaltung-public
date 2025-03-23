@@ -45,13 +45,14 @@
                         <td>{{ vorlage.aktualisiert_am.strftime('%d.%m.%Y') }}</td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <a href="{{ url_for('vorlagen.brief_bearbeiten', vorlage_id=vorlage.id) }}"
-                                    class="btn btn-outline-primary">
+                                <a href="{{ url_for('vorlagen.brief_bearbeiten', vorlage_id=vorlage.id) }}" class="btn btn-outline-primary">
                                     <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Bearbeiten</span>
                                 </a>
-                                <a href="{{ url_for('vorlagen.brief_vorschau', vorlage_id=vorlage.id) }}"
-                                    class="btn btn-outline-info">
+                                <a href="{{ url_for('vorlagen.brief_vorschau', vorlage_id=vorlage.id) }}" class="btn btn-outline-info">
                                     <i class="bi bi-eye"></i> <span class="d-none d-md-inline">Vorschau</span>
+                                </a>
+                                <a href="{{ url_for('vorlagen.brief_email', vorlage_id=vorlage.id) }}" class="btn btn-outline-success">
+                                    <i class="bi bi-envelope"></i> <span class="d-none d-md-inline">E-Mail</span>
                                 </a>
                                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                                     data-bs-target="#deleteModal{{ vorlage.id }}">
@@ -109,13 +110,34 @@
     </div>
     <div class="card-body">
         <p>Brief-Vorlagen können folgende Platzhalter verwenden:</p>
-        <ul>
-            <li><code>{{datum}}</code> - Aktuelles Datum</li>
-            <li><code>{{name}}</code> - Name des Miteigentümers</li>
-            <li><code>{{adresse}}</code> - Adresse der WEG</li>
-            <li><code>{{hausmeister}}</code> - Name des Hausmeisters</li>
-            <li><code>{{mea}}</code> - Miteigentumsanteile</li>
-        </ul>
+        <div class="row">
+            <div class="col-md-4">
+                <h6>Allgemeine Platzhalter</h6>
+                <ul>
+                    <li><code>{{datum}}</code> - Aktuelles Datum</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6>WEG-Platzhalter</h6>
+                <ul>
+                    <li><code>{{weg_name}}</code> - Name der WEG</li>
+                    <li><code>{{adresse}}</code> - Adresse der WEG</li>
+                    <li><code>{{plz}}</code> - PLZ der WEG</li>
+                    <li><code>{{ort}}</code> - Ort der WEG</li>
+                    <li><code>{{verwalter}}</code> - Name des Verwalters</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6>Miteigentümer-Platzhalter</h6>
+                <ul>
+                    <li><code>{{name}}</code> - Name des Miteigentümers</li>
+                    <li><code>{{mea}}</code> - Miteigentumsanteile</li>
+                    <li><code>{{strasse}}</code> - Straße des Miteigentümers</li>
+                    <li><code>{{plz_empfaenger}}</code> - PLZ des Miteigentümers</li>
+                    <li><code>{{ort_empfaenger}}</code> - Ort des Miteigentümers</li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
