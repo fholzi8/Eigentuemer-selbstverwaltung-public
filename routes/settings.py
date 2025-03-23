@@ -332,7 +332,7 @@ def delete_data():
             flash(f"{wp_count} Wirtschaftsplaneinträge und {meta_count} Metadaten wurden gelöscht", "success")
         
         elif data_type == 'miteigentuemer':
-            # Lösche alle Miteigentümer
+            # Löscht alle Miteigentümer
             # Zuerst alle Transaktionen aktualisieren, die auf Miteigentümer verweisen
             Transaktion.query.update({'miteigentuemer_id': None})
             
@@ -1187,3 +1187,13 @@ def selbstverwaltung():
         return redirect(url_for('settings.selbstverwaltung'))
     
     return render_template('settings/selbstverwaltung.html', daten=daten)
+
+@settings_bp.route('/export/miteigentuemer', methods=['GET'])
+@login_required
+def export_miteigentuemer():
+    """
+    Exportiert Miteigentümer
+    """
+    from utils.export.export import export_miteigentuemer_as_csv
+    
+    return export_miteigentuemer_as_csv()

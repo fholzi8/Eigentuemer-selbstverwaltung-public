@@ -59,4 +59,43 @@
         </form>
     </div>
 </div>
+<div class="card">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Bankdaten für {{ miteigentuemer.name }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('miteigentuemer.bank_update', miteigentuemer_id=miteigentuemer.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+                <label for="kontoinhaber" class="form-label">Kontoinhaber</label>
+                <input type="text" class="form-control" id="kontoinhaber" name="kontoinhaber"
+                    value="{{ miteigentuemer.kontoinhaber or miteigentuemer.name }}">
+                <small class="form-text text-muted">Name des Kontoinhabers (falls abweichend vom Miteigentümer)</small>
+            </div>
+
+            <div class="mb-3">
+                <label for="iban" class="form-label">IBAN</label>
+                <input type="text" class="form-control" id="iban" name="iban" value="{{ miteigentuemer.iban or '' }}">
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="bic" class="form-label">BIC</label>
+                    <input type="text" class="form-control" id="bic" name="bic" value="{{ miteigentuemer.bic or '' }}">
+                </div>
+                <div class="col-md-8">
+                    <label for="bank_name" class="form-label">Bank</label>
+                    <input type="text" class="form-control" id="bank_name" name="bank_name"
+                        value="{{ miteigentuemer.bank_name or '' }}">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">Bankdaten speichern</button>
+                <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

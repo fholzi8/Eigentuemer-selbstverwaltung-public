@@ -114,8 +114,16 @@ class Miteigentuemer(db.Model):
     telefon = db.Column(db.String(50), nullable=True)
     email = db.Column(db.String(100), nullable=True)
     
+    # Bankdaten
+    iban = db.Column(db.String(34), nullable=True)
+    bic = db.Column(db.String(11), nullable=True)
+    bank_name = db.Column(db.String(100), nullable=True)
+    kontoinhaber = db.Column(db.String(200), nullable=True)
+    
     # Flag, ob Kontaktinformationen vollständig sind
     has_contact_info = db.Column(db.Boolean, default=False)
+    # Flag, ob Bankdaten vollständig sind
+    has_bank_info = db.Column(db.Boolean, default=False)
     
     def __repr__(self):
         return f'<Miteigentuemer {self.name}>'

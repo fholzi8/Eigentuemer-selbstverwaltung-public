@@ -64,6 +64,11 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                Nach dem Erstellen des Miteigentümers können Sie weitere Informationen wie Kontaktdaten und Bankverbindung
+                hinzufügen.
+            </div>
             <div class="d-flex justify-content-between">
                 <button type="submit" class="btn btn-primary">Speichern</button>
                 <a href="{{ url_for('miteigentuemer.liste') }}" class="btn btn-outline-secondary">Abbrechen</a>

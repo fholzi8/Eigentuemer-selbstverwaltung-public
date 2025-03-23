@@ -136,3 +136,31 @@ def bearbeiten(miteigentuemer_id):
         return redirect(url_for('miteigentuemer.liste'))
     
     return render_template('miteigentuemer/bearbeiten.html', miteigentuemer=miteigentuemer)
+
+@miteigentuemer_bp.route('/<int:miteigentuemer_id>/bank', methods=['POST'])
+@login_required
+def bank_update(miteigentuemer_id):
+    """Aktualisiert die Bankdaten eines Miteigentümers"""
+    miteigentuemer = Miteigentuemer.query.get_or_404(miteigentuemer_id)
+    
+    if request.method == 'POST':
+        # Bankdaten aktualisieren
+        miteigentuemer.kontoinhaber = request.form.get('kontoinhaber')
+        miteigentuemer.iban = request.form.get('iban')
+        miteigentuemer.bic = request.form.get('bic')
+        miteigentuemer.bank_name = request.form.get('bank_name')
+        
+        # has_bank_info Flag setzen, wenn IBAN vorhanden ist
+        miteigentuemer.has_bank_info = bool(miteigentuemer.iban)
+        
+        try:
+            db.session.commit()
+            flash(f'Bankdaten von {miteigentuemer.name} wurden aktualisiert', 'success')
+        except Exception as e:
+            from utils.error_handling import handle_db_error
+            handle_db_error(e, "Miteigentümer Bankdaten aktualisieren", current_user.id, {
+                'miteigentuemer_id': miteigentuemer_id
+            })
+            flash(f'Fehler beim Aktualisieren der Bankdaten: {str(e)}', 'danger')
+        
+        return redirect(url_for('miteigentuemer.bearbeiten', miteigentuemer_id=miteigentuemer_id))

@@ -394,3 +394,55 @@ def export_abrechnung_as_excel(abrechnungen, jahr):
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment;filename={filename}"}
     )
+
+def export_miteigentuemer_as_csv(miteigentuemer_list=None):
+    """
+    Exportiert Miteigentümer als CSV-Datei
+    
+    Args:
+        miteigentuemer_list (list, optional): Liste der zu exportierenden Miteigentümer
+        
+    Returns:
+        Response: Flask-Response mit CSV-Datei
+    """
+    from io import StringIO
+    import csv
+    from datetime import datetime
+    from flask import Response, current_app
+    
+    if miteigentuemer_list is None:
+        from models import Miteigentuemer
+        miteigentuemer_list = Miteigentuemer.query.all()
+    
+    # CSV erstellen
+    csv_data = StringIO()
+    csv_writer = csv.writer(csv_data)
+    
+    # Spaltenüberschriften
+    headers = [
+        'ID', 'Name', 'MEA', 'VF-Einheiten', 'TG-Einheiten', 'Einheiten', 
+        'Guthaben', 'Guthaben-Jahr', 'Straße', 'PLZ', 'Ort', 'Telefon', 'E-Mail',
+        'Kontoinhaber', 'IBAN', 'BIC', 'Bank'
+    ]
+    csv_writer.writerow(headers)
+    
+    # Daten schreiben
+    for m in miteigentuemer_list:
+        row = [
+            m.id, m.name, m.mea, m.vf_einheiten, m.tg_einheiten, m.einheiten,
+            m.guthaben_vorjahr, m.guthaben_jahr, m.strasse, m.plz, m.ort, m.telefon, m.email,
+            m.kontoinhaber, m.iban, m.bic, m.bank_name
+        ]
+        csv_writer.writerow(row)
+    
+    # Response erstellen
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"miteigentuemer_export_{timestamp}.csv"
+    
+    return Response(
+        csv_data.getvalue(),
+        mimetype='text/csv',
+        headers={
+            'Content-Disposition': f'attachment; filename={filename}'
+        }
+    )

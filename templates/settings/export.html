@@ -110,7 +110,35 @@
             </div>
         </div>
     </div>
-
+    <!-- Miteigentümer exportieren -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Miteigentümer exportieren</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Exportieren Sie die Miteigentümer-Daten einschließlich Kontakt- und Bankdaten.</p>
+    
+                {% if stats.miteigentuemer_count > 0 %}
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>{{ stats.miteigentuemer_count }}</strong> Miteigentümer sind in der Datenbank gespeichert.
+                </div>
+    
+                <div class="d-grid">
+                    <a href="{{ url_for('settings.export_miteigentuemer') }}" class="btn btn-primary">
+                        <i class="bi bi-download me-1"></i>Miteigentümer exportieren (CSV)
+                    </a>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Keine Miteigentümer vorhanden.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
     <!-- Kontostände exportieren -->
     <div class="col-md-6 mb-4">
         <div class="card h-100">
