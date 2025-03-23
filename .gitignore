@@ -11,11 +11,16 @@ ENV/
 .env
 
 # Flask
-instance/
+instance/*
+!instance/.gitkeep
 .webassets-cache
+data/*
+!data/.gitkeep
+export/*
+!export/.gitkeep
 
 # Andere gängige Ausschlüsse
 .DS_Store
 .idea/
 .vscode/
-*.log
+*.logdata/*
