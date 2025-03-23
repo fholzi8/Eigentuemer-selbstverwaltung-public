@@ -12,6 +12,7 @@ from models import db, User, Transaktion, Miteigentuemer, Wirtschaftsplan, Wirts
 from services.kategorie_mapping_service import add_mapping, get_all_mappings
 from utils.security import admin_required, is_password_strong
 from services.email_config_service import get_all_email_configs, set_email_config, delete_email_config
+from services.kontostand_service import get_kontostand_history
 from services.logging_service import get_logs, log_user_event, log_event, log_error, get_log_retention_days, set_log_retention_days, cleanup_old_logs
 from utils.error_handling import handle_db_error
 from datetime import datetime, timedelta
@@ -508,6 +509,8 @@ def export_view():
     """
     Zeigt die Export-Optionen an
     """
+    from models import Transaktion, Wirtschaftsplan, Miteigentuemer
+    
     # Verfügbare Jahre für Transaktionen
     jahre = db.session.query(Transaktion.jahr).distinct().order_by(Transaktion.jahr.desc()).all()
     jahre = [j[0] for j in jahre]
@@ -535,8 +538,15 @@ def export_view():
     wp_total = Wirtschaftsplan.query.count()
     
     # Kontostände
-    from services.kontostand_service import get_kontostand_history
     kontostaende = get_kontostand_history()
+    
+    # Statistiken für das Template
+    stats = {
+        'transaktionen_count': tx_total,
+        'miteigentuemer_count': Miteigentuemer.query.count(),
+        'wirtschaftsplan_count': wp_total,
+        'user_count': User.query.count()
+    }
     
     return render_template(
         'settings/export.html',
@@ -546,7 +556,8 @@ def export_view():
         wp_jahre=wp_jahre,
         wp_count_by_year=wp_count_by_year,
         wp_total=wp_total,
-        kontostaende=kontostaende
+        kontostaende=kontostaende,
+        stats=stats
     )
 
 @settings_bp.route('/export/transaktionen', methods=['GET'])
