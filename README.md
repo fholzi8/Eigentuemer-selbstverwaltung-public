@@ -1,6 +1,8 @@
 WEG-Abrechnungsanwendung ist eine Flask Anwendung
 ==================================================
 
+! Attention: Ich habe versehentlich ein paar Lösch-Funktionen und Darstellung bei Miteigentümer gelöscht. Korrigiert ist es im private branch, wenn jemand das benötigt bitte bei mir melden. Danke!
+
 Diese Flask-Web-Anwendung ist für die Verwaltung und Abrechnung einer Wohneigentümergemeinschaft (WEG) 
 entwickelt worden mit die folgende Hauptfunktionen bietet: 
 
